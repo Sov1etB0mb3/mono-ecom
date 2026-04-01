@@ -1,0 +1,4 @@
+org.springframework.test.context.ContextCustomizerFactory = \
+    com.calt.buroxz.config.SqlTestContainersSpringContextCustomizerFactory,com.\
+    calt.buroxz.config.TestContainersSpringContextCustomizerFactory,com.calt.\
+    buroxz.config.RedisTestContainersSpringContextCustomizerFactory
