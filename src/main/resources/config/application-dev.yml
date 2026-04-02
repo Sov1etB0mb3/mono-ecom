@@ -100,3 +100,9 @@ jhipster:
 # ===================================================================
 
 # application:
+keycloak:
+  server-url: http://localhost:9080 # Your Keycloak URL
+  realm: jhipster
+  client-id: admin-cli
+  username: admin
+  password: admin
