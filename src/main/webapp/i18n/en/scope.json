@@ -1,0 +1,26 @@
+{
+  "monoEcomApp": {
+    "scope": {
+      "home": {
+        "title": "Scopes",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Scope",
+        "createOrEditLabel": "Create or edit a Scope",
+        "search": "Search for Scope",
+        "notFound": "No Scopes found"
+      },
+      "created": "A new Scope is created with identifier {{ param }}",
+      "updated": "A Scope is updated with identifier {{ param }}",
+      "deleted": "A Scope is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Scope {{ id }}?"
+      },
+      "detail": {
+        "title": "Scope"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description"
+    }
+  }
+}

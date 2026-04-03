@@ -93,10 +93,9 @@ jhipster:
 keycloak:
   realm: jhipster
   server-url: localhost:9080
-  admin:
-    username: ${KEYCLOAK_ADMIN_USERNAME:admin}
-    password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
-    client-id: admin-cli
+  username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+  password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+  client-id: admin-cli
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

@@ -1,0 +1,26 @@
+{
+  "monoEcomApp": {
+    "scope": {
+      "home": {
+        "title": "Scopes",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Scope",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Scope",
+        "search": "Tìm Scope",
+        "notFound": "No Scopes found"
+      },
+      "created": "Một Scope mới được tạo với định danh {{ param }}",
+      "updated": "Một Scope cập nhật với định danh {{ param }}",
+      "deleted": "Một Scope đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Scope {{ id }}?"
+      },
+      "detail": {
+        "title": "Scope"
+      },
+      "id": "ID",
+      "name": "Name",
+      "description": "Description"
+    }
+  }
+}

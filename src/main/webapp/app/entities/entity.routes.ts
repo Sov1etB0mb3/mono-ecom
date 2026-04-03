@@ -6,6 +6,21 @@ const routes: Routes = [
     data: { pageTitle: 'monoEcomApp.adminAuthority.home.title' },
     loadChildren: () => import('./admin/authority/authority.routes'),
   },
+  {
+    path: 'category',
+    data: { pageTitle: 'monoEcomApp.category.home.title' },
+    loadChildren: () => import('./category/category.routes'),
+  },
+  {
+    path: 'product',
+    data: { pageTitle: 'monoEcomApp.product.home.title' },
+    loadChildren: () => import('./product/product.routes'),
+  },
+  {
+    path: 'scope',
+    data: { pageTitle: 'monoEcomApp.scope.home.title' },
+    loadChildren: () => import('./scope/scope.routes'),
+  },
   /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
 ];
 
