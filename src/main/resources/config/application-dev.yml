@@ -90,6 +90,13 @@ jhipster:
       host: localhost
       port: 5000
       ring-buffer-size: 512
+keycloak:
+  realm: jhipster
+  server-url: localhost:9080
+  admin:
+    username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+    password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+    client-id: admin-cli
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
@@ -100,9 +107,3 @@ jhipster:
 # ===================================================================
 
 # application:
-keycloak:
-  server-url: http://localhost:9080 # Your Keycloak URL
-  realm: jhipster
-  client-id: admin-cli
-  username: admin
-  password: admin
