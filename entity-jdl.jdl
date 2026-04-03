@@ -14,36 +14,25 @@ entity Product {
 
 }
 
-entity Permission {
+entity Scope {
   name String required unique maxlength(50)
   description String maxlength(255)
 }
-entity Role{
-  name String required unique maxlength(30)
-  description String maxlength(255)
-}
+
 
 relationship OneToMany {
-  Category{listProduct} to Product{category}
+  Category{listProduct} to Product{category(name)}
 }
-//entity User
-relationship ManyToMany {
-  Role{permission(name)} to Permission{role}
-  //  User{role} to Role{user} with builtInEntity
-}
-
-// Service and pagination options
 
 service Product with serviceClass
 service Category with serviceClass
-service Role with serviceClass
-service Permission with serviceClass
+service Scope with serviceClass
+
 
 paginate Category with pagination
 paginate Product with  pagination
-paginate Role with pagination
-paginate Permission with pagination
+paginate Scope with  pagination
 
-dto * with mapstruct except Role, Permission
+dto * with mapstruct except Scope
 
 
