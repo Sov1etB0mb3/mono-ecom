@@ -6,51 +6,44 @@ entity Category {
 }
 
 entity Product {
- name String required minlength(3)
- quantity Integer required
- price Double required
- createdAt Instant
- updatedAt Instant
+  name String required minlength(3)
+  quantity Integer required
+  price Double required
+  createdAt Instant
+  updatedAt Instant
 
 }
 
-entity RolePermission {
-  // Add RolePermission fields here
-}
-entity Role {
-  name String required
-  description String
-}
 entity Permission {
-  name String required
-  description String
+  name String required unique maxlength(50)
+  description String maxlength(255)
 }
-
+entity Role{
+  name String required unique maxlength(30)
+  description String maxlength(255)
+}
 
 relationship OneToMany {
   Category{listProduct} to Product{category}
 }
-relationship ManyToOne {
-  RolePermission{role required} to Role{permissions}
-  RolePermission{permission required} to Permission{rolePermission}
-
+//entity User
+relationship ManyToMany {
+  Role{permission(name)} to Permission{role}
+  //  User{role} to Role{user} with builtInEntity
 }
 
 // Service and pagination options
-service User with serviceClass
-service Role with serviceClass
-service RolePermission with serviceClass
-service Permission with serviceClass
+
 service Product with serviceClass
 service Category with serviceClass
+service Role with serviceClass
+service Permission with serviceClass
 
-
-paginate User with pagination
-paginate Permission with pagination
-paginate Role with pagination
 paginate Category with pagination
 paginate Product with  pagination
+paginate Role with pagination
+paginate Permission with pagination
 
-dto * with mapstruct
+dto * with mapstruct except Role, Permission
 
 
