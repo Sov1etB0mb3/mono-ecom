@@ -193,6 +193,7 @@ public class SecurityConfiguration {
      * @return a {@link GrantedAuthoritiesMapper} that maps groups from
      * the IdP to Spring Security Authorities.
      */
+    //this is where SecurityContextHolder take authorities; not the converter!
     @Bean
     public GrantedAuthoritiesMapper userAuthoritiesMapper() {
         //        return authorities -> {
