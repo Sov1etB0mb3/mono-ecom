@@ -173,7 +173,7 @@ public class UserService {
                 .getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
-                .filter(autority -> autority.startsWith("ROLE_"))
+                .filter(autority -> autority.startsWith("ROLE_")) //to avoid saving others claim that aren't ROLE into Authority table
                 .map(authority -> {
                     Authority auth = new Authority();
                     auth.setName(authority);
