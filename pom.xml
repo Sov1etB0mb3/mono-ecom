@@ -906,7 +906,7 @@
             </activation>
             <properties>
                 <!-- default Spring profiles -->
-                <liquibase-plugin.password/>
+                <liquibase-plugin.password>25251325</liquibase-plugin.password>
                 <liquibase-plugin.url>jdbc:postgresql://localhost:5432/monoEcom</liquibase-plugin.url>
                 <liquibase-plugin.username>monoEcom</liquibase-plugin.username>
                 <profile.test>test,testdev</profile.test>
@@ -1036,7 +1036,7 @@
             <id>prod</id>
             <properties>
                 <!-- default Spring profiles -->
-                <liquibase-plugin.password/>
+                <liquibase-plugin.password>25251325</liquibase-plugin.password>
                 <liquibase-plugin.url>jdbc:postgresql://localhost:5432/monoEcom</liquibase-plugin.url>
                 <liquibase-plugin.username>monoEcom</liquibase-plugin.username>
                 <profile.test>test,testprod</profile.test>

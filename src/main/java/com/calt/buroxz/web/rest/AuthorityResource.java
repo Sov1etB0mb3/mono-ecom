@@ -1,7 +1,9 @@
 package com.calt.buroxz.web.rest;
 
 import com.calt.buroxz.domain.Authority;
+import com.calt.buroxz.domain.Scope;
 import com.calt.buroxz.repository.AuthorityRepository;
+import com.calt.buroxz.service.AuthorityService;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -34,9 +37,11 @@ public class AuthorityResource {
     private String applicationName;
 
     private final AuthorityRepository authorityRepository;
+    private final AuthorityService authorityService;
 
-    public AuthorityResource(AuthorityRepository authorityRepository) {
+    public AuthorityResource(AuthorityRepository authorityRepository, AuthorityService authorityService) {
         this.authorityRepository = authorityRepository;
+        this.authorityService = authorityService;
     }
 
     /**
@@ -68,6 +73,7 @@ public class AuthorityResource {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public List<Authority> getAllAuthorities() {
         LOG.debug("REST request to get all Authorities");
+        LOG.debug("AUTHORITIES: {}", SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         return authorityRepository.findAll();
     }
 
@@ -83,6 +89,13 @@ public class AuthorityResource {
         LOG.debug("REST request to get Authority : {}", id);
         Optional<Authority> authority = authorityRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(authority);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Void> updateScope(@PathVariable("id") String id, @RequestBody List<String> scopeList) {
+        LOG.debug("REST request to update scopes for authority: ID: {}|SCOPES: {}", id, scopeList);
+        return authorityService.updateScopeAuthority(id, scopeList);
     }
 
     /**

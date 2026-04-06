@@ -40,7 +40,7 @@ public class Authority implements Serializable, Persistable<String> {
     @JoinTable(
         name = "jhi_authority_scope",
         joinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") },
-        inverseJoinColumns = { @JoinColumn(name = "scope_name", referencedColumnName = "name") }
+        inverseJoinColumns = { @JoinColumn(name = "scope_id", referencedColumnName = "id") }
     )
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @BatchSize(size = 20)

@@ -1,7 +1,9 @@
 package com.calt.buroxz.service;
 
 import com.calt.buroxz.domain.Authority;
+import com.calt.buroxz.domain.Scope;
 import com.calt.buroxz.repository.AuthorityRepository;
+import com.calt.buroxz.repository.ScopeRepository;
 import com.calt.buroxz.service.dto.request.AuthorityRequest;
 import com.calt.buroxz.service.mapper.AuthorityMapper;
 import com.calt.buroxz.web.rest.AuthorityResource;
@@ -9,11 +11,15 @@ import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.codec.CodecException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -33,10 +39,12 @@ public class AuthorityService {
 
     private final AuthorityMapper authorityMapper;
     private final AuthorityRepository authorityRepository;
+    private final ScopeRepository scopeRepository;
 
-    public AuthorityService(AuthorityRepository authorityRepository, AuthorityMapper authorityMapper) {
+    public AuthorityService(AuthorityRepository authorityRepository, AuthorityMapper authorityMapper, ScopeRepository scopeRepository) {
         this.authorityRepository = authorityRepository;
         this.authorityMapper = authorityMapper;
+        this.scopeRepository = scopeRepository;
     }
 
     /**
@@ -81,6 +89,24 @@ public class AuthorityService {
         LOG.debug("REST request to get Authority : {}", id);
         Optional<Authority> authority = authorityRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(authority);
+    }
+
+    public ResponseEntity<Void> updateScopeAuthority(String name, List<String> scopeList) {
+        Authority authority = authorityRepository
+            .findByName(name)
+            .orElseThrow(() -> new RuntimeException(HttpStatus.NOT_FOUND.getReasonPhrase()));
+        List<Scope> scopes = new ArrayList<>();
+        for (String scopeStr : scopeList) {
+            Scope scope = scopeRepository.findByName(scopeStr);
+            if (scope != null) {
+                scopes.add(scope);
+            }
+        }
+        authority.setScopes(scopes.stream().collect(Collectors.toSet()));
+        authorityRepository.save(authority);
+        return ResponseEntity.noContent()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, authority.getId()))
+            .build();
     }
 
     /**
