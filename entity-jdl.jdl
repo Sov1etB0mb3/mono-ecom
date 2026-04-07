@@ -18,12 +18,14 @@ entity Scope {
   name String required unique maxlength(50)
   description String maxlength(255)
 }
-
+entity Authority{}
 
 relationship OneToMany {
   Category{listProduct} to Product{category(name)}
 }
-
+relationship ManyToMany {
+  Authority{scopes} to Scope{authorities}
+}
 service Product with serviceClass
 service Category with serviceClass
 service Scope with serviceClass
@@ -34,5 +36,6 @@ paginate Product with  pagination
 paginate Scope with  pagination
 
 dto * with mapstruct except Scope
+
 
 
