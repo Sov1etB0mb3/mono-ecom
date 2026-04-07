@@ -35,7 +35,7 @@ paginate Category with pagination
 paginate Product with  pagination
 paginate Scope with  pagination
 
-dto * with mapstruct except Scope
+dto * with mapstruct except Scope, Authority
 
 
 

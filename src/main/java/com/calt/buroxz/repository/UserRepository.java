@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the {@link User} entity.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, String>, CustomizedUserRepository {
     String USERS_BY_LOGIN_CACHE = "usersByLogin";
 
     String USERS_BY_EMAIL_CACHE = "usersByEmail";
@@ -26,9 +26,6 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findOneWithAuthoritiesByLogin(String login);
 
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
-
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.authorities a LEFT JOIN FETCH a.scopes WHERE u.id = :id")
-    Optional<User> getUserWithAuthAndScope(@Param("id") String id);
 
     User getUserById(String id);
 }

@@ -90,7 +90,8 @@ public class ScopeService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    @PreAuthorize("hasAuthority('scope:all')")
+    //automatically convert to camel
+    @PreAuthorize("@authorizationService.hasScope('scope:all')")
     @Transactional(readOnly = true)
     public Page<Scope> findAll(Pageable pageable) {
         LOG.debug("Request to get all Scopes");

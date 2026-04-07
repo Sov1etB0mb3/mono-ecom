@@ -121,7 +121,7 @@ public class SecurityConfiguration {
                     .requestMatchers(mvc.pattern("/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             )
             .oauth2Login(oauth2 -> oauth2.loginPage("/").userInfoEndpoint(userInfo -> userInfo.oidcUserService(this.oidcUserService())))
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(customziedAuthenticationConverter())))
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter())))
             .oauth2Client(withDefaults());
         return http.build();
     }
@@ -153,7 +153,9 @@ public class SecurityConfiguration {
                 public Collection<GrantedAuthority> convert(Jwt jwt) {
                     String id = jwt.getSubject();
                     log.debug("currentUser: " + id);
-                    User user = userRepository.getUserWithAuthAndScope(id).orElseThrow(() -> new RuntimeException("User notfound " + id));
+                    User user = userRepository
+                        .getUserWithAuthAndScopeById(id)
+                        .orElseThrow(() -> new RuntimeException("User notfound " + id));
                     log.debug("User authorities: " + user.getAuthorities());
                     user
                         .getAuthorities()
@@ -196,58 +198,17 @@ public class SecurityConfiguration {
     //This is where SecurityContextHolder take authorities, not from converter anymore!
     @Bean
     public GrantedAuthoritiesMapper userAuthoritiesMapper() {
-        //        return authorities -> {
-        //            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-        //
-        //            authorities.forEach(authority -> {
-        //                // Check for OidcUserAuthority because Spring Security 5.2 returns
-        //                // each scope as a GrantedAuthority, which we don't care about.
-        //                if (authority instanceof OidcUserAuthority) {
-        //                    OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-        //                    mappedAuthorities.addAll(SecurityUtils.extractAuthorityFromClaims(oidcUserAuthority.getUserInfo().getClaims()));
-        //                }
-        //            });
-        //            return mappedAuthorities;
-        //        };
         return authorities -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
             authorities.forEach(authority -> {
+                // Check for OidcUserAuthority because Spring Security 5.2 returns
+                // each scope as a GrantedAuthority, which we don't care about.
                 if (authority instanceof OidcUserAuthority) {
                     OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-
-                    System.out.println("========================================");
-                    System.out.println("USER AUTHORITIES MAPPER CALLED!!!!");
-                    System.out.println("========================================");
-
-                    // 1. Add standard roles from claims
                     mappedAuthorities.addAll(SecurityUtils.extractAuthorityFromClaims(oidcUserAuthority.getUserInfo().getClaims()));
-
-                    // 2. Add scopes from database
-                    String id = oidcUserAuthority.getIdToken().getSubject();
-                    userRepository
-                        .getUserWithAuthAndScope(id)
-                        .ifPresent(user -> {
-                            user
-                                .getAuthorities()
-                                .forEach(auth -> {
-                                    System.out.println("Authority: " + auth.getName());
-                                    auth
-                                        .getScopes()
-                                        .forEach(scope -> {
-                                            System.out.println("  Adding scope: " + scope.getName());
-                                            mappedAuthorities.add(new SimpleGrantedAuthority(scope.getName()));
-                                        });
-                                });
-                        });
-
-                    System.out.println("Final mapped authorities: " + mappedAuthorities);
-                } else {
-                    // Keep other authorities as-is
-                    mappedAuthorities.add(authority);
                 }
             });
-
             return mappedAuthorities;
         };
     }
