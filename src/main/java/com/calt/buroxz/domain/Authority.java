@@ -1,14 +1,10 @@
 package com.calt.buroxz.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.domain.Persistable;
@@ -35,26 +31,7 @@ public class Authority implements Serializable, Persistable<String> {
     @Transient
     private boolean isPersisted;
 
-    @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-        name = "jhi_authority_scope",
-        joinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") },
-        inverseJoinColumns = { @JoinColumn(name = "scope_id", referencedColumnName = "id") }
-    )
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @BatchSize(size = 20)
-    private Set<Scope> scopes = new HashSet<>();
-
     // jhipster-needle-entity-add-field - JHipster will add fields here
-
-    public Set<Scope> getScopes() {
-        return scopes;
-    }
-
-    public void setScopes(Set<Scope> scopes) {
-        this.scopes = scopes;
-    }
 
     public String getName() {
         return this.name;

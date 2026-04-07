@@ -19,11 +19,6 @@
         "title": "Product"
       },
       "id": "ID",
-      "name": "Name",
-      "quantity": "Quantity",
-      "price": "Price",
-      "createdAt": "Created At",
-      "updatedAt": "Updated At",
       "category": "Category"
     }
   }

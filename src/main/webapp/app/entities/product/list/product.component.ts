@@ -1,16 +1,11 @@
 import { Component, NgZone, OnInit, inject, signal } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
 import { Observable, Subscription, combineLatest, filter, tap } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import SharedModule from 'app/shared/shared.module';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
-import { FormatMediumDatetimePipe } from 'app/shared/date';
-import { ItemCountComponent } from 'app/shared/pagination';
 import { FormsModule } from '@angular/forms';
-
-import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
 import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
 import { IProduct } from '../product.model';
 import { EntityArrayResponseType, ProductService } from '../service/product.service';
@@ -19,21 +14,15 @@ import { ProductDeleteDialogComponent } from '../delete/product-delete-dialog.co
 @Component({
   selector: 'jhi-product',
   templateUrl: './product.component.html',
-  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective, FormatMediumDatetimePipe, ItemCountComponent],
+  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective],
 })
 export class ProductComponent implements OnInit {
-  private static readonly NOT_SORTABLE_FIELDS_AFTER_SEARCH = ['name'];
-
   subscription: Subscription | null = null;
   products = signal<IProduct[]>([]);
   isLoading = false;
 
   sortState = sortStateSignal({});
   currentSearch = '';
-
-  itemsPerPage = ITEMS_PER_PAGE;
-  totalItems = 0;
-  page = 1;
 
   public readonly router = inject(Router);
   protected readonly productService = inject(ProductService);
@@ -54,13 +43,7 @@ export class ProductComponent implements OnInit {
   }
 
   search(query: string): void {
-    this.page = 1;
     this.currentSearch = query;
-    const { predicate } = this.sortState();
-    if (query && predicate && ProductComponent.NOT_SORTABLE_FIELDS_AFTER_SEARCH.includes(predicate)) {
-      this.navigateToWithComponentValues(this.getDefaultSortState());
-      return;
-    }
     this.navigateToWithComponentValues(this.sortState());
   }
 
@@ -89,49 +72,35 @@ export class ProductComponent implements OnInit {
   }
 
   navigateToWithComponentValues(event: SortState): void {
-    this.handleNavigation(this.page, event, this.currentSearch);
-  }
-
-  navigateToPage(page: number): void {
-    this.handleNavigation(page, this.sortState(), this.currentSearch);
+    this.handleNavigation(event, this.currentSearch);
   }
 
   protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
-    const page = params.get(PAGE_HEADER);
-    this.page = +(page ?? 1);
     this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data[DEFAULT_SORT_DATA]));
     if (params.has('search') && params.get('search') !== '') {
       this.currentSearch = params.get('search') as string;
-      const { predicate } = this.sortState();
-      if (predicate && ProductComponent.NOT_SORTABLE_FIELDS_AFTER_SEARCH.includes(predicate)) {
-        this.sortState.set({});
-      }
     }
   }
 
   protected onResponseSuccess(response: EntityArrayResponseType): void {
-    this.fillComponentAttributesFromResponseHeader(response.headers);
     const dataFromBody = this.fillComponentAttributesFromResponseBody(response.body);
-    this.products.set(dataFromBody);
+    this.products.set(this.refineData(dataFromBody));
+  }
+
+  protected refineData(data: IProduct[]): IProduct[] {
+    const { predicate, order } = this.sortState();
+    return predicate && order ? data.sort(this.sortService.startSort({ predicate, order })) : data;
   }
 
   protected fillComponentAttributesFromResponseBody(data: IProduct[] | null): IProduct[] {
     return data ?? [];
   }
 
-  protected fillComponentAttributesFromResponseHeader(headers: HttpHeaders): void {
-    this.totalItems = Number(headers.get(TOTAL_COUNT_RESPONSE_HEADER));
-  }
-
   protected queryBackend(): Observable<EntityArrayResponseType> {
-    const { page, currentSearch } = this;
+    const { currentSearch } = this;
 
     this.isLoading = true;
-    const pageToLoad: number = page;
     const queryObject: any = {
-      page: pageToLoad - 1,
-      size: this.itemsPerPage,
-      eagerload: true,
       query: currentSearch,
       sort: this.sortService.buildSortParam(this.sortState()),
     };
@@ -141,11 +110,9 @@ export class ProductComponent implements OnInit {
     return this.productService.query(queryObject).pipe(tap(() => (this.isLoading = false)));
   }
 
-  protected handleNavigation(page: number, sortState: SortState, currentSearch?: string): void {
+  protected handleNavigation(sortState: SortState, currentSearch?: string): void {
     const queryParamsObj = {
       search: currentSearch,
-      page,
-      size: this.itemsPerPage,
       sort: this.sortService.buildSortParam(sortState),
     };
 

@@ -14,14 +14,10 @@ import com.calt.buroxz.IntegrationTest;
 import com.calt.buroxz.domain.Product;
 import com.calt.buroxz.repository.ProductRepository;
 import com.calt.buroxz.repository.search.ProductSearchRepository;
-import com.calt.buroxz.service.ProductService;
 import com.calt.buroxz.service.dto.ProductDTO;
 import com.calt.buroxz.service.mapper.ProductMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -30,13 +26,8 @@ import org.assertj.core.util.IterableUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Streamable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -47,25 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
  * Integration tests for the {@link ProductResource} REST controller.
  */
 @IntegrationTest
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class ProductResourceIT {
-
-    private static final String DEFAULT_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_NAME = "BBBBBBBBBB";
-
-    private static final Integer DEFAULT_QUANTITY = 1;
-    private static final Integer UPDATED_QUANTITY = 2;
-
-    private static final Double DEFAULT_PRICE = 1D;
-    private static final Double UPDATED_PRICE = 2D;
-
-    private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_CREATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-
-    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_UPDATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final String ENTITY_API_URL = "/api/products";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -80,14 +55,8 @@ class ProductResourceIT {
     @Autowired
     private ProductRepository productRepository;
 
-    @Mock
-    private ProductRepository productRepositoryMock;
-
     @Autowired
     private ProductMapper productMapper;
-
-    @Mock
-    private ProductService productServiceMock;
 
     @Autowired
     private ProductSearchRepository productSearchRepository;
@@ -109,12 +78,7 @@ class ProductResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Product createEntity() {
-        return new Product()
-            .name(DEFAULT_NAME)
-            .quantity(DEFAULT_QUANTITY)
-            .price(DEFAULT_PRICE)
-            .createdAt(DEFAULT_CREATED_AT)
-            .updatedAt(DEFAULT_UPDATED_AT);
+        return new Product();
     }
 
     /**
@@ -124,12 +88,7 @@ class ProductResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Product createUpdatedEntity() {
-        return new Product()
-            .name(UPDATED_NAME)
-            .quantity(UPDATED_QUANTITY)
-            .price(UPDATED_PRICE)
-            .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
+        return new Product();
     }
 
     @BeforeEach
@@ -203,69 +162,6 @@ class ProductResourceIT {
 
     @Test
     @Transactional
-    void checkNameIsRequired() throws Exception {
-        long databaseSizeBeforeTest = getRepositoryCount();
-        int searchDatabaseSizeBefore = IterableUtil.sizeOf(productSearchRepository.findAll());
-        // set the field null
-        product.setName(null);
-
-        // Create the Product, which fails.
-        ProductDTO productDTO = productMapper.toDto(product);
-
-        restProductMockMvc
-            .perform(post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(productDTO)))
-            .andExpect(status().isBadRequest());
-
-        assertSameRepositoryCount(databaseSizeBeforeTest);
-
-        int searchDatabaseSizeAfter = IterableUtil.sizeOf(productSearchRepository.findAll());
-        assertThat(searchDatabaseSizeAfter).isEqualTo(searchDatabaseSizeBefore);
-    }
-
-    @Test
-    @Transactional
-    void checkQuantityIsRequired() throws Exception {
-        long databaseSizeBeforeTest = getRepositoryCount();
-        int searchDatabaseSizeBefore = IterableUtil.sizeOf(productSearchRepository.findAll());
-        // set the field null
-        product.setQuantity(null);
-
-        // Create the Product, which fails.
-        ProductDTO productDTO = productMapper.toDto(product);
-
-        restProductMockMvc
-            .perform(post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(productDTO)))
-            .andExpect(status().isBadRequest());
-
-        assertSameRepositoryCount(databaseSizeBeforeTest);
-
-        int searchDatabaseSizeAfter = IterableUtil.sizeOf(productSearchRepository.findAll());
-        assertThat(searchDatabaseSizeAfter).isEqualTo(searchDatabaseSizeBefore);
-    }
-
-    @Test
-    @Transactional
-    void checkPriceIsRequired() throws Exception {
-        long databaseSizeBeforeTest = getRepositoryCount();
-        int searchDatabaseSizeBefore = IterableUtil.sizeOf(productSearchRepository.findAll());
-        // set the field null
-        product.setPrice(null);
-
-        // Create the Product, which fails.
-        ProductDTO productDTO = productMapper.toDto(product);
-
-        restProductMockMvc
-            .perform(post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(productDTO)))
-            .andExpect(status().isBadRequest());
-
-        assertSameRepositoryCount(databaseSizeBeforeTest);
-
-        int searchDatabaseSizeAfter = IterableUtil.sizeOf(productSearchRepository.findAll());
-        assertThat(searchDatabaseSizeAfter).isEqualTo(searchDatabaseSizeBefore);
-    }
-
-    @Test
-    @Transactional
     void getAllProducts() throws Exception {
         // Initialize the database
         insertedProduct = productRepository.saveAndFlush(product);
@@ -275,29 +171,7 @@ class ProductResourceIT {
             .perform(get(ENTITY_API_URL + "?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllProductsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(productServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restProductMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(productServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllProductsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(productServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restProductMockMvc.perform(get(ENTITY_API_URL + "?eagerload=false")).andExpect(status().isOk());
-        verify(productRepositoryMock, times(1)).findAll(any(Pageable.class));
+            .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())));
     }
 
     @Test
@@ -311,12 +185,7 @@ class ProductResourceIT {
             .perform(get(ENTITY_API_URL_ID, product.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.id").value(product.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.quantity").value(DEFAULT_QUANTITY))
-            .andExpect(jsonPath("$.price").value(DEFAULT_PRICE))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
-            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
+            .andExpect(jsonPath("$.id").value(product.getId().intValue()));
     }
 
     @Test
@@ -340,12 +209,6 @@ class ProductResourceIT {
         Product updatedProduct = productRepository.findById(product.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedProduct are not directly saved in db
         em.detach(updatedProduct);
-        updatedProduct
-            .name(UPDATED_NAME)
-            .quantity(UPDATED_QUANTITY)
-            .price(UPDATED_PRICE)
-            .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
         ProductDTO productDTO = productMapper.toDto(updatedProduct);
 
         restProductMockMvc
@@ -458,8 +321,6 @@ class ProductResourceIT {
         Product partialUpdatedProduct = new Product();
         partialUpdatedProduct.setId(product.getId());
 
-        partialUpdatedProduct.quantity(UPDATED_QUANTITY).createdAt(UPDATED_CREATED_AT).updatedAt(UPDATED_UPDATED_AT);
-
         restProductMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedProduct.getId())
@@ -486,13 +347,6 @@ class ProductResourceIT {
         // Update the product using partial update
         Product partialUpdatedProduct = new Product();
         partialUpdatedProduct.setId(product.getId());
-
-        partialUpdatedProduct
-            .name(UPDATED_NAME)
-            .quantity(UPDATED_QUANTITY)
-            .price(UPDATED_PRICE)
-            .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
 
         restProductMockMvc
             .perform(
@@ -619,12 +473,7 @@ class ProductResourceIT {
             .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + product.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())));
     }
 
     protected long getRepositoryCount() {

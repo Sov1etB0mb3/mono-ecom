@@ -15,7 +15,7 @@ describe('Scope e2e test', () => {
   const scopePageUrlPattern = new RegExp('/scope(\\?.*)?$');
   const username = Cypress.env('E2E_USERNAME') ?? 'user';
   const password = Cypress.env('E2E_PASSWORD') ?? 'user';
-  const scopeSample = { name: 'how sometimes' };
+  const scopeSample = { name: 'archive' };
 
   let scope;
 
@@ -160,11 +160,11 @@ describe('Scope e2e test', () => {
     });
 
     it('should create an instance of Scope', () => {
-      cy.get(`[data-cy="name"]`).type('whoa when');
-      cy.get(`[data-cy="name"]`).should('have.value', 'whoa when');
+      cy.get(`[data-cy="name"]`).type('knottily next');
+      cy.get(`[data-cy="name"]`).should('have.value', 'knottily next');
 
-      cy.get(`[data-cy="description"]`).type('brightly drat overfeed');
-      cy.get(`[data-cy="description"]`).should('have.value', 'brightly drat overfeed');
+      cy.get(`[data-cy="description"]`).type('technician however');
+      cy.get(`[data-cy="description"]`).should('have.value', 'technician however');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

@@ -1,29 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable, asapScheduler, map, scheduled } from 'rxjs';
+import { Observable, asapScheduler, scheduled } from 'rxjs';
 
 import { catchError } from 'rxjs/operators';
-
-import dayjs from 'dayjs/esm';
 
 import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
-import { SearchWithPagination } from 'app/core/request/request.model';
+import { Search } from 'app/core/request/request.model';
 import { IProduct, NewProduct } from '../product.model';
 
 export type PartialUpdateProduct = Partial<IProduct> & Pick<IProduct, 'id'>;
-
-type RestOf<T extends IProduct | NewProduct> = Omit<T, 'createdAt' | 'updatedAt'> & {
-  createdAt?: string | null;
-  updatedAt?: string | null;
-};
-
-export type RestProduct = RestOf<IProduct>;
-
-export type NewRestProduct = RestOf<NewProduct>;
-
-export type PartialUpdateRestProduct = RestOf<PartialUpdateProduct>;
 
 export type EntityResponseType = HttpResponse<IProduct>;
 export type EntityArrayResponseType = HttpResponse<IProduct[]>;
@@ -37,50 +24,35 @@ export class ProductService {
   protected resourceSearchUrl = this.applicationConfigService.getEndpointFor('api/products/_search');
 
   create(product: NewProduct): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(product);
-    return this.http
-      .post<RestProduct>(this.resourceUrl, copy, { observe: 'response' })
-      .pipe(map(res => this.convertResponseFromServer(res)));
+    return this.http.post<IProduct>(this.resourceUrl, product, { observe: 'response' });
   }
 
   update(product: IProduct): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(product);
-    return this.http
-      .put<RestProduct>(`${this.resourceUrl}/${this.getProductIdentifier(product)}`, copy, { observe: 'response' })
-      .pipe(map(res => this.convertResponseFromServer(res)));
+    return this.http.put<IProduct>(`${this.resourceUrl}/${this.getProductIdentifier(product)}`, product, { observe: 'response' });
   }
 
   partialUpdate(product: PartialUpdateProduct): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(product);
-    return this.http
-      .patch<RestProduct>(`${this.resourceUrl}/${this.getProductIdentifier(product)}`, copy, { observe: 'response' })
-      .pipe(map(res => this.convertResponseFromServer(res)));
+    return this.http.patch<IProduct>(`${this.resourceUrl}/${this.getProductIdentifier(product)}`, product, { observe: 'response' });
   }
 
   find(id: number): Observable<EntityResponseType> {
-    return this.http
-      .get<RestProduct>(`${this.resourceUrl}/${id}`, { observe: 'response' })
-      .pipe(map(res => this.convertResponseFromServer(res)));
+    return this.http.get<IProduct>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
-    return this.http
-      .get<RestProduct[]>(this.resourceUrl, { params: options, observe: 'response' })
-      .pipe(map(res => this.convertResponseArrayFromServer(res)));
+    return this.http.get<IProduct[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  search(req: SearchWithPagination): Observable<EntityArrayResponseType> {
+  search(req: Search): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
-    return this.http.get<RestProduct[]>(this.resourceSearchUrl, { params: options, observe: 'response' }).pipe(
-      map(res => this.convertResponseArrayFromServer(res)),
-
-      catchError(() => scheduled([new HttpResponse<IProduct[]>()], asapScheduler)),
-    );
+    return this.http
+      .get<IProduct[]>(this.resourceSearchUrl, { params: options, observe: 'response' })
+      .pipe(catchError(() => scheduled([new HttpResponse<IProduct[]>()], asapScheduler)));
   }
 
   getProductIdentifier(product: Pick<IProduct, 'id'>): number {
@@ -109,33 +81,5 @@ export class ProductService {
       return [...productsToAdd, ...productCollection];
     }
     return productCollection;
-  }
-
-  protected convertDateFromClient<T extends IProduct | NewProduct | PartialUpdateProduct>(product: T): RestOf<T> {
-    return {
-      ...product,
-      createdAt: product.createdAt?.toJSON() ?? null,
-      updatedAt: product.updatedAt?.toJSON() ?? null,
-    };
-  }
-
-  protected convertDateFromServer(restProduct: RestProduct): IProduct {
-    return {
-      ...restProduct,
-      createdAt: restProduct.createdAt ? dayjs(restProduct.createdAt) : undefined,
-      updatedAt: restProduct.updatedAt ? dayjs(restProduct.updatedAt) : undefined,
-    };
-  }
-
-  protected convertResponseFromServer(res: HttpResponse<RestProduct>): HttpResponse<IProduct> {
-    return res.clone({
-      body: res.body ? this.convertDateFromServer(res.body) : null,
-    });
-  }
-
-  protected convertResponseArrayFromServer(res: HttpResponse<RestProduct[]>): HttpResponse<IProduct[]> {
-    return res.clone({
-      body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null,
-    });
   }
 }

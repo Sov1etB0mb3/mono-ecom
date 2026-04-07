@@ -15,31 +15,11 @@
           <dd>
             <span>{{ productRef.id }}</span>
           </dd>
-          <dt><span jhiTranslate="monoEcomApp.product.name">Name</span></dt>
-          <dd>
-            <span>{{ productRef.name }}</span>
-          </dd>
-          <dt><span jhiTranslate="monoEcomApp.product.quantity">Quantity</span></dt>
-          <dd>
-            <span>{{ productRef.quantity }}</span>
-          </dd>
-          <dt><span jhiTranslate="monoEcomApp.product.price">Price</span></dt>
-          <dd>
-            <span>{{ productRef.price }}</span>
-          </dd>
-          <dt><span jhiTranslate="monoEcomApp.product.createdAt">Created At</span></dt>
-          <dd>
-            <span>{{ productRef.createdAt | formatMediumDatetime }}</span>
-          </dd>
-          <dt><span jhiTranslate="monoEcomApp.product.updatedAt">Updated At</span></dt>
-          <dd>
-            <span>{{ productRef.updatedAt | formatMediumDatetime }}</span>
-          </dd>
           <dt><span jhiTranslate="monoEcomApp.product.category">Category</span></dt>
           <dd>
             @if (product()!.category) {
               <div>
-                <a [routerLink]="['/category', product()!.category?.id, 'view']">{{ productRef.category?.name }}</a>
+                <a [routerLink]="['/category', product()!.category?.id, 'view']">{{ productRef.category?.id }}</a>
               </div>
             }
           </dd>

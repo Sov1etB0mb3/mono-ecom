@@ -3,24 +3,15 @@ package com.calt.buroxz.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
 
-import com.calt.buroxz.domain.Authority;
-import com.calt.buroxz.domain.Scope;
-import com.calt.buroxz.domain.User;
-import com.calt.buroxz.repository.AuthorityRepository;
-import com.calt.buroxz.repository.ScopeRepository;
-import com.calt.buroxz.repository.UserRepository;
 import com.calt.buroxz.security.*;
 import com.calt.buroxz.security.SecurityUtils;
 import com.calt.buroxz.security.oauth2.AudienceValidator;
 import com.calt.buroxz.security.oauth2.CustomClaimConverter;
-import com.calt.buroxz.service.UserService;
 import com.calt.buroxz.web.filter.SpaWebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +22,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
@@ -49,34 +39,21 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.csrf.*;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import tech.jhipster.config.JHipsterProperties;
 
-@Slf4j
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
     private final JHipsterProperties jHipsterProperties;
-    private final AuthorityRepository authorityRepository;
-    private final UserService userService;
-    private final UserRepository userRepository;
 
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
     private String issuerUri;
 
-    public SecurityConfiguration(
-        JHipsterProperties jHipsterProperties,
-        AuthorityRepository authorityRepository,
-        UserService userService,
-        UserRepository userRepository
-    ) {
+    public SecurityConfiguration(JHipsterProperties jHipsterProperties) {
         this.jHipsterProperties = jHipsterProperties;
-        this.authorityRepository = authorityRepository;
-        this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     @Bean
@@ -121,7 +98,7 @@ public class SecurityConfiguration {
                     .requestMatchers(mvc.pattern("/management/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             )
             .oauth2Login(oauth2 -> oauth2.loginPage("/").userInfoEndpoint(userInfo -> userInfo.oidcUserService(this.oidcUserService())))
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(customziedAuthenticationConverter())))
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter())))
             .oauth2Client(withDefaults());
         return http.build();
     }
@@ -145,39 +122,6 @@ public class SecurityConfiguration {
         return jwtAuthenticationConverter;
     }
 
-    Converter<Jwt, AbstractAuthenticationToken> customziedAuthenticationConverter() {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(
-            new Converter<Jwt, Collection<GrantedAuthority>>() {
-                @Override
-                public Collection<GrantedAuthority> convert(Jwt jwt) {
-                    String id = jwt.getSubject();
-                    log.debug("currentUser: " + id);
-                    User user = userRepository.getUserWithAuthAndScope(id).orElseThrow(() -> new RuntimeException("User notfound " + id));
-                    log.debug("User authorities: " + user.getAuthorities());
-                    user
-                        .getAuthorities()
-                        .forEach(authority -> {
-                            log.debug("Authority: " + authority.getName());
-                            log.debug("Scopes: " + authority.getScopes());
-                        });
-                    List<Authority> authorityList = user.getAuthorities().stream().toList();
-                    Set<GrantedAuthority> scopeList = authorityList
-                        .stream()
-                        .flatMap(authority -> authority.getScopes().stream().map(scope -> new SimpleGrantedAuthority(scope.getName())))
-                        .collect(Collectors.toSet());
-                    List<GrantedAuthority> grantedAuthorities = new ArrayList<>(SecurityUtils.extractAuthorityFromClaims(jwt.getClaims()));
-                    log.debug("After:" + grantedAuthorities.toString());
-                    grantedAuthorities.addAll(scopeList);
-
-                    return grantedAuthorities;
-                }
-            }
-        );
-        jwtAuthenticationConverter.setPrincipalClaimName(PREFERRED_USERNAME);
-        return jwtAuthenticationConverter;
-    }
-
     OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
         final OidcUserService delegate = new OidcUserService();
 
@@ -193,61 +137,19 @@ public class SecurityConfiguration {
      * @return a {@link GrantedAuthoritiesMapper} that maps groups from
      * the IdP to Spring Security Authorities.
      */
-    //This is where SecurityContextHolder take authorities, not from converter anymore!
     @Bean
     public GrantedAuthoritiesMapper userAuthoritiesMapper() {
-        //        return authorities -> {
-        //            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-        //
-        //            authorities.forEach(authority -> {
-        //                // Check for OidcUserAuthority because Spring Security 5.2 returns
-        //                // each scope as a GrantedAuthority, which we don't care about.
-        //                if (authority instanceof OidcUserAuthority) {
-        //                    OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-        //                    mappedAuthorities.addAll(SecurityUtils.extractAuthorityFromClaims(oidcUserAuthority.getUserInfo().getClaims()));
-        //                }
-        //            });
-        //            return mappedAuthorities;
-        //        };
         return authorities -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
             authorities.forEach(authority -> {
+                // Check for OidcUserAuthority because Spring Security 5.2 returns
+                // each scope as a GrantedAuthority, which we don't care about.
                 if (authority instanceof OidcUserAuthority) {
                     OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-
-                    System.out.println("========================================");
-                    System.out.println("USER AUTHORITIES MAPPER CALLED!!!!");
-                    System.out.println("========================================");
-
-                    // 1. Add standard roles from claims
                     mappedAuthorities.addAll(SecurityUtils.extractAuthorityFromClaims(oidcUserAuthority.getUserInfo().getClaims()));
-
-                    // 2. Add scopes from database
-                    String id = oidcUserAuthority.getIdToken().getSubject();
-                    userRepository
-                        .getUserWithAuthAndScope(id)
-                        .ifPresent(user -> {
-                            user
-                                .getAuthorities()
-                                .forEach(auth -> {
-                                    System.out.println("Authority: " + auth.getName());
-                                    auth
-                                        .getScopes()
-                                        .forEach(scope -> {
-                                            System.out.println("  Adding scope: " + scope.getName());
-                                            mappedAuthorities.add(new SimpleGrantedAuthority(scope.getName()));
-                                        });
-                                });
-                        });
-
-                    System.out.println("Final mapped authorities: " + mappedAuthorities);
-                } else {
-                    // Keep other authorities as-is
-                    mappedAuthorities.add(authority);
                 }
             });
-
             return mappedAuthorities;
         };
     }

@@ -1,14 +1,10 @@
 package com.calt.buroxz.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.jboss.resteasy.spi.touri.MappedBy;
 
 /**
  * A Scope.
@@ -16,6 +12,7 @@ import org.jboss.resteasy.spi.touri.MappedBy;
 @Entity
 @Table(name = "scope")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "scope")
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Scope implements Serializable {
 
@@ -48,11 +45,6 @@ public class Scope implements Serializable {
         this.setId(id);
         return this;
     }
-
-    @ManyToMany(mappedBy = "scopes")
-    @JsonIgnore
-    @org.springframework.data.annotation.Transient // ← ADD THIS - tells Spring Data to ignore it
-    private Set<Authority> authorities = new HashSet<>();
 
     public void setId(Long id) {
         this.id = id;

@@ -5,11 +5,13 @@ import com.calt.buroxz.repository.ProductRepository;
 import com.calt.buroxz.repository.search.ProductSearchRepository;
 import com.calt.buroxz.service.dto.ProductDTO;
 import com.calt.buroxz.service.mapper.ProductMapper;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,22 +95,12 @@ public class ProductService {
     /**
      * Get all the products.
      *
-     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<ProductDTO> findAll(Pageable pageable) {
+    public List<ProductDTO> findAll() {
         LOG.debug("Request to get all Products");
-        return productRepository.findAll(pageable).map(productMapper::toDto);
-    }
-
-    /**
-     * Get all the products with eager load of many-to-many relationships.
-     *
-     * @return the list of entities.
-     */
-    public Page<ProductDTO> findAllWithEagerRelationships(Pageable pageable) {
-        return productRepository.findAllWithEagerRelationships(pageable).map(productMapper::toDto);
+        return productRepository.findAll().stream().map(productMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
@@ -120,7 +112,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Optional<ProductDTO> findOne(Long id) {
         LOG.debug("Request to get Product : {}", id);
-        return productRepository.findOneWithEagerRelationships(id).map(productMapper::toDto);
+        return productRepository.findById(id).map(productMapper::toDto);
     }
 
     /**
@@ -138,12 +130,15 @@ public class ProductService {
      * Search for the product corresponding to the query.
      *
      * @param query the query of the search.
-     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<ProductDTO> search(String query, Pageable pageable) {
-        LOG.debug("Request to search for a page of Products for query {}", query);
-        return productSearchRepository.search(query, pageable).map(productMapper::toDto);
+    public List<ProductDTO> search(String query) {
+        LOG.debug("Request to search Products for query {}", query);
+        try {
+            return StreamSupport.stream(productSearchRepository.search(query).spliterator(), false).map(productMapper::toDto).toList();
+        } catch (RuntimeException e) {
+            throw e;
+        }
     }
 }

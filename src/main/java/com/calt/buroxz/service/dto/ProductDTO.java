@@ -1,8 +1,6 @@
 package com.calt.buroxz.service.dto;
 
-import jakarta.validation.constraints.*;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -13,20 +11,6 @@ public class ProductDTO implements Serializable {
 
     private Long id;
 
-    @NotNull
-    @Size(min = 3)
-    private String name;
-
-    @NotNull
-    private Integer quantity;
-
-    @NotNull
-    private Double price;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
-
     private CategoryDTO category;
 
     public Long getId() {
@@ -35,46 +19,6 @@ public class ProductDTO implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public CategoryDTO getCategory() {
@@ -111,11 +55,6 @@ public class ProductDTO implements Serializable {
     public String toString() {
         return "ProductDTO{" +
             "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", quantity=" + getQuantity() +
-            ", price=" + getPrice() +
-            ", createdAt='" + getCreatedAt() + "'" +
-            ", updatedAt='" + getUpdatedAt() + "'" +
             ", category=" + getCategory() +
             "}";
     }

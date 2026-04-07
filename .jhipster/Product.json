@@ -4,43 +4,8 @@
   },
   "applications": "*",
   "dto": "mapstruct",
-  "fields": [
-    {
-      "fieldName": "name",
-      "fieldType": "String",
-      "fieldValidateRules": ["required", "minlength"],
-      "fieldValidateRulesMinlength": "3"
-    },
-    {
-      "fieldName": "quantity",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["required"]
-    },
-    {
-      "fieldName": "price",
-      "fieldType": "Double",
-      "fieldValidateRules": ["required"]
-    },
-    {
-      "fieldName": "createdAt",
-      "fieldType": "Instant"
-    },
-    {
-      "fieldName": "updatedAt",
-      "fieldType": "Instant"
-    }
-  ],
+  "fields": [],
   "name": "Product",
-  "pagination": "pagination",
-  "relationships": [
-    {
-      "otherEntityField": "name",
-      "otherEntityName": "category",
-      "otherEntityRelationshipName": "listProduct",
-      "relationshipName": "category",
-      "relationshipSide": "right",
-      "relationshipType": "many-to-one"
-    }
-  ],
+  "relationships": [],
   "service": "serviceClass"
 }

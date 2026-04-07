@@ -39,7 +39,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/monoEcom
     username: monoEcom
-    password: 25251325
+    password:
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -48,7 +48,6 @@ spring:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
-    enabled: false
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
@@ -91,12 +90,6 @@ jhipster:
       host: localhost
       port: 5000
       ring-buffer-size: 512
-keycloak:
-  realm: jhipster
-  server-url: localhost:9080
-  username: ${KEYCLOAK_ADMIN_USERNAME:admin}
-  password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
-  client-id: admin-cli
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

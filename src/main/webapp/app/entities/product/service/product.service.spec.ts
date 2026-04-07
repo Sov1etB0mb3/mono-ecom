@@ -5,12 +5,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { IProduct } from '../product.model';
 import { sampleWithFullData, sampleWithNewData, sampleWithPartialData, sampleWithRequiredData } from '../product.test-samples';
 
-import { ProductService, RestProduct } from './product.service';
+import { ProductService } from './product.service';
 
-const requireRestSample: RestProduct = {
+const requireRestSample: IProduct = {
   ...sampleWithRequiredData,
-  createdAt: sampleWithRequiredData.createdAt?.toJSON(),
-  updatedAt: sampleWithRequiredData.updatedAt?.toJSON(),
 };
 
 describe('Product Service', () => {

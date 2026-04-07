@@ -46,7 +46,4 @@
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>
-  <changeSet id="20260403044207-1" author="khanhnt">
-    <tagDatabase tag="v1.0-create-scope"/>
-  </changeSet>
 </databaseChangeLog>

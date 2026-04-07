@@ -20,11 +20,6 @@ describe('Product Form Service', () => {
         expect(formGroup.controls).toEqual(
           expect.objectContaining({
             id: expect.any(Object),
-            name: expect.any(Object),
-            quantity: expect.any(Object),
-            price: expect.any(Object),
-            createdAt: expect.any(Object),
-            updatedAt: expect.any(Object),
             category: expect.any(Object),
           }),
         );
@@ -36,11 +31,6 @@ describe('Product Form Service', () => {
         expect(formGroup.controls).toEqual(
           expect.objectContaining({
             id: expect.any(Object),
-            name: expect.any(Object),
-            quantity: expect.any(Object),
-            price: expect.any(Object),
-            createdAt: expect.any(Object),
-            updatedAt: expect.any(Object),
             category: expect.any(Object),
           }),
         );
