@@ -809,6 +809,7 @@
                     <configuration>
                         <changeLogFile>config/liquibase/master.xml</changeLogFile>
                         <diffChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
+                        <migrationSqlOutputFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_rollback.sql</migrationSqlOutputFile>
                         <driver>org.postgresql.Driver</driver>
                         <url>${liquibase-plugin.url}</url>
                         <defaultSchemaName/>
