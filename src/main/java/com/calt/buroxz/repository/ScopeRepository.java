@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface ScopeRepository extends JpaRepository<Scope, Long> {
-    Scope findByName(String name);
+    Scope findByName(String scopeStr);
 }

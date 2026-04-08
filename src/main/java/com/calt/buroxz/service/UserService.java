@@ -104,11 +104,6 @@ public class UserService {
         return authorityRepository.findAll().stream().map(Authority::getName).toList();
     }
 
-    @Transactional(readOnly = true)
-    public User getUserById(String id) {
-        return userRepository.getUserById(id);
-    }
-
     private User syncUserWithIdP(Map<String, Object> details, User user) {
         // save authorities in to sync user roles/groups between IdP and JHipster's local database
         Collection<String> dbAuthorities = getAuthorities();

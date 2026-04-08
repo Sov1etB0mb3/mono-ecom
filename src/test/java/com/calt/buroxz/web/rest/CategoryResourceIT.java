@@ -373,7 +373,7 @@ class CategoryResourceIT {
         Category partialUpdatedCategory = new Category();
         partialUpdatedCategory.setId(category.getId());
 
-        partialUpdatedCategory.name(UPDATED_NAME).description(UPDATED_DESCRIPTION);
+        partialUpdatedCategory.updatedAt(UPDATED_UPDATED_AT);
 
         restCategoryMockMvc
             .perform(

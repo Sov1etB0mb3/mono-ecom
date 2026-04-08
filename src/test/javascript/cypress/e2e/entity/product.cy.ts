@@ -15,7 +15,7 @@ describe('Product e2e test', () => {
   const productPageUrlPattern = new RegExp('/product(\\?.*)?$');
   const username = Cypress.env('E2E_USERNAME') ?? 'user';
   const password = Cypress.env('E2E_PASSWORD') ?? 'user';
-  const productSample = { name: 'strong while shadowbox', quantity: 26032, price: 4306.49 };
+  const productSample = { name: 'while', quantity: 10268, price: 11757.95 };
 
   let product;
 
@@ -160,22 +160,22 @@ describe('Product e2e test', () => {
     });
 
     it('should create an instance of Product', () => {
-      cy.get(`[data-cy="name"]`).type('since even consequently');
-      cy.get(`[data-cy="name"]`).should('have.value', 'since even consequently');
+      cy.get(`[data-cy="name"]`).type('on consign');
+      cy.get(`[data-cy="name"]`).should('have.value', 'on consign');
 
-      cy.get(`[data-cy="quantity"]`).type('8380');
-      cy.get(`[data-cy="quantity"]`).should('have.value', '8380');
+      cy.get(`[data-cy="quantity"]`).type('29621');
+      cy.get(`[data-cy="quantity"]`).should('have.value', '29621');
 
-      cy.get(`[data-cy="price"]`).type('15576.27');
-      cy.get(`[data-cy="price"]`).should('have.value', '15576.27');
+      cy.get(`[data-cy="price"]`).type('2731.13');
+      cy.get(`[data-cy="price"]`).should('have.value', '2731.13');
 
-      cy.get(`[data-cy="createdAt"]`).type('2026-04-02T16:01');
+      cy.get(`[data-cy="createdAt"]`).type('2026-04-02T08:54');
       cy.get(`[data-cy="createdAt"]`).blur();
-      cy.get(`[data-cy="createdAt"]`).should('have.value', '2026-04-02T16:01');
+      cy.get(`[data-cy="createdAt"]`).should('have.value', '2026-04-02T08:54');
 
-      cy.get(`[data-cy="updatedAt"]`).type('2026-04-02T22:33');
+      cy.get(`[data-cy="updatedAt"]`).type('2026-04-03T01:54');
       cy.get(`[data-cy="updatedAt"]`).blur();
-      cy.get(`[data-cy="updatedAt"]`).should('have.value', '2026-04-02T22:33');
+      cy.get(`[data-cy="updatedAt"]`).should('have.value', '2026-04-03T01:54');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

@@ -1,0 +1,26 @@
+{
+  "monoEcomApp": {
+    "authorityScopeLinker": {
+      "home": {
+        "title": "Authority Scope Linkers",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Thêm mới một Authority Scope Linker",
+        "createOrEditLabel": "Thêm mới hoặc cập nhật Authority Scope Linker",
+        "search": "Tìm Authority Scope Linker",
+        "notFound": "No Authority Scope Linkers found"
+      },
+      "created": "Một Authority Scope Linker mới được tạo với định danh {{ param }}",
+      "updated": "Một Authority Scope Linker cập nhật với định danh {{ param }}",
+      "deleted": "Một Authority Scope Linker đã xóa với định danh {{ param }}",
+      "delete": {
+        "question": "Bạn có chắc là muốn xóa Authority Scope Linker {{ id }}?"
+      },
+      "detail": {
+        "title": "Authority Scope Linker"
+      },
+      "id": "ID",
+      "authority": "Authority",
+      "scope": "Scope"
+    }
+  }
+}

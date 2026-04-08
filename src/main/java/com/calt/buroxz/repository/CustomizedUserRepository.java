@@ -16,6 +16,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CustomizedUserRepository {
-    Optional<User> getUserWithAuthAndScopeById(String id);
-    Optional<User> getUserWithAuthAndScopeByUserName(String username);
+    Optional<User> getUserWithAuthById(String id);
+    Optional<User> getUserWithAuthByUserName(String username);
 }

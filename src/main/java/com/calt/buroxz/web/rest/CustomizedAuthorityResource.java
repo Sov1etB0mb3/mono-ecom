@@ -3,6 +3,7 @@ package com.calt.buroxz.web.rest;
 import com.calt.buroxz.domain.Authority;
 import com.calt.buroxz.repository.AuthorityRepository;
 import com.calt.buroxz.service.AuthorityService;
+import com.calt.buroxz.service.CustomizedAuthorityService;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -35,16 +36,16 @@ public class CustomizedAuthorityResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    private final AuthorityService authorityService;
+    private final CustomizedAuthorityService customizedAuthorityService;
 
-    public CustomizedAuthorityResource(AuthorityService authorityService) {
-        this.authorityService = authorityService;
+    public CustomizedAuthorityResource(CustomizedAuthorityService customizedAuthorityService) {
+        this.customizedAuthorityService = customizedAuthorityService;
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> updateScope(@PathVariable("id") String id, @RequestBody List<String> scopeList) {
         LOG.debug("REST request to update scopes for authority: ID: {}|SCOPES: {}", id, scopeList);
-        return authorityService.updateScopeAuthority(id, scopeList);
+        return customizedAuthorityService.updateScopeAuthority(id, scopeList);
     }
 }

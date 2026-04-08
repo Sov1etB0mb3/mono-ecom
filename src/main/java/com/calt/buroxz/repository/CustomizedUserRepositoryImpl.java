@@ -18,12 +18,9 @@ public class CustomizedUserRepositoryImpl implements CustomizedUserRepository {
     private EntityManager entityManager;
 
     @Override
-    public Optional<User> getUserWithAuthAndScopeById(String id) {
+    public Optional<User> getUserWithAuthById(String id) {
         return entityManager
-            .createQuery(
-                "SELECT u FROM User u" + " LEFT JOIN FETCH u.authorities a" + " LEFT JOIN FETCH a.scopes" + " WHERE u.id = :id",
-                User.class
-            )
+            .createQuery("SELECT u FROM User u" + " LEFT JOIN FETCH u.authorities a" + " WHERE u.id = :id", User.class)
             .setParameter("id", id)
             .getResultList()
             .stream()
@@ -31,12 +28,9 @@ public class CustomizedUserRepositoryImpl implements CustomizedUserRepository {
     }
 
     @Override
-    public Optional<User> getUserWithAuthAndScopeByUserName(String username) {
+    public Optional<User> getUserWithAuthByUserName(String username) {
         return entityManager
-            .createQuery(
-                "SELECT u FROM User u" + " LEFT JOIN FETCH u.authorities a" + " LEFT JOIN FETCH a.scopes" + " WHERE u.login = :username",
-                User.class
-            )
+            .createQuery("SELECT u FROM User u" + " LEFT JOIN FETCH u.authorities a" + " WHERE u.login = :username", User.class)
             .setParameter("username", username)
             .getResultList()
             .stream()

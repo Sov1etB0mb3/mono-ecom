@@ -1,6 +1,5 @@
 package com.calt.buroxz.security;
 
-import com.calt.buroxz.domain.Scope;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

@@ -8,9 +8,11 @@
       "entities": {
         "main": "Thực thể",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
+        "adminAuthority": "Authority",
         "category": "Category",
         "product": "Product",
-        "scope": "Scope"
+        "scope": "Scope",
+        "authorityScopeLinker": "Authority Scope Linker"
       },
       "account": {
         "main": "Tài khoản",

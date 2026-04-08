@@ -23,19 +23,30 @@ entity Authority{}
 relationship OneToMany {
   Category{listProduct} to Product{category(name)}
 }
-relationship ManyToMany {
-  Authority{scopes} to Scope{authorities}
+
+//Start linker
+entity AuthorityScopeLinker {
 }
+
+// THE UNIDIRECTIONAL LINK
+// We point TO User and Authority, but we don't add a 'relationship'
+// block inside the User or Authority side.
+relationship ManyToOne {
+  AuthorityScopeLinker{authority} to Authority,
+  AuthorityScopeLinker{scope} to Scope
+}
+//End linker
 service Product with serviceClass
 service Category with serviceClass
 service Scope with serviceClass
+
 
 
 paginate Category with pagination
 paginate Product with  pagination
 paginate Scope with  pagination
 
-dto * with mapstruct except Scope, Authority
+dto * with mapstruct except Scope, Authority, AuthorityScopeLinker
 
 
 

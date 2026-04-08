@@ -21,6 +21,11 @@ const routes: Routes = [
     data: { pageTitle: 'monoEcomApp.scope.home.title' },
     loadChildren: () => import('./scope/scope.routes'),
   },
+  {
+    path: 'authority-scope-linker',
+    data: { pageTitle: 'monoEcomApp.authorityScopeLinker.home.title' },
+    loadChildren: () => import('./authority-scope-linker/authority-scope-linker.routes'),
+  },
   /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
 ];
 

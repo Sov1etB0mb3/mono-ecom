@@ -1,0 +1,22 @@
+{
+  "annotations": {
+    "changelogDate": "20260408035733"
+  },
+  "applications": "*",
+  "fields": [],
+  "name": "AuthorityScopeLinker",
+  "relationships": [
+    {
+      "otherEntityName": "authority",
+      "relationshipName": "authority",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "scope",
+      "relationshipName": "scope",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ]
+}

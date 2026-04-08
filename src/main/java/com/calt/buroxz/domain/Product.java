@@ -7,9 +7,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * A Product.
@@ -18,8 +15,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @Table(name = "product")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "product")
-@EnableJpaAuditing
-@EntityListeners(AuditingEntityListener.class)
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class Product implements Serializable {
 
@@ -46,10 +41,9 @@ public class Product implements Serializable {
     @Column(name = "price", nullable = false)
     private Double price;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at")
     private Instant createdAt;
 
-    @LastModifiedDate
     @Column(name = "updated_at")
     private Instant updatedAt;
 

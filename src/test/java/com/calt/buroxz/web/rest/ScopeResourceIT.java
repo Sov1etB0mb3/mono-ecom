@@ -332,7 +332,7 @@ class ScopeResourceIT {
         Scope partialUpdatedScope = new Scope();
         partialUpdatedScope.setId(scope.getId());
 
-        partialUpdatedScope.name(UPDATED_NAME).description(UPDATED_DESCRIPTION);
+        partialUpdatedScope.description(UPDATED_DESCRIPTION);
 
         restScopeMockMvc
             .perform(

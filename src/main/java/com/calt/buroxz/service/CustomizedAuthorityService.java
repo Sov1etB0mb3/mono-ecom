@@ -1,8 +1,11 @@
 package com.calt.buroxz.service;
 
 import com.calt.buroxz.domain.Authority;
+import com.calt.buroxz.domain.AuthorityScopeLinker;
 import com.calt.buroxz.domain.Scope;
 import com.calt.buroxz.repository.AuthorityRepository;
+import com.calt.buroxz.repository.AuthorityScopeLinkerRepository;
+import com.calt.buroxz.repository.CustomizedAuthorityScopeLinkerRepository;
 import com.calt.buroxz.repository.ScopeRepository;
 import com.calt.buroxz.service.dto.request.AuthorityRequest;
 import com.calt.buroxz.service.mapper.AuthorityMapper;
@@ -20,11 +23,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 @Service
+@Transactional
 public class CustomizedAuthorityService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorityResource.class);
@@ -37,15 +42,21 @@ public class CustomizedAuthorityService {
     private final AuthorityMapper authorityMapper;
     private final AuthorityRepository authorityRepository;
     private final ScopeRepository scopeRepository;
+    private final AuthorityScopeLinkerRepository authLinkerRepo;
+    private final CustomizedAuthorityScopeLinkerRepository customizedAuthLinkerRepo;
 
     public CustomizedAuthorityService(
-        AuthorityRepository authorityRepository,
         AuthorityMapper authorityMapper,
-        ScopeRepository scopeRepository
+        AuthorityRepository authorityRepository,
+        ScopeRepository scopeRepository,
+        AuthorityScopeLinkerRepository authLinkerRepo,
+        CustomizedAuthorityScopeLinkerRepository customizedAuthLinkerRepo
     ) {
-        this.authorityRepository = authorityRepository;
         this.authorityMapper = authorityMapper;
+        this.authorityRepository = authorityRepository;
         this.scopeRepository = scopeRepository;
+        this.authLinkerRepo = authLinkerRepo;
+        this.customizedAuthLinkerRepo = customizedAuthLinkerRepo;
     }
 
     /**
@@ -103,8 +114,14 @@ public class CustomizedAuthorityService {
                 scopes.add(scope);
             }
         }
-        authority.setScopes(scopes.stream().collect(Collectors.toSet()));
-        authorityRepository.save(authority);
+        scopes
+            .stream()
+            .forEach(scope -> {
+                AuthorityScopeLinker authorityScopeLinker = new AuthorityScopeLinker();
+                authorityScopeLinker.setScope(scope);
+                authorityScopeLinker.setAuthority(authority);
+                if (!customizedAuthLinkerRepo.existsLinkerByAuthAndScope(authority, scope)) authLinkerRepo.save(authorityScopeLinker);
+            });
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, authority.getId()))
             .build();

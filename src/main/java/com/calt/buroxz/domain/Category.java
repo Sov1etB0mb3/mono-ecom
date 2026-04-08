@@ -9,9 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * A Category.
@@ -20,9 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @Table(name = "category")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "category")
-@EnableJpaAuditing
 @SuppressWarnings("common-java:DuplicatedBlocks")
-@EntityListeners(AuditingEntityListener.class)
 public class Category implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -47,8 +42,7 @@ public class Category implements Serializable {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @LastModifiedDate
-    @Column(name = "updated_at", updatable = false)
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")

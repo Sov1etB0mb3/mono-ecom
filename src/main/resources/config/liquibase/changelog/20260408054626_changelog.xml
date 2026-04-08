@@ -1,0 +1,18 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="khanhnt (generated)" id="1775627244715-1">
+        <createTable tableName="authority_scope_linker">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="authority_scope_linkerPK"/>
+            </column>
+            <column name="authority_name" type="VARCHAR(50)"/>
+            <column name="scope_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="khanhnt (generated)" id="1775627244715-2">
+        <addForeignKeyConstraint baseColumnNames="scope_id" baseTableName="authority_scope_linker" constraintName="FK490elo4p8bowxhmpftvgpfdyq" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="scope" validate="true"/>
+    </changeSet>
+    <changeSet author="khanhnt (generated)" id="1775627244715-3">
+        <addForeignKeyConstraint baseColumnNames="authority_name" baseTableName="authority_scope_linker" constraintName="FKqm762xah38px6l0t72sjniyve" deferrable="false" initiallyDeferred="false" referencedColumnNames="name" referencedTableName="jhi_authority" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

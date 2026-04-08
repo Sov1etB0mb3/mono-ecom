@@ -1,9 +1,7 @@
 package com.calt.buroxz.web.rest;
 
 import com.calt.buroxz.domain.Authority;
-import com.calt.buroxz.domain.Scope;
 import com.calt.buroxz.repository.AuthorityRepository;
-import com.calt.buroxz.service.AuthorityService;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -15,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -71,7 +68,6 @@ public class AuthorityResource {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public List<Authority> getAllAuthorities() {
         LOG.debug("REST request to get all Authorities");
-        LOG.debug("AUTHORITIES: {}", SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         return authorityRepository.findAll();
     }
 
