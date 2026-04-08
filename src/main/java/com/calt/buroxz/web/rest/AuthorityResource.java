@@ -37,11 +37,9 @@ public class AuthorityResource {
     private String applicationName;
 
     private final AuthorityRepository authorityRepository;
-    private final AuthorityService authorityService;
 
-    public AuthorityResource(AuthorityRepository authorityRepository, AuthorityService authorityService) {
+    public AuthorityResource(AuthorityRepository authorityRepository) {
         this.authorityRepository = authorityRepository;
-        this.authorityService = authorityService;
     }
 
     /**
@@ -89,13 +87,6 @@ public class AuthorityResource {
         LOG.debug("REST request to get Authority : {}", id);
         Optional<Authority> authority = authorityRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(authority);
-    }
-
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<Void> updateScope(@PathVariable("id") String id, @RequestBody List<String> scopeList) {
-        LOG.debug("REST request to update scopes for authority: ID: {}|SCOPES: {}", id, scopeList);
-        return authorityService.updateScopeAuthority(id, scopeList);
     }
 
     /**
