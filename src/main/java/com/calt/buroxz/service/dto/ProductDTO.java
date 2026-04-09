@@ -23,9 +23,13 @@ public class ProductDTO implements Serializable {
     @NotNull
     private Double price;
 
-    private Instant createdAt;
+    private String createdBy;
 
-    private Instant updatedAt;
+    private Instant createdDate;
+
+    private String lastModifiedBy;
+
+    private Instant lastModifiedDate;
 
     private CategoryDTO category;
 
@@ -61,20 +65,36 @@ public class ProductDTO implements Serializable {
         this.price = price;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
+    public Instant getCreatedDate() {
+        return createdDate;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setCreatedDate(Instant createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Instant getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Instant lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     public CategoryDTO getCategory() {
@@ -114,8 +134,10 @@ public class ProductDTO implements Serializable {
             ", name='" + getName() + "'" +
             ", quantity=" + getQuantity() +
             ", price=" + getPrice() +
-            ", createdAt='" + getCreatedAt() + "'" +
-            ", updatedAt='" + getUpdatedAt() + "'" +
+            ", createdBy='" + getCreatedBy() + "'" +
+            ", createdDate='" + getCreatedDate() + "'" +
+            ", lastModifiedBy='" + getLastModifiedBy() + "'" +
+            ", lastModifiedDate='" + getLastModifiedDate() + "'" +
             ", category=" + getCategory() +
             "}";
     }

@@ -22,7 +22,7 @@ import { ProductDeleteDialogComponent } from '../delete/product-delete-dialog.co
   imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective, FormatMediumDatetimePipe, ItemCountComponent],
 })
 export class ProductComponent implements OnInit {
-  private static readonly NOT_SORTABLE_FIELDS_AFTER_SEARCH = ['name'];
+  private static readonly NOT_SORTABLE_FIELDS_AFTER_SEARCH = ['name', 'createdBy', 'lastModifiedBy'];
 
   subscription: Subscription | null = null;
   products = signal<IProduct[]>([]);

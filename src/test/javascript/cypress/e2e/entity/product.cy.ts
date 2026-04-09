@@ -15,7 +15,7 @@ describe('Product e2e test', () => {
   const productPageUrlPattern = new RegExp('/product(\\?.*)?$');
   const username = Cypress.env('E2E_USERNAME') ?? 'user';
   const password = Cypress.env('E2E_PASSWORD') ?? 'user';
-  const productSample = { name: 'while', quantity: 10268, price: 11757.95 };
+  const productSample = { name: 'exhaust transcend gastropod', quantity: 6529, price: 272.29 };
 
   let product;
 
@@ -160,22 +160,14 @@ describe('Product e2e test', () => {
     });
 
     it('should create an instance of Product', () => {
-      cy.get(`[data-cy="name"]`).type('on consign');
-      cy.get(`[data-cy="name"]`).should('have.value', 'on consign');
+      cy.get(`[data-cy="name"]`).type('redress minor once');
+      cy.get(`[data-cy="name"]`).should('have.value', 'redress minor once');
 
-      cy.get(`[data-cy="quantity"]`).type('29621');
-      cy.get(`[data-cy="quantity"]`).should('have.value', '29621');
+      cy.get(`[data-cy="quantity"]`).type('21917');
+      cy.get(`[data-cy="quantity"]`).should('have.value', '21917');
 
-      cy.get(`[data-cy="price"]`).type('2731.13');
-      cy.get(`[data-cy="price"]`).should('have.value', '2731.13');
-
-      cy.get(`[data-cy="createdAt"]`).type('2026-04-02T08:54');
-      cy.get(`[data-cy="createdAt"]`).blur();
-      cy.get(`[data-cy="createdAt"]`).should('have.value', '2026-04-02T08:54');
-
-      cy.get(`[data-cy="updatedAt"]`).type('2026-04-03T01:54');
-      cy.get(`[data-cy="updatedAt"]`).blur();
-      cy.get(`[data-cy="updatedAt"]`).should('have.value', '2026-04-03T01:54');
+      cy.get(`[data-cy="price"]`).type('21149.64');
+      cy.get(`[data-cy="price"]`).should('have.value', '21149.64');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

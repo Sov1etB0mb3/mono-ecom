@@ -1,0 +1,12 @@
+{
+  "monoEcomApp": {
+    "OrderStatus": {
+      "null": "",
+      "PENDING": "PENDING",
+      "PAID": "PAID",
+      "SHIPPED": "SHIPPED",
+      "DELIVERED": "DELIVERED",
+      "CANCELLED": "CANCELLED"
+    }
+  }
+}

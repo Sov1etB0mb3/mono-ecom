@@ -10,11 +10,11 @@ export const sampleWithRequiredData: IProduct = {
 };
 
 export const sampleWithPartialData: IProduct = {
-  id: 22728,
-  name: 'sore ack unsteady',
-  quantity: 6707,
-  price: 8081.23,
-  updatedAt: dayjs('2026-04-02T16:03'),
+  id: 31533,
+  name: 'almost tempting fervently',
+  quantity: 15504,
+  price: 28504.85,
+  createdDate: dayjs('2026-04-02T09:44'),
 };
 
 export const sampleWithFullData: IProduct = {
@@ -22,8 +22,10 @@ export const sampleWithFullData: IProduct = {
   name: 'cafe',
   quantity: 21233,
   price: 2026.75,
-  createdAt: dayjs('2026-04-02T15:34'),
-  updatedAt: dayjs('2026-04-02T10:26'),
+  createdBy: 'hence yuck',
+  createdDate: dayjs('2026-04-03T04:09'),
+  lastModifiedBy: 'until solemnly',
+  lastModifiedDate: dayjs('2026-04-02T09:22'),
 };
 
 export const sampleWithNewData: NewProduct = {

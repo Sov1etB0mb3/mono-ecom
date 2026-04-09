@@ -22,7 +22,7 @@ import { CategoryDeleteDialogComponent } from '../delete/category-delete-dialog.
   imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective, FormatMediumDatetimePipe, ItemCountComponent],
 })
 export class CategoryComponent implements OnInit {
-  private static readonly NOT_SORTABLE_FIELDS_AFTER_SEARCH = ['name', 'description'];
+  private static readonly NOT_SORTABLE_FIELDS_AFTER_SEARCH = ['name', 'description', 'createdBy', 'lastModifiedBy'];
 
   subscription: Subscription | null = null;
   categories = signal<ICategory[]>([]);

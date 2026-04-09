@@ -1,6 +1,5 @@
 package com.calt.buroxz.repository;
 
-import com.calt.buroxz.domain.Authority;
 import com.calt.buroxz.domain.AuthorityScopeLinker;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
@@ -10,6 +9,4 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface AuthorityScopeLinkerRepository extends JpaRepository<AuthorityScopeLinker, Long> {
-    AuthorityScopeLinker findAuthorityScopeLinkerByAuthority(Authority authority);
-}
+public interface AuthorityScopeLinkerRepository extends JpaRepository<AuthorityScopeLinker, Long> {}

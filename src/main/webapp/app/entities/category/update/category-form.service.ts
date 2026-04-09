@@ -19,23 +19,25 @@ type CategoryFormGroupInput = ICategory | PartialWithRequiredKeyOf<NewCategory>;
 /**
  * Type that converts some properties for forms.
  */
-type FormValueOf<T extends ICategory | NewCategory> = Omit<T, 'createdAt' | 'updatedAt'> & {
-  createdAt?: string | null;
-  updatedAt?: string | null;
+type FormValueOf<T extends ICategory | NewCategory> = Omit<T, 'createdDate' | 'lastModifiedDate'> & {
+  createdDate?: string | null;
+  lastModifiedDate?: string | null;
 };
 
 type CategoryFormRawValue = FormValueOf<ICategory>;
 
 type NewCategoryFormRawValue = FormValueOf<NewCategory>;
 
-type CategoryFormDefaults = Pick<NewCategory, 'id' | 'createdAt' | 'updatedAt'>;
+type CategoryFormDefaults = Pick<NewCategory, 'id' | 'createdDate' | 'lastModifiedDate'>;
 
 type CategoryFormGroupContent = {
   id: FormControl<CategoryFormRawValue['id'] | NewCategory['id']>;
   name: FormControl<CategoryFormRawValue['name']>;
   description: FormControl<CategoryFormRawValue['description']>;
-  createdAt: FormControl<CategoryFormRawValue['createdAt']>;
-  updatedAt: FormControl<CategoryFormRawValue['updatedAt']>;
+  createdBy: FormControl<CategoryFormRawValue['createdBy']>;
+  createdDate: FormControl<CategoryFormRawValue['createdDate']>;
+  lastModifiedBy: FormControl<CategoryFormRawValue['lastModifiedBy']>;
+  lastModifiedDate: FormControl<CategoryFormRawValue['lastModifiedDate']>;
 };
 
 export type CategoryFormGroup = FormGroup<CategoryFormGroupContent>;
@@ -61,8 +63,10 @@ export class CategoryFormService {
       description: new FormControl(categoryRawValue.description, {
         validators: [Validators.maxLength(100)],
       }),
-      createdAt: new FormControl(categoryRawValue.createdAt),
-      updatedAt: new FormControl(categoryRawValue.updatedAt),
+      createdBy: new FormControl(categoryRawValue.createdBy),
+      createdDate: new FormControl(categoryRawValue.createdDate),
+      lastModifiedBy: new FormControl(categoryRawValue.lastModifiedBy),
+      lastModifiedDate: new FormControl(categoryRawValue.lastModifiedDate),
     });
   }
 
@@ -85,16 +89,16 @@ export class CategoryFormService {
 
     return {
       id: null,
-      createdAt: currentTime,
-      updatedAt: currentTime,
+      createdDate: currentTime,
+      lastModifiedDate: currentTime,
     };
   }
 
   private convertCategoryRawValueToCategory(rawCategory: CategoryFormRawValue | NewCategoryFormRawValue): ICategory | NewCategory {
     return {
       ...rawCategory,
-      createdAt: dayjs(rawCategory.createdAt, DATE_TIME_FORMAT),
-      updatedAt: dayjs(rawCategory.updatedAt, DATE_TIME_FORMAT),
+      createdDate: dayjs(rawCategory.createdDate, DATE_TIME_FORMAT),
+      lastModifiedDate: dayjs(rawCategory.lastModifiedDate, DATE_TIME_FORMAT),
     };
   }
 
@@ -103,8 +107,8 @@ export class CategoryFormService {
   ): CategoryFormRawValue | PartialWithRequiredKeyOf<NewCategoryFormRawValue> {
     return {
       ...category,
-      createdAt: category.createdAt ? category.createdAt.format(DATE_TIME_FORMAT) : undefined,
-      updatedAt: category.updatedAt ? category.updatedAt.format(DATE_TIME_FORMAT) : undefined,
+      createdDate: category.createdDate ? category.createdDate.format(DATE_TIME_FORMAT) : undefined,
+      lastModifiedDate: category.lastModifiedDate ? category.lastModifiedDate.format(DATE_TIME_FORMAT) : undefined,
     };
   }
 }

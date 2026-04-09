@@ -25,4 +25,4 @@ relationship ManyToOne{
   Order{user} to User with builtInEntity
 }
 service Order with serviceClass
-dto * with mapstruct
+dto Order with mapstruct

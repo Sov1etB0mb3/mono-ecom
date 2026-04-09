@@ -61,6 +61,7 @@ public class CategoryService {
     public CategoryDTO update(CategoryDTO categoryDTO) {
         LOG.debug("Request to update Category : {}", categoryDTO);
         Category category = categoryMapper.toEntity(categoryDTO);
+        category.setIsPersisted();
         category = categoryRepository.save(category);
         categorySearchRepository.index(category);
         return categoryMapper.toDto(category);

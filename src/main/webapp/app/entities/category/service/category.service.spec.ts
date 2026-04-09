@@ -9,8 +9,8 @@ import { CategoryService, RestCategory } from './category.service';
 
 const requireRestSample: RestCategory = {
   ...sampleWithRequiredData,
-  createdAt: sampleWithRequiredData.createdAt?.toJSON(),
-  updatedAt: sampleWithRequiredData.updatedAt?.toJSON(),
+  createdDate: sampleWithRequiredData.createdDate?.toJSON(),
+  lastModifiedDate: sampleWithRequiredData.lastModifiedDate?.toJSON(),
 };
 
 describe('Category Service', () => {

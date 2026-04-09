@@ -22,8 +22,10 @@
       "name": "Name",
       "quantity": "Quantity",
       "price": "Price",
-      "createdAt": "Created At",
-      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "createdDate": "Created Date",
+      "lastModifiedBy": "Last Modified By",
+      "lastModifiedDate": "Last Modified Date",
       "category": "Category"
     }
   }

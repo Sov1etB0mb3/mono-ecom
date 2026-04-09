@@ -23,13 +23,21 @@
           <dd>
             <span>{{ categoryRef.description }}</span>
           </dd>
-          <dt><span jhiTranslate="monoEcomApp.category.createdAt">Created At</span></dt>
+          <dt><span jhiTranslate="monoEcomApp.category.createdBy">Created By</span></dt>
           <dd>
-            <span>{{ categoryRef.createdAt | formatMediumDatetime }}</span>
+            <span>{{ categoryRef.createdBy }}</span>
           </dd>
-          <dt><span jhiTranslate="monoEcomApp.category.updatedAt">Updated At</span></dt>
+          <dt><span jhiTranslate="monoEcomApp.category.createdDate">Created Date</span></dt>
           <dd>
-            <span>{{ categoryRef.updatedAt | formatMediumDatetime }}</span>
+            <span>{{ categoryRef.createdDate | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.category.lastModifiedBy">Last Modified By</span></dt>
+          <dd>
+            <span>{{ categoryRef.lastModifiedBy }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.category.lastModifiedDate">Last Modified Date</span></dt>
+          <dd>
+            <span>{{ categoryRef.lastModifiedDate | formatMediumDatetime }}</span>
           </dd>
         </dl>
 

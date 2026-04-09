@@ -22,8 +22,10 @@ describe('Category Form Service', () => {
             id: expect.any(Object),
             name: expect.any(Object),
             description: expect.any(Object),
-            createdAt: expect.any(Object),
-            updatedAt: expect.any(Object),
+            createdBy: expect.any(Object),
+            createdDate: expect.any(Object),
+            lastModifiedBy: expect.any(Object),
+            lastModifiedDate: expect.any(Object),
           }),
         );
       });
@@ -36,8 +38,10 @@ describe('Category Form Service', () => {
             id: expect.any(Object),
             name: expect.any(Object),
             description: expect.any(Object),
-            createdAt: expect.any(Object),
-            updatedAt: expect.any(Object),
+            createdBy: expect.any(Object),
+            createdDate: expect.any(Object),
+            lastModifiedBy: expect.any(Object),
+            lastModifiedDate: expect.any(Object),
           }),
         );
       });

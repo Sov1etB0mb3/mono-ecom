@@ -39,20 +39,17 @@ public class CustomizedAuthorityService {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    private final AuthorityMapper authorityMapper;
     private final AuthorityRepository authorityRepository;
     private final ScopeRepository scopeRepository;
     private final AuthorityScopeLinkerRepository authLinkerRepo;
     private final CustomizedAuthorityScopeLinkerRepository customizedAuthLinkerRepo;
 
     public CustomizedAuthorityService(
-        AuthorityMapper authorityMapper,
         AuthorityRepository authorityRepository,
         ScopeRepository scopeRepository,
         AuthorityScopeLinkerRepository authLinkerRepo,
         CustomizedAuthorityScopeLinkerRepository customizedAuthLinkerRepo
     ) {
-        this.authorityMapper = authorityMapper;
         this.authorityRepository = authorityRepository;
         this.scopeRepository = scopeRepository;
         this.authLinkerRepo = authLinkerRepo;
@@ -66,19 +63,6 @@ public class CustomizedAuthorityService {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new authority, or with status {@code 400 (Bad Request)} if the authority has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    public ResponseEntity<Authority> createAuthority(AuthorityRequest authorityRequest) throws URISyntaxException {
-        LOG.debug("REST request to save Authority : {}", authorityRequest);
-        if (authorityRepository.existsById(authorityRequest.getName())) {
-            throw new BadRequestAlertException("authority already exists", ENTITY_NAME, "idexists");
-        }
-
-        Authority newAuthority = authorityMapper.requestToAuthority(authorityRequest);
-        Authority authority = authorityRepository.save(newAuthority);
-
-        return ResponseEntity.created(new URI("/api/authorities/" + authority.getName()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, authority.getName()))
-            .body(authority);
-    }
 
     /**
      * {@code GET  /authorities} : get all the authorities.

@@ -1,11 +1,11 @@
-id;name;quantity;price;created_at;updated_at
-1;pretty;31207;14398.56;2026-04-03T03:00:25;2026-04-02T13:38:42
-2;certainly seemingly good-natured;2961;10315.87;2026-04-02T23:35:29;2026-04-02T13:29:06
-3;railway;16151;14334.01;2026-04-02T23:02:56;2026-04-02T13:42:05
-4;hm fortunate;29920;10144.07;2026-04-02T21:36:30;2026-04-02T11:55:40
-5;massage;26384;2890.79;2026-04-02T14:09:47;2026-04-02T22:50:59
-6;wonderfully;18129;23901.87;2026-04-02T08:20:22;2026-04-02T07:10:04
-7;basic;24491;27754.99;2026-04-02T09:13:00;2026-04-03T02:11:28
-8;buzzing icy;4665;24720.92;2026-04-02T22:19:38;2026-04-02T13:53:35
-9;millet;28463;26600.78;2026-04-02T20:54:14;2026-04-03T03:05:46
-10;upbeat;17170;23137.83;2026-04-03T01:01:29;2026-04-03T03:00:06
+id;name;quantity;price;created_by;created_date;last_modified_by;last_modified_date
+1;pretty;31207;14398.56;same who meh;2026-04-03T01:30:38;habit;2026-04-02T09:22:22
+2;hospitable incidentally;11454;12307.26;exonerate yet;2026-04-02T23:10:45;hearten mid;2026-04-02T22:12:29
+3;upX;21796;1978.94;stabilise instantly what;2026-04-02T13:53:35;millet;2026-04-03T01:32:54
+4;whenever vengeful mountain;26741;8615.15;whether blah grandiose;2026-04-02T15:26:46;strange zebra;2026-04-02T05:23:34
+5;into equally;32695;6473.61;finding vastly;2026-04-02T06:47:27;squeaky sham dilate;2026-04-03T03:50:51
+6;airbus;14447;29771.69;to whereas palatable;2026-04-02T12:47:59;fooey matter equatorial;2026-04-02T07:22:59
+7;speedy lowball across;17687;23634.74;snow grandiose;2026-04-02T12:17:59;moralise;2026-04-02T13:00:59
+8;innocently across;20818;31808.53;requirement duh;2026-04-02T05:49:59;gown heroine;2026-04-02T11:01:29
+9;ohX;12195;5569.96;cuddly excluding brand;2026-04-03T04:26:07;reproachfully;2026-04-03T00:54:46
+10;procurement scratchy;19894;29026.2;viciously tensely beneath;2026-04-02T22:44:15;boohoo;2026-04-02T14:23:12

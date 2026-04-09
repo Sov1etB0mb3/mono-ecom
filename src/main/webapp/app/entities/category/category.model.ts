@@ -4,8 +4,10 @@ export interface ICategory {
   id: number;
   name?: string | null;
   description?: string | null;
-  createdAt?: dayjs.Dayjs | null;
-  updatedAt?: dayjs.Dayjs | null;
+  createdBy?: string | null;
+  createdDate?: dayjs.Dayjs | null;
+  lastModifiedBy?: string | null;
+  lastModifiedDate?: dayjs.Dayjs | null;
 }
 
 export type NewCategory = Omit<ICategory, 'id'> & { id: null };

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A Product.
@@ -14,9 +15,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "product")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@JsonIgnoreProperties(value = { "new" })
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "product")
 @SuppressWarnings("common-java:DuplicatedBlocks")
-public class Product implements Serializable {
+public class Product extends AbstractAuditingEntity<Long> implements Serializable, Persistable<Long> {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,11 +43,13 @@ public class Product implements Serializable {
     @Column(name = "price", nullable = false)
     private Double price;
 
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @Column(name = "updated_at")
-    private Instant updatedAt;
+    // Inherited createdBy definition
+    // Inherited createdDate definition
+    // Inherited lastModifiedBy definition
+    // Inherited lastModifiedDate definition
+    @org.springframework.data.annotation.Transient
+    @Transient
+    private boolean isPersisted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "listProducts" }, allowSetters = true)
@@ -105,30 +109,46 @@ public class Product implements Serializable {
         this.price = price;
     }
 
-    public Instant getCreatedAt() {
-        return this.createdAt;
-    }
-
-    public Product createdAt(Instant createdAt) {
-        this.setCreatedAt(createdAt);
+    // Inherited createdBy methods
+    public Product createdBy(String createdBy) {
+        this.setCreatedBy(createdBy);
         return this;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return this.updatedAt;
-    }
-
-    public Product updatedAt(Instant updatedAt) {
-        this.setUpdatedAt(updatedAt);
+    // Inherited createdDate methods
+    public Product createdDate(Instant createdDate) {
+        this.setCreatedDate(createdDate);
         return this;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+    // Inherited lastModifiedBy methods
+    public Product lastModifiedBy(String lastModifiedBy) {
+        this.setLastModifiedBy(lastModifiedBy);
+        return this;
+    }
+
+    // Inherited lastModifiedDate methods
+    public Product lastModifiedDate(Instant lastModifiedDate) {
+        this.setLastModifiedDate(lastModifiedDate);
+        return this;
+    }
+
+    @PostLoad
+    @PostPersist
+    public void updateEntityState() {
+        this.setIsPersisted();
+    }
+
+    @org.springframework.data.annotation.Transient
+    @Transient
+    @Override
+    public boolean isNew() {
+        return !this.isPersisted;
+    }
+
+    public Product setIsPersisted() {
+        this.isPersisted = true;
+        return this;
     }
 
     public Category getCategory() {
@@ -171,8 +191,10 @@ public class Product implements Serializable {
             ", name='" + getName() + "'" +
             ", quantity=" + getQuantity() +
             ", price=" + getPrice() +
-            ", createdAt='" + getCreatedAt() + "'" +
-            ", updatedAt='" + getUpdatedAt() + "'" +
+            ", createdBy='" + getCreatedBy() + "'" +
+            ", createdDate='" + getCreatedDate() + "'" +
+            ", lastModifiedBy='" + getLastModifiedBy() + "'" +
+            ", lastModifiedDate='" + getLastModifiedDate() + "'" +
             "}";
     }
 }

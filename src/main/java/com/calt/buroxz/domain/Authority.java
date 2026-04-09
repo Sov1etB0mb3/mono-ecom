@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.domain.Persistable;
@@ -95,6 +94,4 @@ public class Authority implements Serializable, Persistable<String> {
             "name=" + getName() +
             "}";
     }
-
-    public void setScopes(Set<Scope> collect) {}
 }

@@ -14,9 +14,9 @@ import { ICategory, NewCategory } from '../category.model';
 
 export type PartialUpdateCategory = Partial<ICategory> & Pick<ICategory, 'id'>;
 
-type RestOf<T extends ICategory | NewCategory> = Omit<T, 'createdAt' | 'updatedAt'> & {
-  createdAt?: string | null;
-  updatedAt?: string | null;
+type RestOf<T extends ICategory | NewCategory> = Omit<T, 'createdDate' | 'lastModifiedDate'> & {
+  createdDate?: string | null;
+  lastModifiedDate?: string | null;
 };
 
 export type RestCategory = RestOf<ICategory>;
@@ -114,16 +114,16 @@ export class CategoryService {
   protected convertDateFromClient<T extends ICategory | NewCategory | PartialUpdateCategory>(category: T): RestOf<T> {
     return {
       ...category,
-      createdAt: category.createdAt?.toJSON() ?? null,
-      updatedAt: category.updatedAt?.toJSON() ?? null,
+      createdDate: category.createdDate?.toJSON() ?? null,
+      lastModifiedDate: category.lastModifiedDate?.toJSON() ?? null,
     };
   }
 
   protected convertDateFromServer(restCategory: RestCategory): ICategory {
     return {
       ...restCategory,
-      createdAt: restCategory.createdAt ? dayjs(restCategory.createdAt) : undefined,
-      updatedAt: restCategory.updatedAt ? dayjs(restCategory.updatedAt) : undefined,
+      createdDate: restCategory.createdDate ? dayjs(restCategory.createdDate) : undefined,
+      lastModifiedDate: restCategory.lastModifiedDate ? dayjs(restCategory.lastModifiedDate) : undefined,
     };
   }
 

@@ -19,8 +19,6 @@ import com.calt.buroxz.service.dto.ProductDTO;
 import com.calt.buroxz.service.mapper.ProductMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -60,12 +58,6 @@ class ProductResourceIT {
 
     private static final Double DEFAULT_PRICE = 1D;
     private static final Double UPDATED_PRICE = 2D;
-
-    private static final Instant DEFAULT_CREATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_CREATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-
-    private static final Instant DEFAULT_UPDATED_AT = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_UPDATED_AT = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final String ENTITY_API_URL = "/api/products";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -109,12 +101,7 @@ class ProductResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Product createEntity() {
-        return new Product()
-            .name(DEFAULT_NAME)
-            .quantity(DEFAULT_QUANTITY)
-            .price(DEFAULT_PRICE)
-            .createdAt(DEFAULT_CREATED_AT)
-            .updatedAt(DEFAULT_UPDATED_AT);
+        return new Product().name(DEFAULT_NAME).quantity(DEFAULT_QUANTITY).price(DEFAULT_PRICE);
     }
 
     /**
@@ -124,12 +111,7 @@ class ProductResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Product createUpdatedEntity() {
-        return new Product()
-            .name(UPDATED_NAME)
-            .quantity(UPDATED_QUANTITY)
-            .price(UPDATED_PRICE)
-            .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
+        return new Product().name(UPDATED_NAME).quantity(UPDATED_QUANTITY).price(UPDATED_PRICE);
     }
 
     @BeforeEach
@@ -278,9 +260,7 @@ class ProductResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -314,9 +294,7 @@ class ProductResourceIT {
             .andExpect(jsonPath("$.id").value(product.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.quantity").value(DEFAULT_QUANTITY))
-            .andExpect(jsonPath("$.price").value(DEFAULT_PRICE))
-            .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
-            .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()));
+            .andExpect(jsonPath("$.price").value(DEFAULT_PRICE));
     }
 
     @Test
@@ -340,12 +318,7 @@ class ProductResourceIT {
         Product updatedProduct = productRepository.findById(product.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedProduct are not directly saved in db
         em.detach(updatedProduct);
-        updatedProduct
-            .name(UPDATED_NAME)
-            .quantity(UPDATED_QUANTITY)
-            .price(UPDATED_PRICE)
-            .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
+        updatedProduct.name(UPDATED_NAME).quantity(UPDATED_QUANTITY).price(UPDATED_PRICE);
         ProductDTO productDTO = productMapper.toDto(updatedProduct);
 
         restProductMockMvc
@@ -458,7 +431,7 @@ class ProductResourceIT {
         Product partialUpdatedProduct = new Product();
         partialUpdatedProduct.setId(product.getId());
 
-        partialUpdatedProduct.quantity(UPDATED_QUANTITY).createdAt(UPDATED_CREATED_AT).updatedAt(UPDATED_UPDATED_AT);
+        partialUpdatedProduct.price(UPDATED_PRICE);
 
         restProductMockMvc
             .perform(
@@ -487,12 +460,7 @@ class ProductResourceIT {
         Product partialUpdatedProduct = new Product();
         partialUpdatedProduct.setId(product.getId());
 
-        partialUpdatedProduct
-            .name(UPDATED_NAME)
-            .quantity(UPDATED_QUANTITY)
-            .price(UPDATED_PRICE)
-            .createdAt(UPDATED_CREATED_AT)
-            .updatedAt(UPDATED_UPDATED_AT);
+        partialUpdatedProduct.name(UPDATED_NAME).quantity(UPDATED_QUANTITY).price(UPDATED_PRICE);
 
         restProductMockMvc
             .perform(
@@ -622,9 +590,7 @@ class ProductResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)))
-            .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())));
+            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)));
     }
 
     protected long getRepositoryCount() {

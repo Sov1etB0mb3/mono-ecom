@@ -6,8 +6,10 @@ export interface IProduct {
   name?: string | null;
   quantity?: number | null;
   price?: number | null;
-  createdAt?: dayjs.Dayjs | null;
-  updatedAt?: dayjs.Dayjs | null;
+  createdBy?: string | null;
+  createdDate?: dayjs.Dayjs | null;
+  lastModifiedBy?: string | null;
+  lastModifiedDate?: dayjs.Dayjs | null;
   category?: Pick<ICategory, 'id' | 'name'> | null;
 }
 

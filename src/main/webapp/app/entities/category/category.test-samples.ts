@@ -8,19 +8,21 @@ export const sampleWithRequiredData: ICategory = {
 };
 
 export const sampleWithPartialData: ICategory = {
-  id: 23998,
-  name: 'appropriate functional',
-  description: 'and',
-  createdAt: dayjs('2026-04-02T10:26'),
-  updatedAt: dayjs('2026-04-02T15:19'),
+  id: 31319,
+  name: 'um swiftly fast',
+  description: 'than sting',
+  createdBy: 'favorite inject fooey',
+  createdDate: dayjs('2026-04-02T12:22'),
 };
 
 export const sampleWithFullData: ICategory = {
   id: 28780,
   name: 'ouch',
   description: 'self-confidence',
-  createdAt: dayjs('2026-04-02T12:53'),
-  updatedAt: dayjs('2026-04-02T17:05'),
+  createdBy: 'because cheap',
+  createdDate: dayjs('2026-04-02T06:04'),
+  lastModifiedBy: 'purple whether surge',
+  lastModifiedDate: dayjs('2026-04-03T01:52'),
 };
 
 export const sampleWithNewData: NewCategory = {

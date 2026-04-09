@@ -27,13 +27,21 @@
           <dd>
             <span>{{ productRef.price }}</span>
           </dd>
-          <dt><span jhiTranslate="monoEcomApp.product.createdAt">Created At</span></dt>
+          <dt><span jhiTranslate="monoEcomApp.product.createdBy">Created By</span></dt>
           <dd>
-            <span>{{ productRef.createdAt | formatMediumDatetime }}</span>
+            <span>{{ productRef.createdBy }}</span>
           </dd>
-          <dt><span jhiTranslate="monoEcomApp.product.updatedAt">Updated At</span></dt>
+          <dt><span jhiTranslate="monoEcomApp.product.createdDate">Created Date</span></dt>
           <dd>
-            <span>{{ productRef.updatedAt | formatMediumDatetime }}</span>
+            <span>{{ productRef.createdDate | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.product.lastModifiedBy">Last Modified By</span></dt>
+          <dd>
+            <span>{{ productRef.lastModifiedBy }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.product.lastModifiedDate">Last Modified Date</span></dt>
+          <dd>
+            <span>{{ productRef.lastModifiedDate | formatMediumDatetime }}</span>
           </dd>
           <dt><span jhiTranslate="monoEcomApp.product.category">Category</span></dt>
           <dd>

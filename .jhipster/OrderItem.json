@@ -1,0 +1,33 @@
+{
+  "annotations": {
+    "changelogDate": "20260408090100",
+    "enableAudit": false
+  },
+  "applications": "*",
+  "fields": [
+    {
+      "fieldName": "quantity",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "priceAtPurchase",
+      "fieldType": "BigDecimal"
+    }
+  ],
+  "name": "OrderItem",
+  "relationships": [
+    {
+      "otherEntityName": "product",
+      "relationshipName": "product",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "order",
+      "otherEntityRelationshipName": "orderItem",
+      "relationshipName": "order",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ]
+}

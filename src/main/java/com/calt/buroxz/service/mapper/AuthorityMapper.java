@@ -17,20 +17,4 @@ public class AuthorityMapper {
     public AuthorityMapper(ScopeRepository scopeRepository) {
         this.scopeRepository = scopeRepository;
     }
-
-    public Authority requestToAuthority(AuthorityRequest authorityRequest) {
-        Authority authority = new Authority();
-        Set<Scope> scopes = new HashSet<>();
-        scopes = authorityRequest
-            .getScopes()
-            .stream()
-            .map(scope -> {
-                Scope fscope = scopeRepository.findByName(scope);
-                return fscope;
-            })
-            .collect(Collectors.toSet());
-        authority.setName(authorityRequest.getName());
-        authority.setScopes(scopes);
-        return authority;
-    }
 }

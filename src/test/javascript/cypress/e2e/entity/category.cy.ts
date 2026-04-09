@@ -15,7 +15,7 @@ describe('Category e2e test', () => {
   const categoryPageUrlPattern = new RegExp('/category(\\?.*)?$');
   const username = Cypress.env('E2E_USERNAME') ?? 'user';
   const password = Cypress.env('E2E_PASSWORD') ?? 'user';
-  const categorySample = { name: 'qua team' };
+  const categorySample = { name: 'for circular' };
 
   let category;
 
@@ -160,19 +160,11 @@ describe('Category e2e test', () => {
     });
 
     it('should create an instance of Category', () => {
-      cy.get(`[data-cy="name"]`).type('tighten woot');
-      cy.get(`[data-cy="name"]`).should('have.value', 'tighten woot');
+      cy.get(`[data-cy="name"]`).type('whether puppet');
+      cy.get(`[data-cy="name"]`).should('have.value', 'whether puppet');
 
-      cy.get(`[data-cy="description"]`).type('tightly');
-      cy.get(`[data-cy="description"]`).should('have.value', 'tightly');
-
-      cy.get(`[data-cy="createdAt"]`).type('2026-04-02T23:24');
-      cy.get(`[data-cy="createdAt"]`).blur();
-      cy.get(`[data-cy="createdAt"]`).should('have.value', '2026-04-02T23:24');
-
-      cy.get(`[data-cy="updatedAt"]`).type('2026-04-02T05:59');
-      cy.get(`[data-cy="updatedAt"]`).blur();
-      cy.get(`[data-cy="updatedAt"]`).should('have.value', '2026-04-02T05:59');
+      cy.get(`[data-cy="description"]`).type('midst');
+      cy.get(`[data-cy="description"]`).should('have.value', 'midst');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

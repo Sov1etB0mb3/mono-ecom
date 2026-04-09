@@ -3,6 +3,12 @@
     "applicationType": "monolith",
     "authenticationType": "oauth2",
     "baseName": "monoEcom",
+    "blueprints": [
+      {
+        "name": "generator-jhipster-entity-audit",
+        "version": "5.11.0"
+      }
+    ],
     "buildTool": "maven",
     "cacheProvider": "redis",
     "clientFramework": "angular",
@@ -16,11 +22,11 @@
     "devDatabaseType": "postgresql",
     "enableHibernateCache": true,
     "enableTranslation": true,
-    "entities": ["Category", "Product", "Scope", "Authority", "AuthorityScopeLinker"],
+    "entities": ["Category", "Product", "Scope", "Authority", "AuthorityScopeLinker", "Order", "OrderItem"],
     "feignClient": null,
     "jhipsterVersion": "8.11.0",
     "languages": ["en", "vi"],
-    "lastLiquibaseTimestamp": 1775620653000,
+    "lastLiquibaseTimestamp": 1775710230000,
     "microfrontend": null,
     "microfrontends": [],
     "nativeLanguage": "en",
@@ -34,5 +40,10 @@
     "syncUserWithIdp": true,
     "testFrameworks": ["cypress"],
     "withAdminUi": true
+  },
+  "generator-jhipster-entity-audit": {
+    "auditFramework": "custom",
+    "auditPage": true,
+    "entityAuditEventChangelogDate": "20260409045030"
   }
 }

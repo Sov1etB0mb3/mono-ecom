@@ -1,0 +1,26 @@
+@EnableAudit
+entity Category {
+  name String required maxlength(50)
+  description String maxlength(100)
+
+}
+
+@EnableAudit
+entity Product {
+  name String required minlength(3)
+  quantity Integer required
+  price Double required
+
+}
+
+
+
+relationship OneToMany {
+  Category{listProduct} to Product{category(name)}
+}
+service Product with serviceClass
+service Category with serviceClass
+paginate Category with pagination
+paginate Product with  pagination
+
+dto * with mapstruct

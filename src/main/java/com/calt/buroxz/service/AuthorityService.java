@@ -4,8 +4,6 @@ import com.calt.buroxz.domain.Authority;
 import com.calt.buroxz.domain.Scope;
 import com.calt.buroxz.repository.AuthorityRepository;
 import com.calt.buroxz.repository.ScopeRepository;
-import com.calt.buroxz.service.dto.request.AuthorityRequest;
-import com.calt.buroxz.service.mapper.AuthorityMapper;
 import com.calt.buroxz.web.rest.AuthorityResource;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
@@ -37,13 +35,11 @@ public class AuthorityService {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    private final AuthorityMapper authorityMapper;
     private final AuthorityRepository authorityRepository;
     private final ScopeRepository scopeRepository;
 
-    public AuthorityService(AuthorityRepository authorityRepository, AuthorityMapper authorityMapper, ScopeRepository scopeRepository) {
+    public AuthorityService(AuthorityRepository authorityRepository, ScopeRepository scopeRepository) {
         this.authorityRepository = authorityRepository;
-        this.authorityMapper = authorityMapper;
         this.scopeRepository = scopeRepository;
     }
 
@@ -54,19 +50,6 @@ public class AuthorityService {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new authority, or with status {@code 400 (Bad Request)} if the authority has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    public ResponseEntity<Authority> createAuthority(AuthorityRequest authorityRequest) throws URISyntaxException {
-        LOG.debug("REST request to save Authority : {}", authorityRequest);
-        if (authorityRepository.existsById(authorityRequest.getName())) {
-            throw new BadRequestAlertException("authority already exists", ENTITY_NAME, "idexists");
-        }
-
-        Authority newAuthority = authorityMapper.requestToAuthority(authorityRequest);
-        Authority authority = authorityRepository.save(newAuthority);
-
-        return ResponseEntity.created(new URI("/api/authorities/" + authority.getName()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, authority.getName()))
-            .body(authority);
-    }
 
     /**
      * {@code GET  /authorities} : get all the authorities.
@@ -102,7 +85,7 @@ public class AuthorityService {
                 scopes.add(scope);
             }
         }
-        authority.setScopes(scopes.stream().collect(Collectors.toSet()));
+        //        authority.setScopes(scopes.stream().collect(Collectors.toSet()));
         authorityRepository.save(authority);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, authority.getId()))

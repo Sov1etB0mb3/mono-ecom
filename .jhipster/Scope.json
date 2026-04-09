@@ -1,6 +1,7 @@
 {
   "annotations": {
-    "changelogDate": "20260403044207"
+    "changelogDate": "20260403044207",
+    "enableAudit": false
   },
   "applications": "*",
   "fields": [

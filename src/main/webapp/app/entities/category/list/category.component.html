@@ -82,16 +82,32 @@
                 }
               </div>
             </th>
-            <th scope="col" jhiSortBy="createdAt">
+            <th scope="col" jhiSortBy="createdBy">
               <div class="d-flex">
-                <span jhiTranslate="monoEcomApp.category.createdAt">Created At</span>
+                <span jhiTranslate="monoEcomApp.category.createdBy">Created By</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="createdDate">
+              <div class="d-flex">
+                <span jhiTranslate="monoEcomApp.category.createdDate">Created Date</span>
 
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
-            <th scope="col" jhiSortBy="updatedAt">
+            <th scope="col" jhiSortBy="lastModifiedBy">
               <div class="d-flex">
-                <span jhiTranslate="monoEcomApp.category.updatedAt">Updated At</span>
+                <span jhiTranslate="monoEcomApp.category.lastModifiedBy">Last Modified By</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lastModifiedDate">
+              <div class="d-flex">
+                <span jhiTranslate="monoEcomApp.category.lastModifiedDate">Last Modified Date</span>
 
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
@@ -107,8 +123,10 @@
               </td>
               <td>{{ category.name }}</td>
               <td>{{ category.description }}</td>
-              <td>{{ category.createdAt | formatMediumDatetime }}</td>
-              <td>{{ category.updatedAt | formatMediumDatetime }}</td>
+              <td>{{ category.createdBy }}</td>
+              <td>{{ category.createdDate | formatMediumDatetime }}</td>
+              <td>{{ category.lastModifiedBy }}</td>
+              <td>{{ category.lastModifiedDate | formatMediumDatetime }}</td>
               <td class="text-end">
                 <div class="btn-group">
                   <a [routerLink]="['/category', category.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">

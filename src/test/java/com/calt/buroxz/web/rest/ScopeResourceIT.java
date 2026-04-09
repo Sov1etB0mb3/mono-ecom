@@ -332,8 +332,6 @@ class ScopeResourceIT {
         Scope partialUpdatedScope = new Scope();
         partialUpdatedScope.setId(scope.getId());
 
-        partialUpdatedScope.description(UPDATED_DESCRIPTION);
-
         restScopeMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedScope.getId())
