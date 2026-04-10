@@ -45,14 +45,11 @@
 //    @Value("${jhipster.clientApp.name}")
 //    private String applicationName;
 //
-//    private final ScopeService scopeService;
 //
-//    private final ScopeRepository scopeRepository;
 //
 //    public CustomizedScopeResource(ScopeService scopeService, ScopeRepository scopeRepository, AuthorizationService authorizationService) {
 //        super(scopeService,scopeRepository);
-//        this.scopeService = scopeService;
-//        this.scopeRepository = scopeRepository;
+//
 //        this.authorizationService = authorizationService;
 //    }
 //
@@ -60,10 +57,7 @@
 //    @PreAuthorize("@authorizationService.hasScope('scope:all')")
 //    @Override
 //    public ResponseEntity<List<Scope>> getAllScopes(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
-//        LOG.debug("REST request to get a page of Scopes");
-//        Page<Scope> page = scopeService.findAll(pageable);
-//        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-//        return ResponseEntity.ok().headers(headers).body(page.getContent());
+//        return super.getAllScopes(pageable);
 //    }
 //
 //}

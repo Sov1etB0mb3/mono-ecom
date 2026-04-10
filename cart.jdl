@@ -1,42 +1,26 @@
-//application {
-//  config {
-//    baseName
-//        $
-//appName
-//$
-//packageName
-//$
-//appPackage
-//$
-//applicationType monolith
-//
-//
-//}
-//}
+
 
 entity Cart{
 
 }
-
+@skipService
+@skip
 entity Product{
-  name String required minlength(3)
-  quantity Integer required
-  price Double required
-  createdAt Instant
-  updatedAt Instant
+
 }
 entity CartItem{
-quantity Integer required min(1)
+  quantity Integer required min(1)
+  price Double
 }
 
 relationship  OneToOne{
-Cart{user(login)} to User with builtInEntity
+  Cart{user(login)} to User with builtInEntity
 }
 relationship OneToMany{
-Cart{orderItem} to CartItem
+  Cart{orderItem} to CartItem{cart}
 }
 relationship ManyToOne{
-CartItem{product} to Product
+  CartItem{product} to Product
 }
-dto Cart with mapstruct
-
+service Cart, CartItem with serviceClass
+dto Cart, CartItem with mapstruct

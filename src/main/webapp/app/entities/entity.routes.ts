@@ -36,6 +36,16 @@ const routes: Routes = [
     data: { pageTitle: 'monoEcomApp.orderItem.home.title' },
     loadChildren: () => import('./order-item/order-item.routes'),
   },
+  {
+    path: 'cart',
+    data: { pageTitle: 'monoEcomApp.cart.home.title' },
+    loadChildren: () => import('./cart/cart.routes'),
+  },
+  {
+    path: 'cart-item',
+    data: { pageTitle: 'monoEcomApp.cartItem.home.title' },
+    loadChildren: () => import('./cart-item/cart-item.routes'),
+  },
   /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
 ];
 

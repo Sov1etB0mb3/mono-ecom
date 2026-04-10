@@ -9,7 +9,9 @@
         "main": "Thực thể",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
         "category": "Category",
-        "product": "Product"
+        "product": "Product",
+        "cart": "Cart",
+        "cartItem": "Cart Item"
       },
       "account": {
         "main": "Tài khoản",

@@ -15,7 +15,7 @@ describe('Product e2e test', () => {
   const productPageUrlPattern = new RegExp('/product(\\?.*)?$');
   const username = Cypress.env('E2E_USERNAME') ?? 'user';
   const password = Cypress.env('E2E_PASSWORD') ?? 'user';
-  const productSample = { name: 'exhaust transcend gastropod', quantity: 6529, price: 272.29 };
+  const productSample = { name: 'amused', quantity: 84, price: 24401.08 };
 
   let product;
 
@@ -160,14 +160,14 @@ describe('Product e2e test', () => {
     });
 
     it('should create an instance of Product', () => {
-      cy.get(`[data-cy="name"]`).type('redress minor once');
-      cy.get(`[data-cy="name"]`).should('have.value', 'redress minor once');
+      cy.get(`[data-cy="name"]`).type('boo promptly behind');
+      cy.get(`[data-cy="name"]`).should('have.value', 'boo promptly behind');
 
-      cy.get(`[data-cy="quantity"]`).type('21917');
-      cy.get(`[data-cy="quantity"]`).should('have.value', '21917');
+      cy.get(`[data-cy="quantity"]`).type('8793');
+      cy.get(`[data-cy="quantity"]`).should('have.value', '8793');
 
-      cy.get(`[data-cy="price"]`).type('21149.64');
-      cy.get(`[data-cy="price"]`).should('have.value', '21149.64');
+      cy.get(`[data-cy="price"]`).type('26390.36');
+      cy.get(`[data-cy="price"]`).should('have.value', '26390.36');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (cartItem(); as cartItemRef) {
+      <div>
+        <h2 data-cy="cartItemDetailsHeading"><span jhiTranslate="monoEcomApp.cartItem.detail.title">Cart Item</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ cartItemRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.cartItem.quantity">Quantity</span></dt>
+          <dd>
+            <span>{{ cartItemRef.quantity }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.cartItem.price">Price</span></dt>
+          <dd>
+            <span>{{ cartItemRef.price }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.cartItem.product">Product</span></dt>
+          <dd>
+            @if (cartItem()!.product) {
+              <div>
+                <a [routerLink]="['/product', cartItem()!.product?.id, 'view']">{{ cartItemRef.product?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.cartItem.cart">Cart</span></dt>
+          <dd>
+            @if (cartItem()!.cart) {
+              <div>
+                <a [routerLink]="['/cart', cartItem()!.cart?.id, 'view']">{{ cartItemRef.cart?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/cart-item', cartItemRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

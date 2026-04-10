@@ -23,4 +23,27 @@ service Category with serviceClass
 paginate Category with pagination
 paginate Product with  pagination
 
-dto * with mapstruct
+dto Category, Product with mapstruct
+
+
+
+entity Cart{
+
+}
+entity CartItem{
+  quantity Integer required min(1)
+  price Double
+}
+
+relationship  OneToOne{
+  Cart{user(login)} to User with builtInEntity
+}
+relationship OneToMany{
+  Cart{cartItem} to CartItem{cart}
+}
+relationship ManyToOne{
+  CartItem{product} to Product
+}
+service Cart, CartItem with serviceClass
+dto Cart, CartItem with mapstruct
+

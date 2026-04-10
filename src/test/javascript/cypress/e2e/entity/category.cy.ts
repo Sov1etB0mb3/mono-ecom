@@ -15,7 +15,7 @@ describe('Category e2e test', () => {
   const categoryPageUrlPattern = new RegExp('/category(\\?.*)?$');
   const username = Cypress.env('E2E_USERNAME') ?? 'user';
   const password = Cypress.env('E2E_PASSWORD') ?? 'user';
-  const categorySample = { name: 'for circular' };
+  const categorySample = { name: 'even fat' };
 
   let category;
 
@@ -160,11 +160,11 @@ describe('Category e2e test', () => {
     });
 
     it('should create an instance of Category', () => {
-      cy.get(`[data-cy="name"]`).type('whether puppet');
-      cy.get(`[data-cy="name"]`).should('have.value', 'whether puppet');
+      cy.get(`[data-cy="name"]`).type('celebrate mortally curry');
+      cy.get(`[data-cy="name"]`).should('have.value', 'celebrate mortally curry');
 
-      cy.get(`[data-cy="description"]`).type('midst');
-      cy.get(`[data-cy="description"]`).should('have.value', 'midst');
+      cy.get(`[data-cy="description"]`).type('broadly quirkily');
+      cy.get(`[data-cy="description"]`).should('have.value', 'broadly quirkily');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

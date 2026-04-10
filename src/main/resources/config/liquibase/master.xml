@@ -19,11 +19,15 @@
 <!--    <include file="config/liquibase/changelog/20260408035733_added_entity_AuthorityScopeLinker.xml" relativeToChangelogFile="false"/>-->
 <!--    <include file="config/liquibase/changelog/20260408090059_added_entity_Order.xml" relativeToChangelogFile="false"/>-->
 <!--    <include file="config/liquibase/changelog/20260408090100_added_entity_OrderItem.xml" relativeToChangelogFile="false"/>-->
+    <include file="config/liquibase/changelog/20260409064632_added_entity_Cart.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20260409064633_added_entity_CartItem.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20260403044206_added_entity_constraints_Product.xml" relativeToChangelogFile="false"/>
 <!--    <include file="config/liquibase/changelog/20260408035733_added_entity_constraints_AuthorityScopeLinker.xml" relativeToChangelogFile="false"/>-->
 <!--    <include file="config/liquibase/changelog/20260408090059_added_entity_constraints_Order.xml" relativeToChangelogFile="false"/>-->
 <!--    <include file="config/liquibase/changelog/20260408090100_added_entity_constraints_OrderItem.xml" relativeToChangelogFile="false"/>-->
+    <include file="config/liquibase/changelog/20260409064632_added_entity_constraints_Cart.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20260409064633_added_entity_constraints_CartItem.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

@@ -91,6 +91,10 @@ public class CacheConfiguration {
             createCache(cm, com.calt.buroxz.domain.Order.class.getName(), jcacheConfiguration);
             createCache(cm, com.calt.buroxz.domain.Order.class.getName() + ".orderItems", jcacheConfiguration);
             createCache(cm, com.calt.buroxz.domain.OrderItem.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Cart.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Cart.class.getName() + ".orderItems", jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.CartItem.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Cart.class.getName() + ".cartItems", jcacheConfiguration);
             // jhipster-needle-redis-add-entry
         };
     }
