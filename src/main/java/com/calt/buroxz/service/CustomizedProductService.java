@@ -69,6 +69,7 @@ public class CustomizedProductService extends ProductService {
     public ProductDTO update(ProductDTO productDTO) {
         LOG.debug("Request to update Product : {}", productDTO);
         Product product = productMapper.toEntity(productDTO);
+        product.setIsPersisted();
         product = productRepository.save(product);
         productSearchRepository.index(product);
         return productMapper.toDto(product);

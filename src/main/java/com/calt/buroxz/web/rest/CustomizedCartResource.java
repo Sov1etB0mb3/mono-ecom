@@ -6,6 +6,8 @@ import com.calt.buroxz.service.CartService;
 import com.calt.buroxz.service.CustomizedCartService;
 import com.calt.buroxz.service.dto.CartDTO;
 import com.calt.buroxz.service.dto.CartItemDTO;
+import com.calt.buroxz.service.dto.CustomizedCartItemDTO;
+import com.calt.buroxz.service.dto.request.CartItemQuantityRequest;
 import com.calt.buroxz.service.dto.request.CartRequest;
 import com.calt.buroxz.service.dto.response.CartResponse;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -51,7 +54,7 @@ public class CustomizedCartResource {
     }
 
     @PostMapping("")
-    public ResponseEntity<CartResponse> addItemToCart(@RequestBody CartItemDTO cartItemDTO) throws URISyntaxException {
+    public ResponseEntity<CartResponse> addItemToCart(@RequestBody CustomizedCartItemDTO cartItemDTO) throws URISyntaxException {
         LOG.debug("REST request to save Cart : {}", cartItemDTO);
         CartResponse cartResponse = customizedCartService.addCartItem(cartItemDTO);
         return ResponseEntity.created(new URI("/api/cart/"))
@@ -60,7 +63,7 @@ public class CustomizedCartResource {
     }
 
     @PutMapping("")
-    public ResponseEntity<CartDTO> updateCart(@RequestBody CartRequest cartRequest) throws URISyntaxException {
+    public ResponseEntity<CartResponse> updateCart(@RequestBody CartRequest cartRequest) throws URISyntaxException {
         //        LOG.debug("REST request to update Cart : {}, {}", id, cartRequest);
         LOG.debug("REST request to update Cart : {}, {}", cartRequest);
 
@@ -75,16 +78,48 @@ public class CustomizedCartResource {
         //            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         //        }
 
-        CartDTO result = customizedCartService.updateCartItemInCart(cartRequest);
+        CartResponse result = customizedCartService.updateCartItemInCart(cartRequest);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
-    @GetMapping("/{id}/items")
+    @PatchMapping("/items")
+    public ResponseEntity<CartResponse> updateQuantity(@RequestBody CartItemQuantityRequest cartItemRequest) throws URISyntaxException {
+        //        LOG.debug("REST request to update Cart : {}, {}", id, cartRequest);
+        LOG.debug("REST request to update Cart : {}, {}", cartItemRequest);
+
+        if (cartItemRequest.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        //        if (!Objects.equals(id, cartRequest.getId())) {
+        //            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        //        }
+        //
+        //        if (!cartRepository.existsById(id)) {
+        //            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        //        }
+
+        CartResponse result = customizedCartService.updateCartItemQuantity(cartItemRequest.getId(), cartItemRequest.getQuantity());
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    @DeleteMapping("/items/{id}")
+    public ResponseEntity<CartResponse> deleteCartItem(@PathVariable("id") Long id) throws URISyntaxException {
+        LOG.debug("REST request to delete Cart Item : {}, {}", id);
+
+        CartResponse result = customizedCartService.removeCartItem(id);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    @GetMapping("/items")
     //    public ResponseEntity<List<CartItemDTO>> getCart(@PathVariable("id") Long id) {
-    public ResponseEntity<CartResponse> getCart(@PathVariable("id") Long id) {
-        LOG.debug("REST request to get Cart : {}", id);
+    public ResponseEntity<CartResponse> getCart() {
+        LOG.debug("REST request to get Cart from user : {}", SecurityContextHolder.getContext().getAuthentication().getName());
         //        List<CartItemDTO> cartItems = customizedCartService.findCartItems();
         //        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(cartItems));
         CartResponse cart = customizedCartService.findCartWithItems();

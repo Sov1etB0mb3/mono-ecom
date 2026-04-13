@@ -24,6 +24,8 @@ public class CustomizedCartItemDTO implements Serializable {
     private CustomizedProductDTO product;
 
     private CartDTO cart;
+    private Integer availableStock;
+    private boolean isAvailable = true;
 
     public Long getId() {
         return id;
@@ -65,6 +67,22 @@ public class CustomizedCartItemDTO implements Serializable {
         this.cart = cart;
     }
 
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
+    }
+
+    public Integer getAvailableStock() {
+        return availableStock;
+    }
+
+    public void setAvailableStock(Integer stock) {
+        availableStock = stock;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -87,14 +105,17 @@ public class CustomizedCartItemDTO implements Serializable {
     }
 
     // prettier-ignore
+
     @Override
     public String toString() {
-        return "CartItemDTO{" +
-            "id=" + getId() +
-            ", quantity=" + getQuantity() +
-            ", price=" + getPrice() +
-            ", product=" + getProduct() +
-            ", cart=" + getCart() +
-            "}";
+        return "CustomizedCartItemDTO{" +
+            "id=" + id +
+            ", quantity=" + quantity +
+            ", price=" + price +
+            ", product=" + product +
+            ", cart=" + cart +
+            ", Stock=" + availableStock +
+            ", isAvailable=" + isAvailable +
+            '}';
     }
 }

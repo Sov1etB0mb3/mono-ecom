@@ -4,10 +4,7 @@ import com.calt.buroxz.domain.Cart;
 import com.calt.buroxz.domain.CartItem;
 import com.calt.buroxz.domain.Product;
 import com.calt.buroxz.service.dto.*;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 
 /**
  * Mapper for the entity {@link CartItem} and its DTO {@link CartItemDTO}.
@@ -16,6 +13,7 @@ import org.mapstruct.Named;
 public interface CustomizedCartItemMapper extends EntityMapper<CustomizedCartItemDTO, CartItem> {
     @Mapping(target = "product", source = "product", qualifiedByName = "productDetail")
     @Mapping(target = "cart", ignore = true)
+    @Mapping(target = "availableStock", source = "product.quantity")
     CustomizedCartItemDTO toDto(CartItem s);
 
     @Named("productDetail")
@@ -29,4 +27,9 @@ public interface CustomizedCartItemMapper extends EntityMapper<CustomizedCartIte
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
     CartDTO toDtoCartId(Cart cart);
+
+    @AfterMapping
+    default void setAvailability(@MappingTarget CustomizedCartItemDTO dto) {
+        if (dto.getAvailableStock() != null) dto.setAvailable(dto.getAvailableStock() > 0 && dto.getQuantity() <= dto.getAvailableStock());
+    }
 }

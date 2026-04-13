@@ -1,6 +1,7 @@
 package com.calt.buroxz.service.dto.request;
 
 import com.calt.buroxz.service.dto.CartItemDTO;
+import com.calt.buroxz.service.dto.CustomizedCartItemDTO;
 import com.calt.buroxz.service.dto.UserDTO;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,13 +17,13 @@ public class CartRequest implements Serializable {
     private Long id;
 
     private UserDTO user;
-    public List<CartItemDTO> cartItems = new ArrayList<>();
+    public List<CustomizedCartItemDTO> cartItems = new ArrayList<>();
 
-    public List<CartItemDTO> getCartItems() {
+    public List<CustomizedCartItemDTO> getCartItems() {
         return cartItems;
     }
 
-    public void setCartItems(List<CartItemDTO> cartItems) {
+    public void setCartItems(List<CustomizedCartItemDTO> cartItems) {
         this.cartItems = cartItems;
     }
 

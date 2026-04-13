@@ -142,6 +142,7 @@
     "idnull": "Invalid ID",
     "idinvalid": "Invalid ID",
     "idnotfound": "ID cannot be found",
+    "qtyinvalid": "Product is out of stock!",
     "querySyntaxError": "Invalid search query",
     "file": {
       "could.not.extract": "Could not extract file",
