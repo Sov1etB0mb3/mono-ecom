@@ -3,10 +3,14 @@ entity Order{
   subTotal BigDecimal
   total BigDecimal
 }
-entity Product{
+
+@EnableAudit
+entity Product {
+  name String required minlength(3)
+  quantity Integer required
+  price Double required
 
 }
-
 entity OrderItem{
   //  orderId Long
   //  productId String

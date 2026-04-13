@@ -25,11 +25,10 @@ paginate Product with  pagination
 
 dto Category, Product with mapstruct
 
-
-
 entity Cart{
 
 }
+
 entity CartItem{
   quantity Integer required min(1)
   price Double
@@ -46,4 +45,29 @@ relationship ManyToOne{
 }
 service Cart, CartItem with serviceClass
 dto Cart, CartItem with mapstruct
+entity Order{
+  status OrderStatus
+  subTotal BigDecimal
+  total BigDecimal
+}
 
+
+entity OrderItem{
+  //  orderId Long
+  //  productId String
+  quantity Integer
+  priceAtPurchase BigDecimal
+
+}
+enum OrderStatus {
+  PENDING, PAID, SHIPPED, DELIVERED, CANCELLED
+}
+relationship OneToMany{
+  Order{orderItem} to OrderItem{order}
+}
+relationship ManyToOne{
+  OrderItem{Product} to Product
+  Order{user} to User with builtInEntity
+}
+service Order with serviceClass
+dto Order with mapstruct

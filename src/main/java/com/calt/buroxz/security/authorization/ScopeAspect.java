@@ -17,7 +17,7 @@ public class ScopeAspect {
         this.authorizationService = authorizationService;
     }
 
-    @Before("execution(* com.calt.buroxz.service.*Service.*(..))")
+    @Before("execution(* com.calt.buroxz.service.*Service.*(..))" + "&& !target(com.calt.buroxz.service.UserService)")
     public void check(JoinPoint joinPoint) {
         String scope = resolveScope(joinPoint);
         boolean isAdmin = authorizationService.hasScope("scope:all");
@@ -28,7 +28,7 @@ public class ScopeAspect {
         String className = joinPoint.getSignature().getDeclaringType().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
 
-        String entity = className.replace("Service", "").toLowerCase();
+        String entity = className.replaceAll("Customized", "").toLowerCase().replaceAll("(?i)Service", "").toLowerCase();
         String action = mapAction(methodName);
 
         return entity + ":" + action;

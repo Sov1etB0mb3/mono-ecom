@@ -49,7 +49,6 @@ public class CustomizedProductService extends ProductService {
      * @return the persisted entity.
      */
     @Override
-    @PreAuthorize("@authorizationService.hasScope('product:create')")
     public ProductDTO save(ProductDTO productDTO) {
         LOG.debug("Request to save Product : {}", productDTO);
         Product product = productMapper.toEntity(productDTO);
@@ -65,7 +64,7 @@ public class CustomizedProductService extends ProductService {
      * @return the persisted entity.
      */
     @Override
-    @PreAuthorize("@authorizationService.hasScope('product:update')")
+    //    @PreAuthorize("@authorizationService.hasScope('product:update')")
     public ProductDTO update(ProductDTO productDTO) {
         LOG.debug("Request to update Product : {}", productDTO);
         Product product = productMapper.toEntity(productDTO);
@@ -82,7 +81,6 @@ public class CustomizedProductService extends ProductService {
      * @return the persisted entity.
      */
     @Override
-    @PreAuthorize("@authorizationService.hasScope('product:update')")
     public Optional<ProductDTO> partialUpdate(ProductDTO productDTO) {
         LOG.debug("Request to partially update Product : {}", productDTO);
 
@@ -108,7 +106,6 @@ public class CustomizedProductService extends ProductService {
      * @return the list of entities.
      */
     @Override
-    @PreAuthorize("@authorizationService.hasScope('product:read')")
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
         LOG.debug("Request to get all Products");
@@ -131,7 +128,6 @@ public class CustomizedProductService extends ProductService {
      * @return the entity.
      */
     @Override
-    @PreAuthorize("@authorizationService.hasScope('product:read')")
     @Transactional(readOnly = true)
     public Optional<ProductDTO> findOne(Long id) {
         LOG.debug("Request to get Product : {}", id);
@@ -144,7 +140,6 @@ public class CustomizedProductService extends ProductService {
      * @param id the id of the entity.
      */
     @Override
-    @PreAuthorize("@authorizationService.hasScope('product:delete')")
     public void delete(Long id) {
         LOG.debug("Request to delete Product : {}", id);
         productRepository.deleteById(id);
@@ -159,7 +154,6 @@ public class CustomizedProductService extends ProductService {
      * @return the list of entities.
      */
     @Override
-    @PreAuthorize("@authorizationService.hasScope('product:read')")
     @Transactional(readOnly = true)
     public Page<ProductDTO> search(String query, Pageable pageable) {
         LOG.debug("Request to search for a page of Products for query {}", query);

@@ -128,7 +128,7 @@ public class CustomizedCartService extends CartService {
             .stream()
             .forEach(cartItemDTO -> {
                 if (cartItemRepository.existsById(cartItemDTO.getId())) {
-                    updateCartItemQuantity(cartItemDTO.getId(), cartItemDTO.getQuantity());
+                    internalUpdateQuantity(cartItemDTO.getId(), cartItemDTO.getQuantity());
                 }
             });
         Cart newCart = cartRepository.save(cart);
@@ -140,21 +140,20 @@ public class CustomizedCartService extends CartService {
     }
 
     public CartResponse updateCartItemQuantity(Long cartItemId, Integer newQuantity) {
+        this.internalUpdateQuantity(cartItemId, newQuantity);
+        return findCartWithItems();
+    }
+
+    public void internalUpdateQuantity(Long cartItemId, Integer newQuantity) {
         CartItem item = cartItemRepository
             .findById(cartItemId)
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
-        // 1. If quantity is 0, just delete it
         if (newQuantity <= 0) {
-            return removeCartItem(cartItemId);
-        }
-        // 2. Check stock for the new specific number
-        //        if (newQuantity > item.getProduct().getQuantity()) {
-        ////            throw new BadRequestAlertException("Out of stock", item.getProduct().getName(), "qtyinvalid");
-        //        }
-        item.setQuantity(newQuantity);
+            removeCartItem(cartItemId);
+            cartItemRepository.delete(item);
+        } else item.setQuantity(newQuantity);
         item.setPrice(item.getProduct().getPrice() * newQuantity);
         cartItemRepository.save(item);
-        return findCartWithItems();
     }
 
     public CartResponse removeCartItem(Long cartItemId) {
