@@ -127,14 +127,6 @@ public class CustomizedCartService extends CartService {
             .getCartItems()
             .stream()
             .forEach(cartItemDTO -> {
-                CustomizedProductDTO expectProduct = cartItemDTO.getProduct();
-                //                Product readyProduct = productRepository.findProductById(expectProduct.getId());
-                //                if(!validateStock(cartItemDTO,readyProduct)){
-                ////                    cart.removeCartItem(cartItemRepository.findCartItemById(cartItemDTO.getId()));
-                //                    cartItemDTO.setAvailable(false);
-                ////                    throw new BadRequestAlertException("Out of stock", cartItemDTO.getProduct().getName(), "qtyinvalid");
-                //                }
-                //                else
                 if (cartItemRepository.existsById(cartItemDTO.getId())) {
                     updateCartItemQuantity(cartItemDTO.getId(), cartItemDTO.getQuantity());
                 }
@@ -143,16 +135,7 @@ public class CustomizedCartService extends CartService {
         cartSearchRepository.index(newCart);
         CartResponse cartResponse = customizedCartMapper.toDto(newCart);
         cartResponse.setTotalPrice(calculatePrice(cartResponse));
-        //        cartResponse.getCartItems()
-        //            .stream()
-        //            .forEach(cartItem ->{
-        //                    CustomizedProductDTO expectProduct= cartItem.getProduct();
-        //                    Product readyProduct = productRepository.findProductById(expectProduct.getId());
-        //                    if(!validateStock(cartItem,readyProduct)){
-        //                        cartItem.setAvailable(false);
-        //                    }
-        //                }
-        //                );
+
         return cartResponse;
     }
 
