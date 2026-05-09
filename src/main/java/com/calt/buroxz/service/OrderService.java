@@ -59,6 +59,7 @@ public class OrderService {
     public OrderDTO update(OrderDTO orderDTO) {
         LOG.debug("Request to update Order : {}", orderDTO);
         Order order = orderMapper.toEntity(orderDTO);
+        order.setIsPersisted();
         order = orderRepository.save(order);
         orderSearchRepository.index(order);
         return orderMapper.toDto(order);

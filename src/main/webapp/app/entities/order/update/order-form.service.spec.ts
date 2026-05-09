@@ -23,6 +23,10 @@ describe('Order Form Service', () => {
             status: expect.any(Object),
             subTotal: expect.any(Object),
             total: expect.any(Object),
+            createdBy: expect.any(Object),
+            createdDate: expect.any(Object),
+            lastModifiedBy: expect.any(Object),
+            lastModifiedDate: expect.any(Object),
             user: expect.any(Object),
           }),
         );
@@ -37,6 +41,10 @@ describe('Order Form Service', () => {
             status: expect.any(Object),
             subTotal: expect.any(Object),
             total: expect.any(Object),
+            createdBy: expect.any(Object),
+            createdDate: expect.any(Object),
+            lastModifiedBy: expect.any(Object),
+            lastModifiedDate: expect.any(Object),
             user: expect.any(Object),
           }),
         );

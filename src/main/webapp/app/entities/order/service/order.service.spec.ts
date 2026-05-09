@@ -5,10 +5,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { IOrder } from '../order.model';
 import { sampleWithFullData, sampleWithNewData, sampleWithPartialData, sampleWithRequiredData } from '../order.test-samples';
 
-import { OrderService } from './order.service';
+import { OrderService, RestOrder } from './order.service';
 
-const requireRestSample: IOrder = {
+const requireRestSample: RestOrder = {
   ...sampleWithRequiredData,
+  createdDate: sampleWithRequiredData.createdDate?.toJSON(),
+  lastModifiedDate: sampleWithRequiredData.lastModifiedDate?.toJSON(),
 };
 
 describe('Order Service', () => {

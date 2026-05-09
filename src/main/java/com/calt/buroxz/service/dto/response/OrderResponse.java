@@ -1,28 +1,25 @@
-package com.calt.buroxz.service.dto;
+package com.calt.buroxz.service.dto.response;
 
-import jakarta.validation.constraints.*;
+import com.calt.buroxz.domain.enumeration.OrderStatus;
+import com.calt.buroxz.service.dto.UserDTO;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
 /**
- * A DTO for the {@link com.calt.buroxz.domain.Product} entity.
+ * A DTO for the {@link com.calt.buroxz.domain.Order} entity.
  */
 @SuppressWarnings("common-java:DuplicatedBlocks")
-public class ProductDTO implements Serializable {
+public class OrderResponse implements Serializable {
 
     private Long id;
 
-    @NotNull
-    @Size(min = 3)
-    private String name;
+    private OrderStatus status;
 
-    @NotNull
-    private Integer quantity;
+    private BigDecimal subTotal;
 
-    @NotNull
-    private BigDecimal price;
+    private BigDecimal total;
 
     private String createdBy;
 
@@ -32,7 +29,7 @@ public class ProductDTO implements Serializable {
 
     private Instant lastModifiedDate;
 
-    private CategoryDTO category;
+    private UserDTO user;
 
     public Long getId() {
         return id;
@@ -42,28 +39,28 @@ public class ProductDTO implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public BigDecimal getSubTotal() {
+        return subTotal;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setSubTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public BigDecimal getTotal() {
+        return total;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 
     public String getCreatedBy() {
@@ -98,12 +95,12 @@ public class ProductDTO implements Serializable {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public CategoryDTO getCategory() {
-        return category;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setCategory(CategoryDTO category) {
-        this.category = category;
+    public void setUser(UserDTO user) {
+        this.user = user;
     }
 
     @Override
@@ -111,15 +108,15 @@ public class ProductDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ProductDTO)) {
+        if (!(o instanceof OrderResponse)) {
             return false;
         }
 
-        ProductDTO productDTO = (ProductDTO) o;
+        OrderResponse orderDTO = (OrderResponse) o;
         if (this.id == null) {
             return false;
         }
-        return Objects.equals(this.id, productDTO.id);
+        return Objects.equals(this.id, orderDTO.id);
     }
 
     @Override
@@ -130,16 +127,16 @@ public class ProductDTO implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "ProductDTO{" +
+        return "OrderDTO{" +
             "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", quantity=" + getQuantity() +
-            ", price=" + getPrice() +
+            ", status='" + getStatus() + "'" +
+            ", subTotal=" + getSubTotal() +
+            ", total=" + getTotal() +
             ", createdBy='" + getCreatedBy() + "'" +
             ", createdDate='" + getCreatedDate() + "'" +
             ", lastModifiedBy='" + getLastModifiedBy() + "'" +
             ", lastModifiedDate='" + getLastModifiedDate() + "'" +
-            ", category=" + getCategory() +
+            ", user=" + getUser() +
             "}";
     }
 }

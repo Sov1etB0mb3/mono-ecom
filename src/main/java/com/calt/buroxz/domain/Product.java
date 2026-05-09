@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -40,8 +41,8 @@ public class Product extends AbstractAuditingEntity<Long> implements Serializabl
     private Integer quantity;
 
     @NotNull
-    @Column(name = "price", nullable = false)
-    private Double price;
+    @Column(name = "price", precision = 21, scale = 2, nullable = false)
+    private BigDecimal price;
 
     // Inherited createdBy definition
     // Inherited createdDate definition
@@ -54,6 +55,9 @@ public class Product extends AbstractAuditingEntity<Long> implements Serializabl
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "listProducts" }, allowSetters = true)
     private Category category;
+
+    @Version
+    Long version;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -96,16 +100,16 @@ public class Product extends AbstractAuditingEntity<Long> implements Serializabl
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return this.price;
     }
 
-    public Product price(Double price) {
+    public Product price(BigDecimal price) {
         this.setPrice(price);
         return this;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

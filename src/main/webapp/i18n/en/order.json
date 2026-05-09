@@ -22,6 +22,10 @@
       "status": "Status",
       "subTotal": "Sub Total",
       "total": "Total",
+      "createdBy": "Created By",
+      "createdDate": "Created Date",
+      "lastModifiedBy": "Last Modified By",
+      "lastModifiedDate": "Last Modified Date",
       "orderItem": "Order Item",
       "user": "User"
     }

@@ -1,7 +1,6 @@
 package com.calt.buroxz.repository;
 
 import com.calt.buroxz.domain.Cart;
-import com.calt.buroxz.domain.CartItem;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -35,8 +34,4 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     @Query("select cart from Cart cart left join fetch cart.user where cart.id =:id")
     Optional<Cart> findOneWithToOneRelationships(@Param("id") Long id);
-
-    Cart findCartByUserId(String userId);
-
-    Cart findCartById(Long id);
 }

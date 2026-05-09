@@ -2,6 +2,7 @@ package com.calt.buroxz.service.dto;
 
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,7 @@ public class CartItemDTO implements Serializable {
     @Min(value = 1)
     private Integer quantity;
 
-    private Double price;
+    private BigDecimal price;
 
     private ProductDTO product;
 
@@ -38,11 +39,11 @@ public class CartItemDTO implements Serializable {
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

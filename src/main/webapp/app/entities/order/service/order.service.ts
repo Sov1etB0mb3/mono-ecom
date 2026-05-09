@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable, asapScheduler, scheduled } from 'rxjs';
+import { Observable, asapScheduler, map, scheduled } from 'rxjs';
 
 import { catchError } from 'rxjs/operators';
+
+import dayjs from 'dayjs/esm';
 
 import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
@@ -11,6 +13,17 @@ import { Search } from 'app/core/request/request.model';
 import { IOrder, NewOrder } from '../order.model';
 
 export type PartialUpdateOrder = Partial<IOrder> & Pick<IOrder, 'id'>;
+
+type RestOf<T extends IOrder | NewOrder> = Omit<T, 'createdDate' | 'lastModifiedDate'> & {
+  createdDate?: string | null;
+  lastModifiedDate?: string | null;
+};
+
+export type RestOrder = RestOf<IOrder>;
+
+export type NewRestOrder = RestOf<NewOrder>;
+
+export type PartialUpdateRestOrder = RestOf<PartialUpdateOrder>;
 
 export type EntityResponseType = HttpResponse<IOrder>;
 export type EntityArrayResponseType = HttpResponse<IOrder[]>;
@@ -24,24 +37,35 @@ export class OrderService {
   protected resourceSearchUrl = this.applicationConfigService.getEndpointFor('api/orders/_search');
 
   create(order: NewOrder): Observable<EntityResponseType> {
-    return this.http.post<IOrder>(this.resourceUrl, order, { observe: 'response' });
+    const copy = this.convertDateFromClient(order);
+    return this.http.post<RestOrder>(this.resourceUrl, copy, { observe: 'response' }).pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   update(order: IOrder): Observable<EntityResponseType> {
-    return this.http.put<IOrder>(`${this.resourceUrl}/${this.getOrderIdentifier(order)}`, order, { observe: 'response' });
+    const copy = this.convertDateFromClient(order);
+    return this.http
+      .put<RestOrder>(`${this.resourceUrl}/${this.getOrderIdentifier(order)}`, copy, { observe: 'response' })
+      .pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   partialUpdate(order: PartialUpdateOrder): Observable<EntityResponseType> {
-    return this.http.patch<IOrder>(`${this.resourceUrl}/${this.getOrderIdentifier(order)}`, order, { observe: 'response' });
+    const copy = this.convertDateFromClient(order);
+    return this.http
+      .patch<RestOrder>(`${this.resourceUrl}/${this.getOrderIdentifier(order)}`, copy, { observe: 'response' })
+      .pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   find(id: number): Observable<EntityResponseType> {
-    return this.http.get<IOrder>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+    return this.http
+      .get<RestOrder>(`${this.resourceUrl}/${id}`, { observe: 'response' })
+      .pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
-    return this.http.get<IOrder[]>(this.resourceUrl, { params: options, observe: 'response' });
+    return this.http
+      .get<RestOrder[]>(this.resourceUrl, { params: options, observe: 'response' })
+      .pipe(map(res => this.convertResponseArrayFromServer(res)));
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
@@ -50,9 +74,11 @@ export class OrderService {
 
   search(req: Search): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
-    return this.http
-      .get<IOrder[]>(this.resourceSearchUrl, { params: options, observe: 'response' })
-      .pipe(catchError(() => scheduled([new HttpResponse<IOrder[]>()], asapScheduler)));
+    return this.http.get<RestOrder[]>(this.resourceSearchUrl, { params: options, observe: 'response' }).pipe(
+      map(res => this.convertResponseArrayFromServer(res)),
+
+      catchError(() => scheduled([new HttpResponse<IOrder[]>()], asapScheduler)),
+    );
   }
 
   getOrderIdentifier(order: Pick<IOrder, 'id'>): number {
@@ -81,5 +107,33 @@ export class OrderService {
       return [...ordersToAdd, ...orderCollection];
     }
     return orderCollection;
+  }
+
+  protected convertDateFromClient<T extends IOrder | NewOrder | PartialUpdateOrder>(order: T): RestOf<T> {
+    return {
+      ...order,
+      createdDate: order.createdDate?.toJSON() ?? null,
+      lastModifiedDate: order.lastModifiedDate?.toJSON() ?? null,
+    };
+  }
+
+  protected convertDateFromServer(restOrder: RestOrder): IOrder {
+    return {
+      ...restOrder,
+      createdDate: restOrder.createdDate ? dayjs(restOrder.createdDate) : undefined,
+      lastModifiedDate: restOrder.lastModifiedDate ? dayjs(restOrder.lastModifiedDate) : undefined,
+    };
+  }
+
+  protected convertResponseFromServer(res: HttpResponse<RestOrder>): HttpResponse<IOrder> {
+    return res.clone({
+      body: res.body ? this.convertDateFromServer(res.body) : null,
+    });
+  }
+
+  protected convertResponseArrayFromServer(res: HttpResponse<RestOrder[]>): HttpResponse<IOrder[]> {
+    return res.clone({
+      body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null,
+    });
   }
 }

@@ -3,6 +3,7 @@ package com.calt.buroxz.service.dto;
 import com.calt.buroxz.domain.enumeration.OrderStatus;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -18,6 +19,14 @@ public class OrderDTO implements Serializable {
     private BigDecimal subTotal;
 
     private BigDecimal total;
+
+    private String createdBy;
+
+    private Instant createdDate;
+
+    private String lastModifiedBy;
+
+    private Instant lastModifiedDate;
 
     private UserDTO user;
 
@@ -51,6 +60,38 @@ public class OrderDTO implements Serializable {
 
     public void setTotal(BigDecimal total) {
         this.total = total;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Instant getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Instant createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Instant getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Instant lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     public UserDTO getUser() {
@@ -90,6 +131,10 @@ public class OrderDTO implements Serializable {
             ", status='" + getStatus() + "'" +
             ", subTotal=" + getSubTotal() +
             ", total=" + getTotal() +
+            ", createdBy='" + getCreatedBy() + "'" +
+            ", createdDate='" + getCreatedDate() + "'" +
+            ", lastModifiedBy='" + getLastModifiedBy() + "'" +
+            ", lastModifiedDate='" + getLastModifiedDate() + "'" +
             ", user=" + getUser() +
             "}";
     }

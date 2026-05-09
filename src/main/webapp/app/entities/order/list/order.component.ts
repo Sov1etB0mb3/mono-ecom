@@ -5,6 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import SharedModule from 'app/shared/shared.module';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
+import { FormatMediumDatetimePipe } from 'app/shared/date';
 import { FormsModule } from '@angular/forms';
 import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
 import { IOrder } from '../order.model';
@@ -14,10 +15,10 @@ import { OrderDeleteDialogComponent } from '../delete/order-delete-dialog.compon
 @Component({
   selector: 'jhi-order',
   templateUrl: './order.component.html',
-  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective],
+  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective, FormatMediumDatetimePipe],
 })
 export class OrderComponent implements OnInit {
-  private static readonly NOT_SORTABLE_FIELDS_AFTER_SEARCH = ['status'];
+  private static readonly NOT_SORTABLE_FIELDS_AFTER_SEARCH = ['status', 'createdBy', 'lastModifiedBy'];
 
   subscription: Subscription | null = null;
   orders = signal<IOrder[]>([]);

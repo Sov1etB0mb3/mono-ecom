@@ -37,6 +37,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("select product from Product product left join fetch product.category where product.id =:id")
     Optional<Product> findOneWithToOneRelationships(@Param("id") Long id);
-
-    Product findProductById(Long id);
 }

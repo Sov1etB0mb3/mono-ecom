@@ -10,6 +10,8 @@
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
         "category": "Category",
         "product": "Product",
+        "order": "Order",
+        "orderItem": "Order Item",
         "cart": "Cart",
         "cartItem": "Cart Item"
       },

@@ -13,7 +13,7 @@
     },
     {
       "fieldName": "price",
-      "fieldType": "Double"
+      "fieldType": "BigDecimal"
     }
   ],
   "name": "CartItem",

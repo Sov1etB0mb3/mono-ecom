@@ -1,3 +1,4 @@
+@EnableAudit
 entity Order{
   status OrderStatus
   subTotal BigDecimal
@@ -9,7 +10,6 @@ entity Product {
   name String required minlength(3)
   quantity Integer required
   price Double required
-
 }
 entity OrderItem{
   //  orderId Long

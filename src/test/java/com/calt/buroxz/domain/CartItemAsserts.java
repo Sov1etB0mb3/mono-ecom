@@ -1,5 +1,6 @@
 package com.calt.buroxz.domain;
 
+import static com.calt.buroxz.domain.AssertUtils.bigDecimalCompareTo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CartItemAsserts {
@@ -48,7 +49,7 @@ public class CartItemAsserts {
         assertThat(actual)
             .as("Verify CartItem relevant properties")
             .satisfies(a -> assertThat(a.getQuantity()).as("check quantity").isEqualTo(expected.getQuantity()))
-            .satisfies(a -> assertThat(a.getPrice()).as("check price").isEqualTo(expected.getPrice()));
+            .satisfies(a -> assertThat(a.getPrice()).as("check price").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getPrice()));
     }
 
     /**

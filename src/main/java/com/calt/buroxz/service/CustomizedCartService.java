@@ -15,6 +15,7 @@ import com.calt.buroxz.service.mapper.CustomizedCartItemMapper;
 import com.calt.buroxz.service.mapper.CustomizedCartMapper;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -51,6 +52,7 @@ public class CustomizedCartService extends CartService {
     private final CartItemRepository cartItemRepository;
     private final CustomizedCartRepository customizedCartRepository;
     private final ProductRepository productRepository;
+    private final InventoryService inventoryService;
 
     public CustomizedCartService(
         CartRepository cartRepository,
@@ -62,7 +64,8 @@ public class CustomizedCartService extends CartService {
         CustomizedCartRepository customizedCartRepository,
         CustomizedCartMapper customizedCartMapper,
         CustomizedCartItemMapper customizedCartItemMapper,
-        ProductRepository productRepository
+        ProductRepository productRepository,
+        InventoryService inventoryService
     ) {
         super(cartRepository, cartMapper, cartSearchRepository);
         this.cartRepository = cartRepository;
@@ -75,6 +78,7 @@ public class CustomizedCartService extends CartService {
         this.customizedCartMapper = customizedCartMapper;
         this.customizedCartItemMapper = customizedCartItemMapper;
         this.productRepository = productRepository;
+        this.inventoryService = inventoryService;
     }
 
     //    public CartResponse addCartItem(CartRequest cartRequest){
@@ -95,13 +99,13 @@ public class CustomizedCartService extends CartService {
             throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
         }
         CartItem cartItem = customizedCartItemMapper.toEntity(cartItemDTO);
-        cartItem.setPrice(readyProduct.getPrice() * cartItem.getQuantity());
+        cartItem.setPrice(readyProduct.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
         cartItem.setProduct(readyProduct);
         cartItemRepository.save(cartItem);
         Cart cart = cartRepository.findById(cartItemDTO.getCart().getId()).orElseThrow();
         cart.addCartItem(cartItem); // IMPORTANT: This updates the List in memory
         CartResponse cartResponse = customizedCartMapper.toDto(cart);
-        double total = calculatePrice(cartResponse);
+        BigDecimal total = inventoryService.calculatePrice(cartResponse);
         cartResponse.setTotalPrice(total);
         //        cartItemSearchRepository.index(cartItem);
         return cartResponse;
@@ -112,7 +116,7 @@ public class CustomizedCartService extends CartService {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         Cart cart = customizedCartRepository.getCartWithItem(userName);
         CartResponse cartResponse = customizedCartMapper.toDto(cart);
-        double total = calculatePrice(cartResponse);
+        BigDecimal total = inventoryService.calculatePrice(cartResponse);
         cartResponse.setTotalPrice(total);
         return cartResponse;
     }
@@ -134,7 +138,7 @@ public class CustomizedCartService extends CartService {
         Cart newCart = cartRepository.save(cart);
         cartSearchRepository.index(newCart);
         CartResponse cartResponse = customizedCartMapper.toDto(newCart);
-        cartResponse.setTotalPrice(calculatePrice(cartResponse));
+        cartResponse.setTotalPrice(inventoryService.calculatePrice(cartResponse));
 
         return cartResponse;
     }
@@ -152,7 +156,7 @@ public class CustomizedCartService extends CartService {
             removeCartItem(cartItemId);
             cartItemRepository.delete(item);
         } else item.setQuantity(newQuantity);
-        item.setPrice(item.getProduct().getPrice() * newQuantity);
+        item.setPrice(item.getProduct().getPrice().multiply(BigDecimal.valueOf(newQuantity)));
         cartItemRepository.save(item);
     }
 
@@ -162,7 +166,7 @@ public class CustomizedCartService extends CartService {
         cart.removeCartItem(cartItem);
         cartItemRepository.delete(cartItem);
         CartResponse cartResponse = customizedCartMapper.toDto(cart);
-        cartResponse.setTotalPrice(calculatePrice(cartResponse));
+        cartResponse.setTotalPrice(inventoryService.calculatePrice(cartResponse));
         return cartResponse;
     }
 
@@ -272,8 +276,13 @@ public class CustomizedCartService extends CartService {
         }
         return true;
     }
-
-    public double calculatePrice(CartResponse cartResponse) {
-        return cartResponse.getCartItems().stream().mapToDouble(item -> item.getPrice()).sum();
-    }
+    //    public BigDecimal calculatePrice(CartResponse cartResponse) {
+    ////        return cartResponse.getCartItems().stream().mapToDouble(item -> item.getPrice()).sum();
+    //        return cartResponse.getCartItems().stream()
+    //            .map(item -> {
+    //                BigDecimal qty=BigDecimal.valueOf(item.getQuantity());
+    //                return item.getPrice().multiply(qty);
+    //            }) // Or however you get the value
+    //            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    //    }
 }

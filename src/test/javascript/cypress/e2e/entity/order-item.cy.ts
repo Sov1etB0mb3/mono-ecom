@@ -157,11 +157,11 @@ describe('OrderItem e2e test', () => {
     });
 
     it('should create an instance of OrderItem', () => {
-      cy.get(`[data-cy="quantity"]`).type('32734');
-      cy.get(`[data-cy="quantity"]`).should('have.value', '32734');
+      cy.get(`[data-cy="quantity"]`).type('17207');
+      cy.get(`[data-cy="quantity"]`).should('have.value', '17207');
 
-      cy.get(`[data-cy="priceAtPurchase"]`).type('11623.43');
-      cy.get(`[data-cy="priceAtPurchase"]`).should('have.value', '11623.43');
+      cy.get(`[data-cy="priceAtPurchase"]`).type('17166.4');
+      cy.get(`[data-cy="priceAtPurchase"]`).should('have.value', '17166.4');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

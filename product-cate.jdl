@@ -6,10 +6,11 @@ entity Category {
 }
 
 @EnableAudit
+@Version
 entity Product {
   name String required minlength(3)
   quantity Integer required
-  price Double required
+  price BigDecimal required
 
 }
 
@@ -31,7 +32,7 @@ entity Cart{
 
 entity CartItem{
   quantity Integer required min(1)
-  price Double
+  price BigDecimal
 }
 
 relationship  OneToOne{
@@ -45,6 +46,8 @@ relationship ManyToOne{
 }
 service Cart, CartItem with serviceClass
 dto Cart, CartItem with mapstruct
+
+@EnableAudit
 entity Order{
   status OrderStatus
   subTotal BigDecimal
@@ -66,7 +69,7 @@ relationship OneToMany{
   Order{orderItem} to OrderItem{order}
 }
 relationship ManyToOne{
-  OrderItem{Product} to Product
+  OrderItem{product} to Product
   Order{user} to User with builtInEntity
 }
 service Order with serviceClass

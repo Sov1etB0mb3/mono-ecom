@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -24,7 +25,7 @@ public class CustomizedProductDTO implements Serializable {
     private Integer quantity;
 
     @NotNull
-    private Double price;
+    private BigDecimal price;
 
     private CategoryDTO category;
 
@@ -52,11 +53,11 @@ public class CustomizedProductDTO implements Serializable {
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

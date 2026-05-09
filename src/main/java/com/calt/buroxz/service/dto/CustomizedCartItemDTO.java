@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -19,7 +20,7 @@ public class CustomizedCartItemDTO implements Serializable {
     @Min(value = 1)
     private Integer quantity;
 
-    private Double price;
+    private BigDecimal price;
 
     private CustomizedProductDTO product;
 
@@ -43,11 +44,11 @@ public class CustomizedCartItemDTO implements Serializable {
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

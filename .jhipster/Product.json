@@ -1,7 +1,8 @@
 {
   "annotations": {
     "changelogDate": "20260403044206",
-    "enableAudit": true
+    "enableAudit": true,
+    "version": true
   },
   "applications": "*",
   "auditing": true,
@@ -20,7 +21,7 @@
     },
     {
       "fieldName": "price",
-      "fieldType": "Double",
+      "fieldType": "BigDecimal",
       "fieldValidateRules": ["required"]
     },
     {

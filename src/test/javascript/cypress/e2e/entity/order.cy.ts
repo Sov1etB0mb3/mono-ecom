@@ -157,13 +157,13 @@ describe('Order e2e test', () => {
     });
 
     it('should create an instance of Order', () => {
-      cy.get(`[data-cy="status"]`).select('DELIVERED');
+      cy.get(`[data-cy="status"]`).select('PENDING');
 
-      cy.get(`[data-cy="subTotal"]`).type('29147.94');
-      cy.get(`[data-cy="subTotal"]`).should('have.value', '29147.94');
+      cy.get(`[data-cy="subTotal"]`).type('9184.81');
+      cy.get(`[data-cy="subTotal"]`).should('have.value', '9184.81');
 
-      cy.get(`[data-cy="total"]`).type('6386.44');
-      cy.get(`[data-cy="total"]`).should('have.value', '6386.44');
+      cy.get(`[data-cy="total"]`).type('14642.61');
+      cy.get(`[data-cy="total"]`).should('have.value', '14642.61');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

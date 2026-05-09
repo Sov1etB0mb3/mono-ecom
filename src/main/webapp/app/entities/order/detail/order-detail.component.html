@@ -31,6 +31,22 @@
           <dd>
             <span>{{ orderRef.total }}</span>
           </dd>
+          <dt><span jhiTranslate="monoEcomApp.order.createdBy">Created By</span></dt>
+          <dd>
+            <span>{{ orderRef.createdBy }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.order.createdDate">Created Date</span></dt>
+          <dd>
+            <span>{{ orderRef.createdDate | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.order.lastModifiedBy">Last Modified By</span></dt>
+          <dd>
+            <span>{{ orderRef.lastModifiedBy }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.order.lastModifiedDate">Last Modified Date</span></dt>
+          <dd>
+            <span>{{ orderRef.lastModifiedDate | formatMediumDatetime }}</span>
+          </dd>
           <dt><span jhiTranslate="monoEcomApp.order.user">User</span></dt>
           <dd>
             <span>{{ orderRef.user?.id }}</span>

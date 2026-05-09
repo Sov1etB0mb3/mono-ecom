@@ -1,3 +1,5 @@
+import dayjs from 'dayjs/esm';
+
 import { IOrder, NewOrder } from './order.model';
 
 export const sampleWithRequiredData: IOrder = {
@@ -5,8 +7,11 @@ export const sampleWithRequiredData: IOrder = {
 };
 
 export const sampleWithPartialData: IOrder = {
-  id: 8286,
-  total: 21314.13,
+  id: 20558,
+  total: 29949.07,
+  createdBy: 'idle glossy',
+  lastModifiedBy: 'untrue punctually',
+  lastModifiedDate: dayjs('2026-04-07T09:44'),
 };
 
 export const sampleWithFullData: IOrder = {
@@ -14,6 +19,10 @@ export const sampleWithFullData: IOrder = {
   status: 'SHIPPED',
   subTotal: 7491.96,
   total: 3767.98,
+  createdBy: 'exactly indeed',
+  createdDate: dayjs('2026-04-07T15:57'),
+  lastModifiedBy: 'whoa kettledrum conceal',
+  lastModifiedDate: dayjs('2026-04-07T19:10'),
 };
 
 export const sampleWithNewData: NewOrder = {

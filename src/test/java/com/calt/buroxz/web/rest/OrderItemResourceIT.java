@@ -314,7 +314,7 @@ class OrderItemResourceIT {
         OrderItem partialUpdatedOrderItem = new OrderItem();
         partialUpdatedOrderItem.setId(orderItem.getId());
 
-        partialUpdatedOrderItem.priceAtPurchase(UPDATED_PRICE_AT_PURCHASE);
+        partialUpdatedOrderItem.quantity(UPDATED_QUANTITY);
 
         restOrderItemMockMvc
             .perform(

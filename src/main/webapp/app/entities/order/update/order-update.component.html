@@ -35,6 +35,74 @@
           <input type="number" class="form-control" name="total" id="field_total" data-cy="total" formControlName="total" />
         </div>
 
+        @if (editForm.controls.createdBy.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_createdBy" jhiTranslate="monoEcomApp.order.createdBy">Created By</label>
+            <input
+              type="text"
+              class="form-control"
+              name="createdBy"
+              id="field_createdBy"
+              data-cy="createdBy"
+              formControlName="createdBy"
+              [readonly]="true"
+            />
+          </div>
+        }
+
+        @if (editForm.controls.createdDate.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_createdDate" jhiTranslate="monoEcomApp.order.createdDate">Created Date</label>
+            <div class="d-flex">
+              <input
+                id="field_createdDate"
+                data-cy="createdDate"
+                type="datetime-local"
+                class="form-control"
+                name="createdDate"
+                formControlName="createdDate"
+                placeholder="YYYY-MM-DD HH:mm"
+                [readonly]="true"
+              />
+            </div>
+          </div>
+        }
+
+        @if (editForm.controls.lastModifiedBy.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_lastModifiedBy" jhiTranslate="monoEcomApp.order.lastModifiedBy">Last Modified By</label>
+            <input
+              type="text"
+              class="form-control"
+              name="lastModifiedBy"
+              id="field_lastModifiedBy"
+              data-cy="lastModifiedBy"
+              formControlName="lastModifiedBy"
+              [readonly]="true"
+            />
+          </div>
+        }
+
+        @if (editForm.controls.lastModifiedDate.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_lastModifiedDate" jhiTranslate="monoEcomApp.order.lastModifiedDate"
+              >Last Modified Date</label
+            >
+            <div class="d-flex">
+              <input
+                id="field_lastModifiedDate"
+                data-cy="lastModifiedDate"
+                type="datetime-local"
+                class="form-control"
+                name="lastModifiedDate"
+                formControlName="lastModifiedDate"
+                placeholder="YYYY-MM-DD HH:mm"
+                [readonly]="true"
+              />
+            </div>
+          </div>
+        }
+
         <div class="mb-3">
           <label class="form-label" for="field_user" jhiTranslate="monoEcomApp.order.user">User</label>
           <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">

@@ -88,6 +88,36 @@
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
+            <th scope="col" jhiSortBy="createdBy">
+              <div class="d-flex">
+                <span jhiTranslate="monoEcomApp.order.createdBy">Created By</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="createdDate">
+              <div class="d-flex">
+                <span jhiTranslate="monoEcomApp.order.createdDate">Created Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lastModifiedBy">
+              <div class="d-flex">
+                <span jhiTranslate="monoEcomApp.order.lastModifiedBy">Last Modified By</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lastModifiedDate">
+              <div class="d-flex">
+                <span jhiTranslate="monoEcomApp.order.lastModifiedDate">Last Modified Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
             <th scope="col" jhiSortBy="user.id">
               <div class="d-flex">
                 <span jhiTranslate="monoEcomApp.order.user">User</span>
@@ -112,6 +142,10 @@
               </td>
               <td>{{ order.subTotal }}</td>
               <td>{{ order.total }}</td>
+              <td>{{ order.createdBy }}</td>
+              <td>{{ order.createdDate | formatMediumDatetime }}</td>
+              <td>{{ order.lastModifiedBy }}</td>
+              <td>{{ order.lastModifiedDate | formatMediumDatetime }}</td>
               <td>
                 {{ order.user?.id }}
               </td>

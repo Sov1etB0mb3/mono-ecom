@@ -5,6 +5,7 @@ import com.calt.buroxz.service.dto.CartItemDTO;
 import com.calt.buroxz.service.dto.CustomizedCartItemDTO;
 import com.calt.buroxz.service.dto.UserDTO;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -20,17 +21,17 @@ public class CartResponse implements Serializable {
     private UserDTO user;
     private Set<CustomizedCartItemDTO> cartItems = new HashSet<>();
 
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
     public Set<CustomizedCartItemDTO> getCartItems() {
         return cartItems;
     }
 
-    public double getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
 

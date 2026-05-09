@@ -2,6 +2,7 @@ package com.calt.buroxz.web.rest;
 
 import static com.calt.buroxz.domain.ProductAsserts.*;
 import static com.calt.buroxz.web.rest.TestUtil.createUpdateProxyForBean;
+import static com.calt.buroxz.web.rest.TestUtil.sameNumber;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.hasItem;
@@ -19,6 +20,7 @@ import com.calt.buroxz.service.dto.ProductDTO;
 import com.calt.buroxz.service.mapper.ProductMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -56,8 +58,8 @@ class ProductResourceIT {
     private static final Integer DEFAULT_QUANTITY = 1;
     private static final Integer UPDATED_QUANTITY = 2;
 
-    private static final Double DEFAULT_PRICE = 1D;
-    private static final Double UPDATED_PRICE = 2D;
+    private static final BigDecimal DEFAULT_PRICE = new BigDecimal(1);
+    private static final BigDecimal UPDATED_PRICE = new BigDecimal(2);
 
     private static final String ENTITY_API_URL = "/api/products";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -260,7 +262,7 @@ class ProductResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)));
+            .andExpect(jsonPath("$.[*].price").value(hasItem(sameNumber(DEFAULT_PRICE))));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -294,7 +296,7 @@ class ProductResourceIT {
             .andExpect(jsonPath("$.id").value(product.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.quantity").value(DEFAULT_QUANTITY))
-            .andExpect(jsonPath("$.price").value(DEFAULT_PRICE));
+            .andExpect(jsonPath("$.price").value(sameNumber(DEFAULT_PRICE)));
     }
 
     @Test
@@ -590,7 +592,7 @@ class ProductResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(product.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE)));
+            .andExpect(jsonPath("$.[*].price").value(hasItem(sameNumber(DEFAULT_PRICE))));
     }
 
     protected long getRepositoryCount() {

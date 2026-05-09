@@ -343,6 +343,8 @@ class OrderResourceIT {
         Order partialUpdatedOrder = new Order();
         partialUpdatedOrder.setId(order.getId());
 
+        partialUpdatedOrder.subTotal(UPDATED_SUB_TOTAL);
+
         restOrderMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedOrder.getId())
