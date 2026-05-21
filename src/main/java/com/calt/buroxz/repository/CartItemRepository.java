@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface CartItemRepository extends JpaRepository<CartItem, Long> {}
+public interface CartItemRepository extends JpaRepository<CartItem, Long> {
+    CartItem findCartItemById(Long cartItemId);
+}

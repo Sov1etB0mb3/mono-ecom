@@ -3,6 +3,7 @@ package com.calt.buroxz.repository;
 import com.calt.buroxz.domain.Product;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -37,4 +38,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("select product from Product product left join fetch product.category where product.id =:id")
     Optional<Product> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Product findProductById(Long id);
+
+    List<Product> findProductsByIdIn(Set<Long> productIds);
 }

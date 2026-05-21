@@ -34,4 +34,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     @Query("select cart from Cart cart left join fetch cart.user where cart.id =:id")
     Optional<Cart> findOneWithToOneRelationships(@Param("id") Long id);
+
+    Cart findCartById(Long id);
 }

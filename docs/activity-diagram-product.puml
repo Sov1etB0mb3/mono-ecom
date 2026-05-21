@@ -1,0 +1,112 @@
+@startuml
+start
+:Admin/Staff truy cập quản lý sản phẩm;
+
+partition "Danh sách sản phẩm" {
+  :Gửi GET /api/products?page=&sort=;
+  :Hiển thị bảng danh sách sản phẩm
+  (Tên, Số lượng, Giá, Danh mục);
+
+  while (Thao tác?) is (Xem/Tìm)
+    if (Tìm kiếm?) then (Có)
+      :Gửi GET /api/products/_search?query=;
+      :Hiển thị kết quả tìm kiếm có phân trang;
+    elseif (Chọn sản phẩm?) then (Có)
+      :Điều hướng đến chi tiết;
+      break
+    elseif (Thêm mới?) then (Có)
+      :Điều hướng đến tạo mới;
+      break
+    elseif (Sửa?) then (Có)
+      :Điều hướng đến cập nhật;
+      break
+    elseif (Xóa?) then (Có)
+      break
+    endif
+  endwhile
+}
+
+if (Luồng xử lý?) is (Xem chi tiết)
+  partition "Xem chi tiết sản phẩm" {
+    :Gửi GET /api/products/{id};
+    :Hiển thị thông tin sản phẩm
+    (Tên, Số lượng, Giá, Danh mục,
+     Ngày tạo, Người tạo, Version);
+  }
+
+elseif (Tạo mới)
+  partition "Thêm sản phẩm mới" {
+    :Hiển thị form trống;
+    :Tải danh sách danh mục
+    GET /api/categories;
+    :Nhập thông tin sản phẩm
+    (Tên, Số lượng, Giá, Danh mục);
+    :Validate form (Tên >= 3 ký tự,
+    Số lượng > 0, Giá > 0);
+    if (Dữ liệu hợp lệ?) then (Không)
+      :Hiển thị lỗi validation;
+      stop
+    endif
+    :Gửi POST /api/products;
+    partition "Backend" {
+      :Map DTO -> Entity;
+      :Gán audit fields
+      (createdBy, createdDate);
+      :Lưu vào DB;
+      :Index lên Elasticsearch;
+      :Trả về 201 Created + ProductDTO;
+    }
+    :Hiển thị thông báo thành công;
+    :Quay lại danh sách;
+  }
+
+elseif (Cập nhật)
+  partition "Chỉnh sửa sản phẩm" {
+    :Gửi GET /api/products/{id};
+    :Hiển thị form với dữ liệu hiện tại;
+    :Tải danh sách danh mục
+    GET /api/categories;
+    :Chỉnh sửa thông tin;
+    :Validate form;
+    if (Dữ liệu hợp lệ?) then (Không)
+      :Hiển thị lỗi validation;
+      stop
+    endif
+    :Gửi PUT /api/products/{id};
+    partition "Backend" {
+      :Map DTO -> Entity;
+      :Set isPersisted flag;
+      :Cập nhật DB
+      (tự động tăng version nếu có conflict);
+      if (OptimisticLockException?) then (Có)
+        :Báo lỗi "Dữ liệu đã bị thay đổi bởi người khác";
+        stop
+      endif
+      :Cập nhật Elasticsearch index;
+      :Trả về 200 OK + ProductDTO;
+    }
+    :Hiển thị thông báo thành công;
+    :Quay lại danh sách;
+  }
+
+elseif (Xóa)
+  partition "Xóa sản phẩm" {
+    :Mở dialog xác nhận xóa;
+    if (Xác nhận xóa?) then (Không)
+      :Đóng dialog;
+      stop
+    endif
+    :Gửi DELETE /api/products/{id};
+    partition "Backend" {
+      :Xóa khỏi DB;
+      :Xóa khỏi Elasticsearch index;
+      :Trả về 204 No Content;
+    }
+    :Hiển thị thông báo thành công;
+    :Reload danh sách;
+  }
+
+endif
+
+stop
+@enduml

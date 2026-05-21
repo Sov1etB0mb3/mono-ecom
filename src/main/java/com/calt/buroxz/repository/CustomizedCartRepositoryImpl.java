@@ -14,7 +14,11 @@ public class CustomizedCartRepositoryImpl implements CustomizedCartRepository {
     public Cart getCartWithItem(String userName) {
         return entityManager
             .createQuery(
-                "SELECT c FROM Cart c" + " LEFT JOIN FETCH c.user u" + " LEFT JOIN FETCH c.cartItems" + " WHERE c.user.login = :userName ",
+                "SELECT c FROM Cart c" +
+                " LEFT JOIN FETCH c.user u" +
+                " LEFT JOIN FETCH c.cartItems ci" +
+                " LEFT JOIN FETCH ci.product" +
+                " WHERE c.user.login = :userName ",
                 Cart.class
             )
             .setParameter("userName", userName)

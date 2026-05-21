@@ -57,7 +57,16 @@ public class Product extends AbstractAuditingEntity<Long> implements Serializabl
     private Category category;
 
     @Version
-    Long version;
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 

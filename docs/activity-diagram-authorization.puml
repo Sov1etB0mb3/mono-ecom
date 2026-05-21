@@ -1,0 +1,140 @@
+@startuml
+start
+:Người dùng gửi yêu cầu;
+
+partition "Xác thực (Authentication)" {
+  if (Đã có token?) then (Chưa)
+    :Chuyển hướng đến Keycloak
+    (http://localhost:9080/realms/jhipster);
+    :Người dùng đăng nhập
+    (username / password);
+    if (Xác thực thành công?) then (Không)
+      :Hiển thị lỗi đăng nhập;
+      stop
+    endif
+    :Keycloak trả về JWT
+    (access_token + id_token + refresh_token);
+    :Lưu token vào session;
+  else (Có)
+    :Kiểm tra token hết hạn?;
+    if (Hết hạn?) then (Có)
+      :Dùng refresh_token lấy token mới;
+    endif
+  endif
+}
+
+partition "Đồng bộ người dùng" {
+  :Backend nhận JWT từ request;
+  :Giải mã claims (sub, name, email, roles);
+  :Kiểm tra User trong DB;
+  if (Tồn tại?) then (Không)
+    :Tạo User mới trong bảng jhi_user;
+  endif
+  :Đồng bộ Authorities
+  (lấy roles từ claims, tạo mới nếu chưa có);
+  :Trả về thông tin tài khoản
+  GET /api/account;
+}
+
+partition "Phân quyền (Authorization)" {
+  :Yêu cầu truy cập tài nguyên;
+  :Đi qua Security Filter Chain;
+
+  if (URL pattern?) is (/api/admin/**)
+    :Kiểm tra ROLE_ADMIN?;
+    if (Không có quyền) then (Có)
+      :Trả về 403 Forbidden;
+      stop
+    endif
+  elseif (URL pattern?) is (/api/**)
+    :Kiểm tra authenticated?;
+    if (Chưa đăng nhập) then (Có)
+      :Trả về 401 Unauthorized;
+      stop
+    endif
+  elseif (URL pattern?) is (/management/**)
+    :Kiểm tra ROLE_ADMIN?;
+    if (Không có quyền) then (Có)
+      :Trả về 403 Forbidden;
+      stop
+    endif
+  elseif (URL pattern?) is (/public/**)
+    :Cho phép truy cập;
+  endif
+
+  if (Controller có @PreAuthorize?) then (Có)
+    :Kiểm tra quyền theo annotation;
+
+    if (Loại kiểm tra?) is (hasAuthority)
+      :Kiểm tra ROLE trong JWT claims;
+      if (Không có quyền) then (Có)
+        :Trả về 403 Forbidden;
+        stop
+      endif
+    elseif (Loại kiểm tra?) is (hasScope)
+      :Gọi AuthorizationService.hasScope();
+
+      partition "AuthorizationService" {
+        :Lấy username từ SecurityContext;
+        :Truy vấn User + Authorities từ DB;
+        :Truy vấn AuthorityScopeLinker
+        -> Lấy danh sách Scope;
+        :Kiểm tra scope yêu cầu
+        có trong danh sách?;
+        if (Có quyền?) then (Không)
+          :Trả về false -> 403;
+          stop
+        endif
+      }
+    endif
+  endif
+
+  :Cho phép truy cập tài nguyên;
+  :Xử lý business logic;
+  :Trả về kết quả cho client;
+}
+
+partition "Frontend - Phân quyền giao diện" {
+  :Angular kiểm tra authorities
+  từ AccountService;
+
+  if (Route guard check?) then (Có)
+    :user-route-access.service
+    kiểm tra data.authorities;
+    if (Người dùng có quyền?) then (Không)
+      :Chuyển hướng đến /accessdenied;
+      stop
+    endif
+    :Cho phép truy cập route;
+  endif
+
+  if (Template directive?) is (*jhiHasAnyAuthority)
+    :Kiểm tra authority của user;
+    if (Có quyền?) then (Có)
+      :Hiển thị phần tử (menu, button);
+    else (Không)
+      :Ẩn phần tử;
+    endif
+  endif
+}
+
+partition "Quản trị phân quyền (Admin)" {
+  :Admin truy cập quản trị;
+
+  if (Chức năng?) is (Quản lý Authority)
+    :CRUD vai trò (ROLE_ADMIN, ROLE_USER)
+    /api/authorities;
+  elseif (Chức năng?) is (Quản lý Scope)
+    :CRUD quyền chi tiết (scope:all, product:update)
+    /api/scopes;
+  elseif (Chức năng?) is (Gán Scope cho Authority)
+    :CRUD AuthorityScopeLinker
+    /api/authority-scope-linkers;
+    :Chọn Authority;
+    :Chọn Scope;
+    :Lưu liên kết vào DB;
+  endif
+}
+
+stop
+@enduml

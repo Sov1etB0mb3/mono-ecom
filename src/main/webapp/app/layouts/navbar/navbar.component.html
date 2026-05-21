@@ -29,6 +29,15 @@
         </li>
         <!-- jhipster-needle-add-element-to-menu - JHipster will add new menu items here -->
         @if (account() !== null) {
+          <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <a class="nav-link" routerLink="/cart-page" (click)="collapseNavbar()">
+              <fa-icon icon="shopping-cart"></fa-icon>
+              @if (cartItemCount() > 0) {
+                <span class="badge badge-light bg-warning ms-1">{{ cartItemCount() }}</span>
+              }
+              <span jhiTranslate="global.menu.cart">Cart</span>
+            </a>
+          </li>
           <li
             ngbDropdown
             class="nav-item dropdown pointer"
@@ -43,7 +52,7 @@
               </span>
             </a>
             <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="entity-menu">
-              <li>
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/category"
@@ -55,7 +64,7 @@
                   <span jhiTranslate="global.menu.entities.category">Category</span>
                 </a>
               </li>
-              <li>
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/product"
@@ -67,7 +76,7 @@
                   <span jhiTranslate="global.menu.entities.product">Product</span>
                 </a>
               </li>
-              <li>
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/scope"
@@ -79,7 +88,7 @@
                   <span jhiTranslate="global.menu.entities.scope">Scope</span>
                 </a>
               </li>
-              <li>
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/authority-scope-linker"

@@ -1,0 +1,81 @@
+<div class="container mt-4">
+  <h2>
+    <fa-icon icon="shopping-cart"></fa-icon>
+    <span jhiTranslate="monoEcomApp.cartPage.title">Shopping Cart</span>
+  </h2>
+
+  <jhi-alert-error />
+  <jhi-alert />
+
+  @if (isLoading() && !cart()) {
+    <div class="d-flex justify-content-center mt-4">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger mt-3">{{ errorMessage() }}</div>
+  }
+
+  @if (!isLoading() && cart() && cart()!.cartItems && cart()!.cartItems!.length === 0) {
+    <div class="alert alert-info mt-3">
+      <fa-icon icon="info-circle"></fa-icon>
+      <span jhiTranslate="monoEcomApp.cartPage.empty">Your cart is empty</span>
+    </div>
+    <a routerLink="/product" class="btn btn-primary">
+      <fa-icon icon="arrow-left"></fa-icon>
+      <span jhiTranslate="monoEcomApp.cartPage.continueShopping">Continue Shopping</span>
+    </a>
+  }
+
+  @if (cart() && cart()!.cartItems && cart()!.cartItems!.length > 0) {
+    <div class="table-responsive mt-3">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col" jhiTranslate="monoEcomApp.cartPage.product">Product</th>
+            <th scope="col" jhiTranslate="monoEcomApp.cartPage.price">Price</th>
+            <th scope="col" jhiTranslate="monoEcomApp.cartPage.quantity">Quantity</th>
+            <th scope="col" jhiTranslate="monoEcomApp.cartPage.subtotal">Subtotal</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of cart()!.cartItems; track item.id) {
+            <tr>
+              <td>{{ item.product?.name }}</td>
+              <td>{{ item.product?.price | number: '1.2-2' }}</td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button class="btn btn-outline-secondary" (click)="decreaseQuantity(item)" [disabled]="isLoading()">
+                    <fa-icon icon="minus"></fa-icon>
+                  </button>
+                  <span class="btn btn-outline-secondary disabled">{{ item.quantity }}</span>
+                  <button class="btn btn-outline-secondary" (click)="increaseQuantity(item)" [disabled]="isLoading()">
+                    <fa-icon icon="plus"></fa-icon>
+                  </button>
+                </div>
+              </td>
+              <td>{{ (item.product?.price ?? 0) * item.quantity | number: '1.2-2' }}</td>
+              <td>
+                <button class="btn btn-danger btn-sm" (click)="removeItem(item)" [disabled]="isLoading()">
+                  <fa-icon icon="times"></fa-icon>
+                  <span jhiTranslate="entity.action.delete">Delete</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr class="fw-bold">
+            <td colspan="3" class="text-end" jhiTranslate="monoEcomApp.cartPage.total">Total</td>
+            <td>{{ cart()!.totalPrice | number: '1.2-2' }}</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+</div>

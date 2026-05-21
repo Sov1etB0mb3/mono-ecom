@@ -21,6 +21,16 @@
       "id": "ID",
       "user": "User",
       "cartItem": "Cart Item"
+    },
+    "cartPage": {
+      "title": "Giỏ hàng",
+      "empty": "Giỏ hàng của bạn đang trống",
+      "continueShopping": "Tiếp tục mua sắm",
+      "product": "Sản phẩm",
+      "price": "Giá",
+      "quantity": "Số lượng",
+      "subtotal": "Tạm tính",
+      "total": "Tổng cộng"
     }
   }
 }

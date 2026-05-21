@@ -17,7 +17,10 @@ public class ScopeAspect {
         this.authorizationService = authorizationService;
     }
 
-    @Before("execution(* com.calt.buroxz.service.*Service.*(..))" + "&& !target(com.calt.buroxz.service.UserService)")
+    @Before(
+        "execution(* com.calt.buroxz.service.*Service.*(..))" +
+        "&& !target(com.calt.buroxz.service.UserService)&& !target(com.calt.buroxz.service.CustomizedCartService)"
+    )
     public void check(JoinPoint joinPoint) {
         String scope = resolveScope(joinPoint);
         boolean isAdmin = authorizationService.hasScope("scope:all");

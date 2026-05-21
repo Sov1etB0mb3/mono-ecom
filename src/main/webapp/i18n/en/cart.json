@@ -21,6 +21,16 @@
       "id": "ID",
       "user": "User",
       "cartItem": "Cart Item"
+    },
+    "cartPage": {
+      "title": "Shopping Cart",
+      "empty": "Your cart is empty",
+      "continueShopping": "Continue Shopping",
+      "product": "Product",
+      "price": "Price",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "total": "Total"
     }
   }
 }

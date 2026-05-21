@@ -15,6 +15,7 @@ import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigati
 import { IProduct } from '../product.model';
 import { EntityArrayResponseType, ProductService } from '../service/product.service';
 import { ProductDeleteDialogComponent } from '../delete/product-delete-dialog.component';
+import { CartService } from 'app/cart/cart.service';
 
 @Component({
   selector: 'jhi-product',
@@ -41,6 +42,11 @@ export class ProductComponent implements OnInit {
   protected readonly sortService = inject(SortService);
   protected modalService = inject(NgbModal);
   protected ngZone = inject(NgZone);
+  protected readonly cartService = inject(CartService);
+
+  addToCart(product: IProduct): void {
+    this.cartService.addItemToCart({ product: { id: product.id }, quantity: 1 }).subscribe();
+  }
 
   trackId = (item: IProduct): number => this.productService.getProductIdentifier(item);
 
