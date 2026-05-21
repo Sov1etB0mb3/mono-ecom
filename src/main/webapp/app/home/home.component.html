@@ -4,7 +4,7 @@
   </div>
 
   <div class="col-md-9">
-    <h1 class="display-4"><span jhiTranslate="home.title">Welcome, Java Hipster!</span> (Mono Ecom)</h1>
+    <h1 class="display-4"><span jhiTranslate="home.title">Welcome to MrX SHop!</span></h1>
 
     <p class="lead" jhiTranslate="home.subtitle">This is your homepage</p>
 
@@ -120,6 +120,19 @@
             <div class="alert alert-info">No products available.</div>
           </div>
         }
+      </div>
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page, totalItems, itemsPerPage }" />
+      </div>
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems"
+          [(page)]="page"
+          [pageSize]="itemsPerPage"
+          [maxSize]="5"
+          [rotate]="true"
+          (pageChange)="navigateToPage($event)"
+        />
       </div>
     }
   </div>
