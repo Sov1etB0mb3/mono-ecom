@@ -98,17 +98,32 @@ public class CustomizedCartService extends CartService {
     public CartResponse addCartItem(CustomizedCartItemDTO cartItemDTO) {
         LOG.debug("Request to save CartItem : {}", cartItemDTO);
         Product readyProduct = productRepository.findProductById(cartItemDTO.getProduct().getId());
-        if (!validateStock(cartItemDTO, readyProduct)) {
-            throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
-        }
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         Cart cart = customizedCartRepository.getCartWithItem(userName);
         if (cart == null) {
+            if (!validateStock(cartItemDTO, readyProduct)) {
+                throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
+            }
             User user = userRepository
                 .findOneByLogin(userName)
                 .orElseThrow(() -> new BadRequestAlertException("User not found", "user", "usernotfound"));
             cart = new Cart().user(user);
             cartRepository.save(cart);
+        } else {
+            for (CartItem existingItem : cart.getCartItems()) {
+                if (existingItem.getProduct().getId().equals(cartItemDTO.getProduct().getId())) {
+                    if (existingItem.getQuantity() + cartItemDTO.getQuantity() > readyProduct.getQuantity()) {
+                        throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
+                    }
+                    existingItem.setQuantity(existingItem.getQuantity() + cartItemDTO.getQuantity());
+                    existingItem.setPrice(readyProduct.getPrice().multiply(BigDecimal.valueOf(existingItem.getQuantity())));
+                    cartItemRepository.save(existingItem);
+                    return findCartWithItems();
+                }
+            }
+            if (!validateStock(cartItemDTO, readyProduct)) {
+                throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
+            }
         }
         CartItem cartItem = customizedCartItemMapper.toEntity(cartItemDTO);
         cartItem.setPrice(readyProduct.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));

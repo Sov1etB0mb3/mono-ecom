@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, TemplateRef, inject, signal, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HttpHeaders } from '@angular/common/http';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import SharedModule from 'app/shared/shared.module';
 import { ItemCountComponent } from 'app/shared/pagination';
@@ -23,14 +24,20 @@ export default class HomeComponent implements OnInit {
   account = signal<Account | null>(null);
   products = signal<IProduct[]>([]);
   isLoading = signal(false);
+  toastMessage = signal<string | null>(null);
+  selectedProduct = signal<IProduct | null>(null);
   page = 1;
   totalItems = 0;
   readonly itemsPerPage = ITEMS_PER_PAGE;
+
+  readonly confirmModal = viewChild<TemplateRef<any>>('confirmModal');
 
   private readonly accountService = inject(AccountService);
   private readonly loginService = inject(LoginService);
   private readonly productService = inject(ProductService);
   private readonly cartService = inject(CartService);
+  private readonly modalService = inject(NgbModal);
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.accountService.identity().subscribe(account => {
@@ -61,8 +68,24 @@ export default class HomeComponent implements OnInit {
     this.loadProducts();
   }
 
+  confirmAddToCart(product: IProduct): void {
+    this.selectedProduct.set(product);
+    this.modalService.open(this.confirmModal(), { centered: true }).result.then(
+      () => this.addToCart(product),
+      () => {},
+    );
+  }
+
   addToCart(product: IProduct): void {
-    this.cartService.addItemToCart({ product: { id: product.id }, quantity: 1 }).subscribe();
+    this.cartService.addItemToCart({ product: { id: product.id }, quantity: 1 }).subscribe(() => {
+      this.showToast(`${product.name} added to cart`);
+    });
+  }
+
+  private showToast(message: string): void {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastMessage.set(message);
+    this.toastTimer = setTimeout(() => this.toastMessage.set(null), 3000);
   }
 
   login(): void {

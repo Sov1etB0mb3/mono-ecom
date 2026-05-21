@@ -22,15 +22,7 @@ public class InventoryService {
     }
 
     public BigDecimal calculatePrice(CartResponse cartResponse) {
-        //        return cartResponse.getCartItems().stream().mapToDouble(item -> item.getPrice()).sum();
-        return cartResponse
-            .getCartItems()
-            .stream()
-            .map(item -> {
-                BigDecimal qty = BigDecimal.valueOf(item.getQuantity());
-                return item.getPrice().multiply(qty);
-            }) // Or however you get the value
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return cartResponse.getCartItems().stream().map(CustomizedCartItemDTO::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public BigDecimal calculatePrice(Order order) {
