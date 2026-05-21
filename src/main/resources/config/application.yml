@@ -226,8 +226,8 @@ jhipster:
         - api://default
 
 stripe:
-  api-key: ${STRIPE_API_KEY:sk_test_51TLe4BRw1Ig5DPMK0MmtaCjMx59Uhx3ZaLK1zIpkVqRBldE7sSYDKdKC4XC0rsn2AXHitWzau3xB1FpQhlPM2TUe00jEGDomWk}
-  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_71581cc05e8d3413275b766ce9c1eab456e38f42926516dabcc6a2307a859b52}
+  api-key: ${STRIPE_API_KEY:""}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:""}
   success-url: 'http://localhost:8080/payment/success'
   cancel-url: 'http://localhost:8080/payment/cancel'
 
