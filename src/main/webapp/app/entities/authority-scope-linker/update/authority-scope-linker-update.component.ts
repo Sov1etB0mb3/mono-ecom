@@ -100,7 +100,7 @@ export class AuthorityScopeLinkerUpdateComponent implements OnInit {
 
   protected loadRelationshipsOptions(): void {
     this.authorityService
-      .query()
+      .query({ size: 10000 })
       .pipe(map((res: HttpResponse<IAuthority[]>) => res.body ?? []))
       .pipe(
         map((authorities: IAuthority[]) =>
@@ -110,7 +110,7 @@ export class AuthorityScopeLinkerUpdateComponent implements OnInit {
       .subscribe((authorities: IAuthority[]) => (this.authoritiesSharedCollection = authorities));
 
     this.scopeService
-      .query()
+      .query({ size: 10000 })
       .pipe(map((res: HttpResponse<IScope[]>) => res.body ?? []))
       .pipe(map((scopes: IScope[]) => this.scopeService.addScopeToCollectionIfMissing<IScope>(scopes, this.authorityScopeLinker?.scope)))
       .subscribe((scopes: IScope[]) => (this.scopesSharedCollection = scopes));

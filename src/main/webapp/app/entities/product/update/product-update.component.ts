@@ -90,7 +90,7 @@ export class ProductUpdateComponent implements OnInit {
 
   protected loadRelationshipsOptions(): void {
     this.categoryService
-      .query()
+      .query({ size: 10000 })
       .pipe(map((res: HttpResponse<ICategory[]>) => res.body ?? []))
       .pipe(
         map((categories: ICategory[]) =>
