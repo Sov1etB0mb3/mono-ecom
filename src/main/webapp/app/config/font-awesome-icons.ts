@@ -41,6 +41,7 @@ import {
   faShoppingCart,
   faInfoCircle,
   faMinus,
+  faExternalLinkAlt,
   // jhipster-needle-add-icon-import
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -87,5 +88,6 @@ export const fontAwesomeIcons = [
   faShoppingCart,
   faInfoCircle,
   faMinus,
+  faExternalLinkAlt,
   // jhipster-needle-add-icon-import
 ];

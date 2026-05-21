@@ -25,6 +25,7 @@ export class ProfileService {
           activeProfiles: response.activeProfiles,
           inProduction: response.activeProfiles?.includes('prod'),
           openAPIEnabled: response.activeProfiles?.includes('api-docs'),
+          keycloakAdminUrl: response['keycloak-admin-url'],
         };
         if (response.activeProfiles && response['display-ribbon-on-profiles']) {
           const displayRibbonOnProfiles = response['display-ribbon-on-profiles'].split(',');

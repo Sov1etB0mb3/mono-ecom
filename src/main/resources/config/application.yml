@@ -185,6 +185,7 @@ springdoc:
 info:
   # Comma separated list of profiles that will trigger the ribbon to show
   display-ribbon-on-profiles: 'dev'
+  keycloak-admin-url: http://localhost:9080/admin/master/console/
 
 # ===================================================================
 # JHipster specific properties

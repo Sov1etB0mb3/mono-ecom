@@ -212,6 +212,14 @@
                 </a>
               </li>
             }
+            @if (keycloakAdminUrl) {
+              <li>
+                <a class="dropdown-item" [href]="keycloakAdminUrl" target="_blank" rel="noopener noreferrer" (click)="collapseNavbar()">
+                  <fa-icon icon="external-link-alt" [fixedWidth]="true"></fa-icon>
+                  <span jhiTranslate="global.menu.admin.keycloak">Keycloak</span>
+                </a>
+              </li>
+            }
           </ul>
         </li>
         @if (languages && languages.length > 1) {

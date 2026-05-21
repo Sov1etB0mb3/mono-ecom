@@ -34,6 +34,7 @@
         "logs": "Ghi logs",
         "apidocs": "API",
         "database": "Cơ sở dữ liệu",
+        "keycloak": "Keycloak",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
       "cart": "Giỏ hàng",

@@ -31,6 +31,7 @@ export default class NavbarComponent implements OnInit {
   entitiesNavbarItems: NavbarItem[] = [];
 
   cartItemCount = signal(0);
+  keycloakAdminUrl?: string;
 
   private readonly loginService = inject(LoginService);
   private readonly translateService = inject(TranslateService);
@@ -53,6 +54,7 @@ export default class NavbarComponent implements OnInit {
     this.profileService.getProfileInfo().subscribe(profileInfo => {
       this.inProduction = profileInfo.inProduction;
       this.openAPIEnabled = profileInfo.openAPIEnabled;
+      this.keycloakAdminUrl = profileInfo.keycloakAdminUrl;
     });
     this.cartService.getCart().subscribe();
     this.accountService.getAuthenticationState().subscribe(account => {
