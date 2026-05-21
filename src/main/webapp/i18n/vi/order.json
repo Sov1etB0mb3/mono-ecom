@@ -28,6 +28,22 @@
       "lastModifiedDate": "Last Modified Date",
       "orderItem": "Order Item",
       "user": "User"
+    },
+    "checkout": {
+      "title": "Thanh toán",
+      "redirecting": "Đang chuyển hướng đến trang thanh toán..."
+    },
+    "payment": {
+      "success": {
+        "title": "Thanh toán thành công!",
+        "message": "Đơn hàng của bạn đã được đặt và thanh toán đã được nhận.",
+        "backHome": "Về trang chủ"
+      },
+      "cancel": {
+        "title": "Thanh toán bị hủy",
+        "message": "Thanh toán của bạn đã bị hủy. Bạn có thể thử lại từ giỏ hàng.",
+        "backToCart": "Quay lại giỏ hàng"
+      }
     }
   }
 }

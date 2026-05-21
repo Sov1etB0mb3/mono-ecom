@@ -30,7 +30,8 @@
       "price": "Giá",
       "quantity": "Số lượng",
       "subtotal": "Tạm tính",
-      "total": "Tổng cộng"
+      "total": "Tổng cộng",
+      "checkout": "Thanh toán"
     }
   }
 }

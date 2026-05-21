@@ -21,6 +21,8 @@ public class ScopeAspect {
         "execution(* com.calt.buroxz.service.*Service.*(..))" +
         "&& !target(com.calt.buroxz.service.UserService)" +
         "&&!target(com.calt.buroxz.service.CustomizedCartService)" +
+        "&&!target(com.calt.buroxz.service.CustomizedOrderService)" +
+        "&&!target(com.calt.buroxz.service.StripeService)" +
         "&&!target(com.calt.buroxz.service.InventoryService)"
     )
     public void check(JoinPoint joinPoint) {

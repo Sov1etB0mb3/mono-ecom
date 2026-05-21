@@ -1,0 +1,18 @@
+<div class="container mt-5">
+  <div class="card text-center">
+    <div class="card-body">
+      <div class="mb-3 text-success" style="font-size: 4rem">
+        <fa-icon icon="check-circle"></fa-icon>
+      </div>
+      <h3 class="card-title" jhiTranslate="monoEcomApp.payment.success.title">Payment Successful!</h3>
+      <p class="card-text" jhiTranslate="monoEcomApp.payment.success.message">Your order has been placed and payment received.</p>
+      @if (sessionId()) {
+        <p class="text-muted small">Session: {{ sessionId() }}</p>
+      }
+      <a routerLink="/" class="btn btn-primary mt-3">
+        <fa-icon icon="arrow-left"></fa-icon>
+        <span jhiTranslate="monoEcomApp.payment.success.backHome">Back to Home</span>
+      </a>
+    </div>
+  </div>
+</div>

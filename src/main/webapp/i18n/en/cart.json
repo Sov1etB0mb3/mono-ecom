@@ -30,7 +30,8 @@
       "price": "Price",
       "quantity": "Quantity",
       "subtotal": "Subtotal",
-      "total": "Total"
+      "total": "Total",
+      "checkout": "Proceed to Checkout"
     }
   }
 }

@@ -28,6 +28,22 @@
       "lastModifiedDate": "Last Modified Date",
       "orderItem": "Order Item",
       "user": "User"
+    },
+    "checkout": {
+      "title": "Checkout",
+      "redirecting": "Redirecting to payment..."
+    },
+    "payment": {
+      "success": {
+        "title": "Payment Successful!",
+        "message": "Your order has been placed and payment received.",
+        "backHome": "Back to Home"
+      },
+      "cancel": {
+        "title": "Payment Cancelled",
+        "message": "Your payment was cancelled. You can try again from your cart.",
+        "backToCart": "Back to Cart"
+      }
     }
   }
 }

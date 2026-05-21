@@ -74,6 +74,17 @@
             <td>{{ cart()!.totalPrice | number: '1.2-2' }}</td>
             <td></td>
           </tr>
+          <tr>
+            <td colspan="5" class="text-end">
+              <button class="btn btn-success btn-lg" (click)="checkout()" [disabled]="checkingOut()">
+                @if (checkingOut()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                <fa-icon icon="credit-card"></fa-icon>
+                <span jhiTranslate="monoEcomApp.cartPage.checkout">Proceed to Checkout</span>
+              </button>
+            </td>
+          </tr>
         </tfoot>
       </table>
     </div>

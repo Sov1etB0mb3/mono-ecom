@@ -113,7 +113,7 @@ public class CustomizedCartService extends CartService {
         CartItem cartItem = customizedCartItemMapper.toEntity(cartItemDTO);
         cartItem.setPrice(readyProduct.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
         cartItem.setProduct(readyProduct);
-        cartItem.setCart(cart);
+        cart.addCartItem(cartItem);
         cartItemRepository.save(cartItem);
         return findCartWithItems();
     }

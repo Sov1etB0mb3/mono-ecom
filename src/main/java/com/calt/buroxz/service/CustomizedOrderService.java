@@ -1,26 +1,32 @@
 package com.calt.buroxz.service;
 
+import com.calt.buroxz.domain.Cart;
+import com.calt.buroxz.domain.CartItem;
 import com.calt.buroxz.domain.Order;
 import com.calt.buroxz.domain.OrderItem;
 import com.calt.buroxz.domain.Product;
+import com.calt.buroxz.domain.User;
 import com.calt.buroxz.domain.enumeration.OrderStatus;
+import com.calt.buroxz.repository.CartItemRepository;
+import com.calt.buroxz.repository.CustomizedCartRepository;
 import com.calt.buroxz.repository.OrderRepository;
 import com.calt.buroxz.repository.ProductRepository;
+import com.calt.buroxz.repository.UserRepository;
 import com.calt.buroxz.repository.search.OrderSearchRepository;
-import com.calt.buroxz.service.dto.CustomizedCartItemDTO;
 import com.calt.buroxz.service.dto.OrderDTO;
-import com.calt.buroxz.service.dto.request.CartRequest;
 import com.calt.buroxz.service.dto.response.OrderResponse;
 import com.calt.buroxz.service.mapper.CustomizedCartItemMapper;
 import com.calt.buroxz.service.mapper.CustomizedOrderMapper;
 import com.calt.buroxz.service.mapper.OrderMapper;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +49,10 @@ public class CustomizedOrderService extends OrderService {
     private final CustomizedCartItemMapper customizedCartItemMapper;
     private final ProductRepository productRepository;
     private final InventoryService inventoryService;
+    private final CustomizedCartRepository customizedCartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final UserRepository userRepository;
+    private final StripeService stripeService;
 
     public CustomizedOrderService(
         OrderRepository orderRepository,
@@ -51,7 +61,11 @@ public class CustomizedOrderService extends OrderService {
         OrderSearchRepository orderSearchRepository,
         CustomizedCartItemMapper customizedCartItemMapper,
         ProductRepository productRepository,
-        InventoryService inventoryService
+        InventoryService inventoryService,
+        CustomizedCartRepository customizedCartRepository,
+        CartItemRepository cartItemRepository,
+        UserRepository userRepository,
+        StripeService stripeService
     ) {
         super(orderRepository, orderMapper, orderSearchRepository);
         this.orderRepository = orderRepository;
@@ -61,53 +75,80 @@ public class CustomizedOrderService extends OrderService {
         this.customizedCartItemMapper = customizedCartItemMapper;
         this.productRepository = productRepository;
         this.inventoryService = inventoryService;
+        this.customizedCartRepository = customizedCartRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.userRepository = userRepository;
+        this.stripeService = stripeService;
     }
 
-    public OrderResponse checkOut(CartRequest cartRequest) {
-        Order order = new Order();
-        //    Set<OrderItem> orderItemSet = customizedCartItemMapper.toEntity(cartRequest.getCartItems())
-        //        .stream()
-        //        .map(cartItem -> {
-        //            Product product = cartItem.getProduct();
-        //            product.setQuantity(product.getQuantity()-cartItem.getQuantity());
-        //            OrderItem orderItem = new OrderItem();
-        //            orderItem.setProduct(cartItem.getProduct());
-        //            orderItem.setQuantity(cartItem.getQuantity());
-        //            orderItem.setPriceAtPurchase(cartItem.getPrice());
-        //
-        //            return orderItem;
-        //        }).collect(Collectors.toSet());
-        //        order.setOrderItems(orderItemSet);
-        Set<Long> productIds = cartRequest
-            .getCartItems()
-            .stream()
-            .map(cartItem -> cartItem.getProduct().getId())
-            .collect(Collectors.toSet());
-        List<Product> lsProduct = productRepository.findProductsByIdIn(productIds);
-        Map<Long, Product> productMap = lsProduct.stream().collect(Collectors.toMap(Product::getId, p -> p));
-        for (CustomizedCartItemDTO itemDTO : cartRequest.getCartItems()) {
-            Long pid = itemDTO.getProduct().getId();
+    public OrderResponse checkOut() {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        LOG.debug("Checking out for user: {}", userName);
+        User user = userRepository
+            .findOneByLogin(userName)
+            .orElseThrow(() -> new BadRequestAlertException("User not found", "user", "usernotfound"));
 
-            Product readyProduct = productMap.get(pid);
-            if (inventoryService.validateStock(itemDTO, readyProduct)) {
-                OrderItem orderItem = new OrderItem();
-                orderItem.setProduct(readyProduct);
-                orderItem.setQuantity(itemDTO.getQuantity());
-                orderItem.setPriceAtPurchase(readyProduct.getPrice());
-                order.addOrderItem(orderItem);
-                readyProduct.setQuantity(readyProduct.getQuantity() - itemDTO.getQuantity());
-            }
+        Cart cart = customizedCartRepository
+            .findCartByUserLogin(userName)
+            .orElseThrow(() -> new BadRequestAlertException("Cart is empty", "order", "cartempty"));
+        if (cart.getCartItems().isEmpty()) {
+            throw new BadRequestAlertException("Cart is empty", "order", "cartempty");
         }
-        order.setTotal(inventoryService.calculatePrice(order));
-        order.setStatus(OrderStatus.PENDING); // You should probably set an initial status
+
+        Order order = new Order().user(user);
+
+        Set<Long> productIds = cart.getCartItems().stream().map(cartItem -> cartItem.getProduct().getId()).collect(Collectors.toSet());
+        List<Product> products = productRepository.findProductsByIdIn(productIds);
+        Map<Long, Product> productMap = products.stream().collect(Collectors.toMap(Product::getId, p -> p));
+
+        for (CartItem cartItem : cart.getCartItems()) {
+            Product product = productMap.get(cartItem.getProduct().getId());
+            if (product == null) {
+                continue;
+            }
+            if (cartItem.getQuantity() > product.getQuantity()) {
+                throw new BadRequestAlertException("Insufficient stock for " + product.getName(), "order", "insufficientstock");
+            }
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setPriceAtPurchase(product.getPrice());
+            order.addOrderItem(orderItem);
+            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
+        }
+
+        if (order.getOrderItems().isEmpty()) {
+            throw new BadRequestAlertException("No valid items to order", "order", "noitems");
+        }
+
+        BigDecimal subTotal = order
+            .getOrderItems()
+            .stream()
+            .map(oi -> oi.getPriceAtPurchase().multiply(BigDecimal.valueOf(oi.getQuantity())))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        order.setSubTotal(subTotal);
+        order.setTotal(subTotal);
+        order.setStatus(OrderStatus.PENDING);
+
         Order savedOrder = orderRepository.save(order);
+
         return cOrderMapper.toDto(savedOrder);
     }
 
-    public void payment(Long orderId) {
+    public void clearCart() {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Cart cart = customizedCartRepository.getCartWithItem(userName);
+        if (cart != null && cart.getCartItems() != null && !cart.getCartItems().isEmpty()) {
+            cartItemRepository.deleteAll(cart.getCartItems());
+            cart.getCartItems().clear();
+        }
+    }
+
+    public String payment(Long orderId) {
         Order order = orderRepository
             .findById(orderId)
             .orElseThrow(() -> new BadRequestAlertException("ORDER NOTFOUND", orderId.toString(), "nonorder"));
+        return stripeService.createCheckoutSession(order);
     }
 
     /**

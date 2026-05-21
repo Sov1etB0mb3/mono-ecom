@@ -1,0 +1,18 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { ApplicationConfigService } from 'app/core/config/application-config.service';
+import { ICheckoutResponse } from './order.model';
+
+@Injectable({ providedIn: 'root' })
+export class OrderService {
+  protected readonly http = inject(HttpClient);
+  protected readonly applicationConfigService = inject(ApplicationConfigService);
+
+  protected resourceUrl = this.applicationConfigService.getEndpointFor('api/orders');
+
+  checkout(): Observable<ICheckoutResponse> {
+    return this.http.post<ICheckoutResponse>(`${this.resourceUrl}/checkout`, {});
+  }
+}
