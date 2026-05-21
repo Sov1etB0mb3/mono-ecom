@@ -1,11 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 
 import SharedModule from 'app/shared/shared.module';
-import { CartService, CartResponseType } from './cart.service';
-import { ICartResponse, ICustomizedCartItem } from './cart.model';
+import { CartService } from './cart.service';
+import { ICustomizedCartItem } from './cart.model';
 
 @Component({
   selector: 'jhi-cart',
@@ -13,14 +12,16 @@ import { ICartResponse, ICustomizedCartItem } from './cart.model';
   imports: [RouterModule, SharedModule],
 })
 export class CartComponent implements OnInit {
-  cart = signal<ICartResponse | null>(null);
+  cart = inject(CartService).cartSignal;
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
 
   private readonly cartService = inject(CartService);
 
   ngOnInit(): void {
-    this.loadCart();
+    if (!this.cart()) {
+      this.loadCart();
+    }
   }
 
   loadCart(): void {
@@ -29,47 +30,25 @@ export class CartComponent implements OnInit {
     this.cartService
       .getCart()
       .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (res: CartResponseType) => this.cart.set(res.body),
-        error: () => this.errorMessage.set('Failed to load cart'),
-      });
+      .subscribe({ error: () => this.errorMessage.set('Failed to load cart') });
   }
 
   increaseQuantity(item: ICustomizedCartItem): void {
     if (!item.id) return;
-    this.updateQuantity(item.id, item.quantity + 1);
+    this.cartService.updateItemQuantity(item.id, item.quantity + 1).subscribe();
   }
 
   decreaseQuantity(item: ICustomizedCartItem): void {
     if (!item.id) return;
-    const newQty = item.quantity - 1;
-    if (newQty < 1) {
-      this.removeItem(item);
+    if (item.quantity <= 1) {
+      this.cartService.removeCartItem(item.id).subscribe();
       return;
     }
-    this.updateQuantity(item.id, newQty);
+    this.cartService.updateItemQuantity(item.id, item.quantity - 1).subscribe();
   }
 
   removeItem(item: ICustomizedCartItem): void {
     if (!item.id) return;
-    this.isLoading.set(true);
-    this.cartService
-      .removeCartItem(item.id)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (res: CartResponseType) => this.cart.set(res.body),
-        error: () => this.errorMessage.set('Failed to remove item'),
-      });
-  }
-
-  private updateQuantity(id: number, quantity: number): void {
-    this.isLoading.set(true);
-    this.cartService
-      .updateItemQuantity(id, quantity)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (res: CartResponseType) => this.cart.set(res.body),
-        error: () => this.errorMessage.set('Failed to update quantity'),
-      });
+    this.cartService.removeCartItem(item.id).subscribe();
   }
 }

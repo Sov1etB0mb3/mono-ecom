@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -92,57 +94,67 @@ public class CustomizedCartService extends CartService {
     //        CartResponse cartResponse = customizedCartMapper.toDto(cartRepository.save(newCart));
     //        return cartResponse;
     //    }
+    @CacheEvict(value = "CartResponse", allEntries = true)
     public CartResponse addCartItem(CustomizedCartItemDTO cartItemDTO) {
         LOG.debug("Request to save CartItem : {}", cartItemDTO);
         Product readyProduct = productRepository.findProductById(cartItemDTO.getProduct().getId());
         if (!validateStock(cartItemDTO, readyProduct)) {
             throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
         }
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Cart cart = customizedCartRepository.getCartWithItem(userName);
+        if (cart == null) {
+            User user = userRepository
+                .findOneByLogin(userName)
+                .orElseThrow(() -> new BadRequestAlertException("User not found", "user", "usernotfound"));
+            cart = new Cart().user(user);
+            cartRepository.save(cart);
+        }
         CartItem cartItem = customizedCartItemMapper.toEntity(cartItemDTO);
         cartItem.setPrice(readyProduct.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
         cartItem.setProduct(readyProduct);
+        cartItem.setCart(cart);
         cartItemRepository.save(cartItem);
-        Cart cart = cartRepository.findById(cartItemDTO.getCart().getId()).orElseThrow();
-        cart.addCartItem(cartItem); // IMPORTANT: This updates the List in memory
-        CartResponse cartResponse = customizedCartMapper.toDto(cart);
-        BigDecimal total = inventoryService.calculatePrice(cartResponse);
-        cartResponse.setTotalPrice(total);
-        //        cartItemSearchRepository.index(cartItem);
-        return cartResponse;
+        return findCartWithItems();
     }
 
+    @Cacheable(
+        value = "CartResponse",
+        key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().getName()"
+    )
     @Transactional(readOnly = true)
     public CartResponse findCartWithItems() {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         Cart cart = customizedCartRepository.getCartWithItem(userName);
+        if (cart == null) {
+            return emptyCartResponse();
+        }
         CartResponse cartResponse = customizedCartMapper.toDto(cart);
         BigDecimal total = inventoryService.calculatePrice(cartResponse);
         cartResponse.setTotalPrice(total);
         return cartResponse;
     }
 
+    private CartResponse emptyCartResponse() {
+        CartResponse response = new CartResponse();
+        response.setTotalPrice(BigDecimal.ZERO);
+        response.setCartItems(new HashSet<>());
+        return response;
+    }
+
+    @CacheEvict(value = "CartResponse", allEntries = true)
     public CartResponse updateCartItemInCart(CartRequest cartRequest) {
-        if (!cartRepository.existsById(cartRequest.getId())) {
-            throw new BadRequestAlertException("Entity not found", SUPER_ENTITY_NAME, "idnotfound");
-        }
-        Cart cart = cartRepository.findCartById(cartRequest.getId());
-        CartResponse response;
         cartRequest
             .getCartItems()
-            .stream()
             .forEach(cartItemDTO -> {
-                if (cartItemRepository.existsById(cartItemDTO.getId())) {
+                if (cartItemDTO.getId() != null && cartItemRepository.existsById(cartItemDTO.getId())) {
                     internalUpdateQuantity(cartItemDTO.getId(), cartItemDTO.getQuantity());
                 }
             });
-        Cart newCart = cartRepository.save(cart);
-        cartSearchRepository.index(newCart);
-        CartResponse cartResponse = customizedCartMapper.toDto(newCart);
-        cartResponse.setTotalPrice(inventoryService.calculatePrice(cartResponse));
-
-        return cartResponse;
+        return findCartWithItems();
     }
 
+    @CacheEvict(value = "CartResponse", allEntries = true)
     public CartResponse updateCartItemQuantity(Long cartItemId, Integer newQuantity) {
         this.internalUpdateQuantity(cartItemId, newQuantity);
         return findCartWithItems();
@@ -153,21 +165,19 @@ public class CustomizedCartService extends CartService {
             .findById(cartItemId)
             .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
         if (newQuantity <= 0) {
-            removeCartItem(cartItemId);
             cartItemRepository.delete(item);
-        } else item.setQuantity(newQuantity);
+            return;
+        }
+        item.setQuantity(newQuantity);
         item.setPrice(item.getProduct().getPrice().multiply(BigDecimal.valueOf(newQuantity)));
         cartItemRepository.save(item);
     }
 
+    @CacheEvict(value = "CartResponse", allEntries = true)
     public CartResponse removeCartItem(Long cartItemId) {
         CartItem cartItem = cartItemRepository.findCartItemById(cartItemId);
-        Cart cart = cartItem.getCart();
-        cart.removeCartItem(cartItem);
         cartItemRepository.delete(cartItem);
-        CartResponse cartResponse = customizedCartMapper.toDto(cart);
-        cartResponse.setTotalPrice(inventoryService.calculatePrice(cartResponse));
-        return cartResponse;
+        return findCartWithItems();
     }
 
     /**

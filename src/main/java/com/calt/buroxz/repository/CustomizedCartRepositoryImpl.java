@@ -3,6 +3,7 @@ package com.calt.buroxz.repository;
 import com.calt.buroxz.domain.Cart;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.List;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -12,7 +13,7 @@ public class CustomizedCartRepositoryImpl implements CustomizedCartRepository {
     private EntityManager entityManager;
 
     public Cart getCartWithItem(String userName) {
-        return entityManager
+        List<Cart> results = entityManager
             .createQuery(
                 "SELECT c FROM Cart c" +
                 " LEFT JOIN FETCH c.user u" +
@@ -22,6 +23,7 @@ public class CustomizedCartRepositoryImpl implements CustomizedCartRepository {
                 Cart.class
             )
             .setParameter("userName", userName)
-            .getSingleResult();
+            .getResultList();
+        return results.isEmpty() ? null : results.get(0);
     }
 }

@@ -46,6 +46,8 @@ export default class NavbarComponent implements OnInit {
     }
   }
 
+  private readonly accountService = inject(AccountService);
+
   ngOnInit(): void {
     this.entitiesNavbarItems = EntityNavbarItems;
     this.profileService.getProfileInfo().subscribe(profileInfo => {
@@ -53,6 +55,11 @@ export default class NavbarComponent implements OnInit {
       this.openAPIEnabled = profileInfo.openAPIEnabled;
     });
     this.cartService.getCart().subscribe();
+    this.accountService.getAuthenticationState().subscribe(account => {
+      if (account) {
+        this.cartService.getCart().subscribe();
+      }
+    });
     effect(() => {
       this.cartItemCount.set(this.cartService.getCartItemCount());
     });

@@ -19,7 +19,9 @@ public class ScopeAspect {
 
     @Before(
         "execution(* com.calt.buroxz.service.*Service.*(..))" +
-        "&& !target(com.calt.buroxz.service.UserService)&& !target(com.calt.buroxz.service.CustomizedCartService)"
+        "&& !target(com.calt.buroxz.service.UserService)" +
+        "&&!target(com.calt.buroxz.service.CustomizedCartService)" +
+        "&&!target(com.calt.buroxz.service.InventoryService)"
     )
     public void check(JoinPoint joinPoint) {
         String scope = resolveScope(joinPoint);

@@ -95,6 +95,7 @@ public class CacheConfiguration {
             createCache(cm, com.calt.buroxz.domain.Cart.class.getName() + ".orderItems", jcacheConfiguration);
             createCache(cm, com.calt.buroxz.domain.CartItem.class.getName(), jcacheConfiguration);
             createCache(cm, com.calt.buroxz.domain.Cart.class.getName() + ".cartItems", jcacheConfiguration);
+            createCache(cm, "CartResponse", jcacheConfiguration);
             // jhipster-needle-redis-add-entry
         };
     }
