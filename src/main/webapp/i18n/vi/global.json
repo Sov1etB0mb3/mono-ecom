@@ -38,6 +38,7 @@
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
       "cart": "Giỏ hàng",
+      "myOrders": "Đơn hàng của tôi",
       "language": "Ngôn ngữ"
     },
     "form": {

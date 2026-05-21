@@ -38,6 +38,7 @@
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
       "cart": "Cart",
+      "myOrders": "My Orders",
       "language": "Language"
     },
     "form": {

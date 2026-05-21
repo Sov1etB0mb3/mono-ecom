@@ -2,6 +2,11 @@ import { Routes } from '@angular/router';
 
 const orderRoute: Routes = [
   {
+    path: 'my-orders',
+    loadComponent: () => import('./my-orders/my-orders.component').then(m => m.default),
+    data: { pageTitle: 'monoEcomApp.order.myOrders.title' },
+  },
+  {
     path: 'payment/checkout',
     loadComponent: () => import('./checkout/checkout.component').then(m => m.CheckoutComponent),
     data: { pageTitle: 'monoEcomApp.checkout.title' },

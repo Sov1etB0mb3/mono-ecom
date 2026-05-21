@@ -8,6 +8,7 @@ import {
   faCalendarAlt,
   faCheck,
   faCheckCircle,
+  faClipboardList,
   faCloud,
   faCogs,
   faDatabase,
@@ -47,7 +48,6 @@ import {
   faExternalLinkAlt,
   // jhipster-needle-add-icon-import
 } from '@fortawesome/free-solid-svg-icons';
-
 export const fontAwesomeIcons = [
   faArrowLeft,
   faAsterisk,
@@ -58,6 +58,7 @@ export const fontAwesomeIcons = [
   faCalendarAlt,
   faCheck,
   faCheckCircle,
+  faClipboardList,
   faCloud,
   faCogs,
   faDatabase,

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
-import { ICheckoutResponse } from './order.model';
+import { ICheckoutResponse, IOrder } from './order.model';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
@@ -14,5 +14,9 @@ export class OrderService {
 
   checkout(): Observable<ICheckoutResponse> {
     return this.http.post<ICheckoutResponse>(`${this.resourceUrl}/checkout`, {});
+  }
+
+  getMyOrders(): Observable<IOrder[]> {
+    return this.http.get<IOrder[]>(`${this.resourceUrl}/my-orders`);
   }
 }

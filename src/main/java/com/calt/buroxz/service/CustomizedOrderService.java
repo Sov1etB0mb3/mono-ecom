@@ -135,6 +135,12 @@ public class CustomizedOrderService extends OrderService {
         return cOrderMapper.toDto(savedOrder);
     }
 
+    public List<OrderDTO> getOrdersForCurrentUser() {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        LOG.debug("REST request to get all Orders for user: {}", userName);
+        return orderRepository.findByUserIsCurrentUser().stream().map(orderMapper::toDto).toList();
+    }
+
     public void clearCart() {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         Cart cart = customizedCartRepository.getCartWithItem(userName);

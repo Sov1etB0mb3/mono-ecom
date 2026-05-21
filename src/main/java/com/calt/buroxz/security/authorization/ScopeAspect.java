@@ -23,7 +23,8 @@ public class ScopeAspect {
         "&&!target(com.calt.buroxz.service.CustomizedCartService)" +
         "&&!target(com.calt.buroxz.service.CustomizedOrderService)" +
         "&&!target(com.calt.buroxz.service.StripeService)" +
-        "&&!target(com.calt.buroxz.service.InventoryService)"
+        "&&!target(com.calt.buroxz.service.InventoryService)" +
+        "&&!target(com.calt.buroxz.service.ProductService)"
     )
     public void check(JoinPoint joinPoint) {
         String scope = resolveScope(joinPoint);

@@ -9,6 +9,10 @@
         "search": "Search for Order",
         "notFound": "No Orders found"
       },
+      "myOrders": {
+        "title": "My Orders",
+        "empty": "No orders yet."
+      },
       "created": "A new Order is created with identifier {{ param }}",
       "updated": "A Order is updated with identifier {{ param }}",
       "deleted": "A Order is deleted with identifier {{ param }}",

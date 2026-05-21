@@ -11,7 +11,6 @@ const productRoute: Routes = [
     data: {
       defaultSort: `id,${ASC}`,
     },
-    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
@@ -19,7 +18,6 @@ const productRoute: Routes = [
     resolve: {
       product: ProductResolve,
     },
-    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',

@@ -12,7 +12,7 @@ import { ProductService } from 'app/entities/product/service/product.service';
 import { CartService } from 'app/cart/cart.service';
 import { IProduct } from 'app/entities/product/product.model';
 import { ITEMS_PER_PAGE, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
-import { finalize } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 
 @Component({
   selector: 'jhi-home',
@@ -42,8 +42,8 @@ export default class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.accountService.identity().subscribe(account => {
       this.account.set(account);
-      this.loadProducts();
     });
+    this.loadProducts();
   }
 
   loadProducts(): void {
@@ -56,7 +56,13 @@ export default class HomeComponent implements OnInit {
     };
     this.productService
       .query(queryObject)
-      .pipe(finalize(() => this.isLoading.set(false)))
+      .pipe(
+        catchError(() => {
+          this.isLoading.set(false);
+          return of({ body: [] as IProduct[], headers: new HttpHeaders() });
+        }),
+        finalize(() => this.isLoading.set(false)),
+      )
       .subscribe(res => {
         this.products.set(res.body ?? []);
         this.totalItems = Number(res.headers.get(TOTAL_COUNT_RESPONSE_HEADER));

@@ -2,7 +2,9 @@ package com.calt.buroxz.web.rest;
 
 import com.calt.buroxz.service.CustomizedOrderService;
 import com.calt.buroxz.service.StripeService;
+import com.calt.buroxz.service.dto.OrderDTO;
 import com.calt.buroxz.service.dto.response.OrderResponse;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,12 @@ public class CustomizedOrderResource {
     public CustomizedOrderResource(CustomizedOrderService customizedOrderService, StripeService stripeService) {
         this.customizedOrderService = customizedOrderService;
         this.stripeService = stripeService;
+    }
+
+    @GetMapping("/my-orders")
+    public ResponseEntity<List<OrderDTO>> getMyOrders() {
+        LOG.debug("REST request to get current user's orders");
+        return ResponseEntity.ok(customizedOrderService.getOrdersForCurrentUser());
     }
 
     @PostMapping("/checkout")

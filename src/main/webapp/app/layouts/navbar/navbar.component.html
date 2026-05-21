@@ -38,6 +38,12 @@
               <span jhiTranslate="global.menu.cart">Cart</span>
             </a>
           </li>
+          <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <a class="nav-link" routerLink="/my-orders" (click)="collapseNavbar()">
+              <fa-icon icon="clipboard-list"></fa-icon>
+              <span jhiTranslate="global.menu.myOrders">My Orders</span>
+            </a>
+          </li>
           <li
             ngbDropdown
             class="nav-item dropdown pointer"

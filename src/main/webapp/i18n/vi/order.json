@@ -9,6 +9,10 @@
         "search": "Tìm Order",
         "notFound": "No Orders found"
       },
+      "myOrders": {
+        "title": "Đơn hàng của tôi",
+        "empty": "Chưa có đơn hàng nào."
+      },
       "created": "Một Order mới được tạo với định danh {{ param }}",
       "updated": "Một Order cập nhật với định danh {{ param }}",
       "deleted": "Một Order đã xóa với định danh {{ param }}",
