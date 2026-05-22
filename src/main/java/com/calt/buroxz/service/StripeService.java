@@ -47,7 +47,7 @@ public class StripeService {
         SessionCreateParams params = SessionCreateParams.builder()
             .setMode(SessionCreateParams.Mode.PAYMENT)
             .setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}")
-            .setCancelUrl(cancelUrl)
+            .setCancelUrl(cancelUrl + "?order_id=" + order.getId())
             .setClientReferenceId(order.getId().toString())
             .setCustomerEmail(order.getUser() != null ? order.getUser().getEmail() : null)
             .addAllLineItem(java.util.Arrays.asList(lineItems))

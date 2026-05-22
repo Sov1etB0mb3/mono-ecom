@@ -1,289 +1,634 @@
-# Order & Payment (Stripe) Implementation
+# Order / Payment / Checkout Implementation
 
-## Overview
-
-This document explains the complete order/checkout/payment flow implemented for MrX SHop using Stripe Checkout Sessions. The flow is:
+## Architecture Overview
 
 ```
-Cart → Checkout → Order created → Stripe Checkout Session → Redirect → Stripe hosted payment → Redirect back → Webhook updates order status
+┌─────────────────────────────────────────────────────────┐
+│                    Frontend (Angular)                     │
+│                                                         │
+│  Cart Page ──> Checkout ──> Stripe Checkout Session     │
+│  (checkout)    Component      (Redirect)                │
+│                   │                                      │
+│                   │ POST /api/orders/checkout            │
+│                   ▼                                      │
+│  Success/Cancel Pages  <── Stripe redirects back         │
+│                                                         │
+│  My Orders Page ──> GET /api/orders/my-orders            │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+┌──────────────────────────▼──────────────────────────────┐
+│                    Backend (Spring Boot)                  │
+│                                                         │
+│  CustomizedOrderResource                                 │
+│    │  POST /checkout  ──> CustomizedOrderService         │
+│    │                        .checkOut() ──> Create Order │
+│    │                        .payment()  ──> Stripe       │
+│    │                        .clearCart()                 │
+│    │                                                     │
+│    │  POST /webhook  ──> StripeService                   │
+│    │                       .handleWebhookEvent()         │
+│    │                       (verifies sig, marks PAID)    │
+│    │                                                     │
+│    │  GET /my-orders ──> CustomizedOrderService          │
+│    │                       .getOrdersForCurrentUser()    │
+│    │                                                     │
+│  StripeService                                           │
+│    .createCheckoutSession() ──> Stripe API (SDK)         │
+│    .handleWebhookEvent()   <── Stripe Webhook            │
+└─────────────────────────────────────────────────────────┘
 ```
 
----
+## Backend Components
 
-## Backend Files
+### 1. Domain Entity: `Order.java`
 
-### 1. Stripe Configuration
+**File:** `src/main/java/com/calt/buroxz/domain/Order.java`
 
-**`src/main/java/com/calt/buroxz/config/StripeConfig.java`**
+The `Order` entity maps to the `jhi_order` table. Key fields:
 
-Reads `stripe.api-key` from `application.yml` and initializes the Stripe SDK on startup:
+```java
+@Entity
+@Table(name = "jhi_order")
+public class Order extends AbstractAuditingEntity<Long> implements Serializable, Persistable<Long> {
+
+    @Id @GeneratedValue(...)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;              // PENDING, PAID, CANCELLED, REFUNDED
+
+    @Column(precision = 21, scale = 2)
+    private BigDecimal subTotal;             // Sum of item line totals at time of order
+
+    @Column(precision = 21, scale = 2)
+    private BigDecimal total;                // Same as subTotal (no tax/shipping yet)
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<OrderItem> orderItems = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;                       // The customer who placed the order
+}
+```
+
+**Key design decisions:**
+
+- `cascade = CascadeType.ALL, orphanRemoval = true` on `orderItems` ensures when an `Order` is saved, all its `OrderItem` children are automatically persisted/removed.
+- `addOrderItem(OrderItem)` is the bidirectional helper (sets `orderItem.setOrder(this)`).
+- Status transitions: `PENDING` (initial) → `PAID` (webhook) | `CANCELLED` (cancel).
+
+### 2. Configuration: `StripeConfig.java`
+
+**File:** `src/main/java/com/calt/buroxz/config/StripeConfig.java`
 
 ```java
 @Configuration
 public class StripeConfig {
-    @Value("${stripe.api-key}")
-    private String apiKey;
 
-    @PostConstruct
-    public void init() {
-        Stripe.apiKey = apiKey;
-    }
+  @Value("${stripe.api-key}")
+  private String apiKey;
 
-    public String getWebhookSecret() { ... }
+  @Value("${stripe.webhook-secret}")
+  private String webhookSecret;
+
+  @PostConstruct
+  public void init() {
+    Stripe.apiKey = apiKey; // Initialize Stripe SDK globally
+  }
 }
+
 ```
 
-### 2. Stripe Service
+- Reads API key and webhook secret from `application.yml`.
+- `@PostConstruct init()` sets the static `Stripe.apiKey` once at startup.
 
-**`src/main/java/com/calt/buroxz/service/StripeService.java`**
+### 3. Application YAML Configuration
 
-Handles two operations:
-
-**`createCheckoutSession(Order order)`** — Creates a Stripe Checkout Session for payment:
-
-- Converts each `OrderItem` into a Stripe line item with product name, quantity, and unit amount (in USD cents)
-- Sets success URL (`/payment/success?session_id={CHECKOUT_SESSION_ID}`) and cancel URL (`/payment/cancel`)
-- Stores the order ID in metadata for webhook processing
-- Returns the redirect URL to the frontend
-
-**`handleWebhookEvent(payload, sigHeader)`** — Verifies and processes Stripe webhooks:
-
-- Verifies the webhook signature using the `whsec_...` secret
-- On `checkout.session.completed` event, looks up the order via metadata `order_id`
-- Updates the order status from `PENDING` to `PAID`
-
-### 3. Fixed Order Service
-
-**`src/main/java/com/calt/buroxz/service/CustomizedOrderService.java`**
-
-**`checkOut()`** — Creates an Order from the current user's cart:
-
-- Fetches the authenticated user
-- Fetches the user's Cart (with L2 cache bypass to avoid stale data)
-- Validates stock for each item (throws if insufficient)
-- Creates `OrderItem` for each `CartItem`, deducts stock from Product
-- Calculates `subTotal` and `total`
-- Saves the Order (with `cascade = CascadeType.ALL` so OrderItems are saved automatically)
-- Does NOT clear the cart (clearing happens after Stripe session is created)
-
-**`clearCart()`** — Deletes all CartItems for the current user
-
-**`payment(orderId)`** — Creates a Stripe Checkout Session for the given order
-
-### 4. Order REST Controller
-
-**`src/main/java/com/calt/buroxz/web/rest/CustomizedOrderResource.java`**
-
-| Endpoint               | Method | Auth     | Purpose                                                                        |
-| ---------------------- | ------ | -------- | ------------------------------------------------------------------------------ |
-| `/api/orders/checkout` | POST   | Required | Creates order + Stripe session, clears cart, returns `{ sessionUrl, orderId }` |
-| `/api/orders/webhook`  | POST   | None     | Receives Stripe webhook events (signature verified)                            |
-
-### 5. Security Exceptions
-
-**`src/main/java/com/calt/buroxz/config/SecurityConfiguration.java`**
-
-- `/api/orders/webhook` is excluded from authentication (`.permitAll()`)
-- `/api/orders/webhook` is excluded from CSRF protection (`.ignoringRequestMatchers(...)`)
-
-**`src/main/java/com/calt/buroxz/security/authorization/ScopeAspect.java`**
-
-- `CustomizedOrderService` and `StripeService` are excluded from the scope-checking aspect pointcut
-
-### 6. Domain Changes
-
-**`src/main/java/com/calt/buroxz/domain/Order.java`**
-
-Added `cascade = CascadeType.ALL, orphanRemoval = true` to the `@OneToMany` on `orderItems` so that OrderItems are persisted/deleted along with the Order.
-
-### 7. Repository Changes
-
-**`src/main/java/com/calt/buroxz/repository/CustomizedCartRepositoryImpl.java`**
-
-Added `findCartByUserLogin(userName)` method with L2 cache bypass hints to avoid stale cart data from Hibernate second-level cache.
-
-**`src/main/java/com/calt/buroxz/repository/CustomizedCartRepository.java`**
-
-Added `findCartByUserLogin(String userName)` method declaration.
-
-### 8. application.yml
-
-Added Stripe configuration:
+**File:** `src/main/resources/config/application.yml`
 
 ```yaml
 stripe:
-  api-key: ${STRIPE_API_KEY:sk_test_placeholder}
-  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+  api-key: ${STRIPE_API_KEY:sk_test_...}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_...}
   success-url: 'http://localhost:8080/payment/success'
   cancel-url: 'http://localhost:8080/payment/cancel'
 ```
 
----
+- Values fall back to test keys (for development), override with env vars `STRIPE_API_KEY` / `STRIPE_WEBHOOK_SECRET` in production.
 
-## Frontend Files
+### 4. Service: `StripeService.java`
 
-### 1. Types
+**File:** `src/main/java/com/calt/buroxz/service/StripeService.java`
 
-**`src/main/webapp/app/order/order.model.ts`**
+Two main responsibilities:
 
-```typescript
-export interface ICheckoutResponse {
-  sessionUrl: string;
-  orderId: number;
+#### `createCheckoutSession(Order)`
+
+```java
+public String createCheckoutSession(Order order) {
+  // 1. Convert OrderItems to Stripe LineItems
+  SessionCreateParams.LineItem[] lineItems = order
+    .getOrderItems()
+    .stream()
+    .map(this::toLineItem)
+    .toArray(SessionCreateParams.LineItem[]::new);
+
+  // 2. Build session params
+  SessionCreateParams params = SessionCreateParams.builder()
+    .setMode(SessionCreateParams.Mode.PAYMENT)
+    .setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}")
+    .setCancelUrl(cancelUrl)
+    .setClientReferenceId(order.getId().toString())
+    .setCustomerEmail(order.getUser().getEmail())
+    .addAllLineItem(Arrays.asList(lineItems))
+    .putMetadata("order_id", order.getId().toString())
+    .build();
+
+  // 3. Create session via Stripe API
+  Session session = Session.create(params);
+  return session.getUrl(); // Stripe Checkout URL to redirect user to
+}
+
+```
+
+- `toLineItem(OrderItem)`: Converts each item to a Stripe line item with `unit_amount_decimal` (price × 100 for cents), quantity, and product name.
+- `setClientReferenceId` and `putMetadata("order_id", ...)`: Both carry the internal order ID so the webhook can find it.
+- Returns the Stripe Checkout Session URL (user gets redirected there).
+
+#### `handleWebhookEvent(payload, sigHeader)`
+
+```java
+public String handleWebhookEvent(String payload, String sigHeader) {
+  // 1. Verify webhook signature
+  Event event = Webhook.constructEvent(payload, sigHeader, stripeConfig.getWebhookSecret());
+
+  // 2. Handle checkout.session.completed
+  if ("checkout.session.completed".equals(event.getType())) {
+    Session session = (Session) event.getDataObjectDeserializer().getObject().orElse(null);
+    String orderIdStr = session.getMetadata().get("order_id");
+    // Fallback to client_reference_id
+    if (orderIdStr == null) orderIdStr = session.getClientReferenceId();
+
+    // 3. Mark order as PAID
+    orderRepository
+      .findById(Long.parseLong(orderIdStr))
+      .ifPresent(order -> {
+        order.setStatus(OrderStatus.PAID);
+        orderRepository.save(order);
+      });
+  }
+  return "ok";
+}
+
+```
+
+- Stripe signs every webhook with the webhook secret. `Webhook.constructEvent()` verifies the signature and throws if invalid.
+- On `checkout.session.completed`, looks up the order by `order_id` metadata (fallback: `client_reference_id`) and sets status to `PAID`.
+
+### 5. Service: `CustomizedOrderService.java`
+
+**File:** `src/main/java/com/calt/buroxz/service/CustomizedOrderService.java`
+
+Extends JHipster's generated `OrderService` with `@Primary` so it replaces the default bean.
+
+#### `checkOut()` — The Order Creation Flow
+
+```java
+public OrderResponse checkOut() {
+    // 1. Identify user
+    String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+    User user = userRepository.findOneByLogin(userName)
+        .orElseThrow(() -> new BadRequestAlertException("User not found", ...));
+
+    // 2. Fetch the user's cart (bypass Hibernate L2 cache)
+    Cart cart = customizedCartRepository.findCartByUserLogin(userName)
+        .orElseThrow(() -> new BadRequestAlertException("Cart is empty", ...));
+    if (cart.getCartItems().isEmpty()) throw ...;
+
+    Order order = new Order().user(user);
+
+    // 3. Validate stock for each item
+    Set<Long> productIds = cart.getCartItems().stream()
+        .map(ci -> ci.getProduct().getId()).collect(Collectors.toSet());
+    Map<Long, Product> productMap = productRepository.findProductsByIdIn(productIds)
+        .stream().collect(Collectors.toMap(Product::getId, p -> p));
+
+    for (CartItem cartItem : cart.getCartItems()) {
+        Product product = productMap.get(cartItem.getProduct().getId());
+        if (cartItem.getQuantity() > product.getQuantity())
+            throw new BadRequestAlertException("Insufficient stock for " + product.getName(), ...);
+        // Create OrderItem and deplete stock
+        OrderItem oi = new OrderItem();
+        oi.setProduct(product);
+        oi.setQuantity(cartItem.getQuantity());
+        oi.setPriceAtPurchase(product.getPrice());
+        order.addOrderItem(oi);
+        product.setQuantity(product.getQuantity() - cartItem.getQuantity());
+    }
+
+    // 4. Calculate totals
+    BigDecimal subTotal = order.getOrderItems().stream()
+        .map(oi -> oi.getPriceAtPurchase().multiply(BigDecimal.valueOf(oi.getQuantity())))
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    order.setSubTotal(subTotal);
+    order.setTotal(subTotal);
+    order.setStatus(OrderStatus.PENDING);
+
+    // 5. Save (cascade persists OrderItems)
+    Order savedOrder = orderRepository.save(order);
+    return cOrderMapper.toDto(savedOrder);
 }
 ```
 
-### 2. Order Service
+**Key design decisions:**
 
-**`src/main/webapp/app/order/order.service.ts`**
+- **Cart is NOT cleared here** — clearing happens in the REST controller _after_ Stripe session creation, so if Stripe fails, the cart remains intact.
+- Stock is validated AND decremented atomically in the same transaction.
+- `priceAtPurchase` captures the current price, protecting against price changes after order placement.
+- Cart queries use `org.hibernate.cacheMode=IGNORE` to bypass Hibernate L2 cache staleness.
 
-Single method `checkout()` that posts to `POST /api/orders/checkout` and returns the session URL.
+#### `clearCart()` — Called After Stripe Session Creation
 
-### 3. Checkout Component
+```java
+public void clearCart() {
+    String userName = ...;
+    Cart cart = customizedCartRepository.getCartWithItem(userName);
+    if (cart != null && cart.getCartItems() != null && !cart.getCartItems().isEmpty()) {
+        cartItemRepository.deleteAll(cart.getCartItems());
+        cart.getCartItems().clear();
+    }
+}
+```
 
-**`src/main/webapp/app/order/checkout/checkout.component.ts`**
+#### `getOrdersForCurrentUser()` — My Orders
 
-When mounted, immediately calls the checkout API and redirects the browser to the Stripe Checkout Session URL. Shows a loading spinner while redirecting.
+```java
+public List<OrderDTO> getOrdersForCurrentUser() {
+    String userName = ...;
+    return orderRepository.findByUserIsCurrentUser().stream()
+        .map(orderMapper::toDto).toList();
+}
+```
 
-### 4. Payment Success Page
+Uses JHipster's built-in `OrderRepository.findByUserIsCurrentUser()` which uses SpEL `?#{authentication.name}` to filter by the current user automatically.
 
-**`src/main/webapp/app/order/success/success.component.ts`**
+### 6. REST Controller: `CustomizedOrderResource.java`
 
-Displays a success message with the Stripe session ID from the query parameter. Has a "Back to Home" button.
+**File:** `src/main/java/com/calt/buroxz/web/rest/CustomizedOrderResource.java`
 
-Route: `/payment/success?session_id=cs_xxx`
+Three endpoints under `/api/orders`:
 
-### 5. Payment Cancel Page
+| Method | Path         | Auth     | Description                                          |
+| ------ | ------------ | -------- | ---------------------------------------------------- |
+| `POST` | `/checkout`  | Required | Creates order, generates Stripe session, clears cart |
+| `POST` | `/webhook`   | Public   | Stripe webhook — updates order to PAID               |
+| `GET`  | `/my-orders` | Required | Returns current user's orders                        |
 
-**`src/main/webapp/app/order/cancel/cancel.component.ts`**
+#### `POST /checkout` — Full Checkout Flow
 
-Shows a cancellation message with a "Back to Cart" link.
+```java
+@PostMapping("/checkout")
+public ResponseEntity<Map<String, Object>> checkout() {
+  // 1. Create order from cart (stock validation, price capture)
+  OrderResponse order = customizedOrderService.checkOut();
+  // 2. Create Stripe Checkout Session, get redirect URL
+  String sessionUrl = customizedOrderService.payment(order.getId());
+  // 3. Clear the cart (only after Stripe succeeds)
+  customizedOrderService.clearCart();
+  return ResponseEntity.ok(Map.of("sessionUrl", sessionUrl, "orderId", order.getId()));
+}
 
-Route: `/payment/cancel`
+```
 
-### 6. Order Routes
+Order of operations is critical: `checkOut()` → `payment()` → `clearCart()`. If `payment()` throws (Stripe error), the order is rolled back and cart is untouched.
 
-**`src/main/webapp/app/order/order.routes.ts`**
+#### `POST /webhook` — Stripe Event Handler
 
-| Route               | Component               |
-| ------------------- | ----------------------- |
-| `/payment/checkout` | CheckoutComponent       |
-| `/payment/success`  | PaymentSuccessComponent |
-| `/payment/cancel`   | PaymentCancelComponent  |
+```java
+@PostMapping("/webhook")
+public ResponseEntity<String> handleWebhook(
+    @RequestBody String payload,
+    @RequestHeader("Stripe-Signature") String sigHeader
+) { ... }
+```
 
-### 7. Cart Page Changes
+- Excluded from authentication (`.permitAll()`) and CSRF protection (`.ignoringRequestMatchers`).
+- Raw payload + signature header passed directly to Stripe SDK for verification.
 
-**`src/main/webapp/app/cart/cart.component.ts`**
+### 7. Security Configuration
 
-Added `checkout()` method that calls `OrderService.checkout()` and redirects to the returned Stripe URL on success.
+**File:** `src/main/java/com/calt/buroxz/config/SecurityConfiguration.java`
 
-**`src/main/webapp/app/cart/cart.component.html`**
+Key security rules relevant to orders/payments:
 
-Added a "Proceed to Checkout" button in the cart table footer (visible when cart has items).
+```java
+// Webhook — no auth, no CSRF
+.requestMatchers(mvc.pattern("/api/orders/webhook")).permitAll()
 
-### 8. App Routes
+// Products & Categories — public GET for anonymous browsing
+.requestMatchers(new AntPathRequestMatcher("/api/products", HttpMethod.GET.name())).permitAll()
+.requestMatchers(new AntPathRequestMatcher("/api/products/**", HttpMethod.GET.name())).permitAll()
+.requestMatchers(new AntPathRequestMatcher("/api/categories/**", HttpMethod.GET.name())).permitAll()
 
-**`src/main/webapp/app/app.routes.ts`**
+// Everything else — authenticated
+.requestMatchers(mvc.pattern("/api/**")).authenticated()
+```
 
-Added `loadChildren: () => import('./order/order.routes')` to include payment routes.
+CSRF also exempts webhook:
 
-### 9. Font Awesome Icons
+```java
+.csrf(csrf -> csrf
+    .ignoringRequestMatchers(mvc.pattern("/api/orders/webhook"))
+)
+```
 
-**`src/main/webapp/app/config/font-awesome-icons.ts`**
+### 8. ScopeAspect Exclusions
 
-Added `faCheckCircle`, `faTimesCircle`, `faCreditCard`.
+**File:** `src/main/java/com/calt/buroxz/security/authorization/ScopeAspect.java`
 
-### 10. i18n
+The custom `ScopeAspect` intercepts all `com.calt.buroxz.service.*Service` calls. To prevent "User not found" errors for anonymous users and avoid scope checks on checkout/cart/payment flows:
 
-**`src/main/webapp/i18n/en/cart.json`** — `checkout: "Proceed to Checkout"`
+```java
+@Before(
+    "execution(* com.calt.buroxz.service.*Service.*(..))" +
+    "&& !target(com.calt.buroxz.service.UserService)" +
+    "&& !target(com.calt.buroxz.service.CustomizedCartService)" +
+    "&& !target(com.calt.buroxz.service.CustomizedOrderService)" +
+    "&& !target(com.calt.buroxz.service.StripeService)" +
+    "&& !target(com.calt.buroxz.service.InventoryService)" +
+    "&& !target(com.calt.buroxz.service.ProductService)"
+)
+```
 
-**`src/main/webapp/i18n/vi/cart.json`** — `checkout: "Thanh toán"`
+### 9. Cart Services (Supporting Role)
 
-**`src/main/webapp/i18n/en/order.json`** — Added `checkout`, `payment.success`, `payment.cancel` sections
+**File:** `src/main/java/com/calt/buroxz/repository/CustomizedCartRepositoryImpl.java`
 
-**`src/main/webapp/i18n/vi/order.json`** — Vietnamese translations for checkout/payment
+Both `getCartWithItem()` and `findCartByUserLogin()` use JPQL with `LEFT JOIN FETCH` and bypass Hibernate L2 cache:
+
+```java
+.setHint("org.hibernate.cacheMode", "IGNORE")
+```
+
+This prevents stale cached data where a cart appears empty or missing items after modifications.
+
+**File:** `src/main/java/com/calt/buroxz/service/CustomizedCartService.java`
+
+`addCartItem()` merges quantities for existing products instead of creating duplicates:
+
+```java
+for (CartItem existingItem : cart.getCartItems()) {
+    if (existingItem.getProduct().getId().equals(cartItemDTO.getProduct().getId())) {
+        existingItem.setQuantity(existingItem.getQuantity() + cartItemDTO.getQuantity());
+        existingItem.setPrice(readyProduct.getPrice().multiply(BigDecimal.valueOf(existingItem.getQuantity())));
+        cartItemRepository.save(existingItem);
+        return findCartWithItems();
+    }
+}
+```
 
 ---
 
-## Stripe Setup
+## Frontend Components
 
-### Prerequisites
+### 1. Angular Route Configuration
 
-1. Create a Stripe account at https://dashboard.stripe.com/register
-2. Get your **Secret key** (`sk_test_...`) from https://dashboard.stripe.com/apikeys
+**File:** `src/main/webapp/app/app.routes.ts`
 
-### Local Development
-
-Install Stripe CLI (for webhook forwarding):
-
-```bash
-# Download from https://stripe.com/docs/stripe-cli
-stripe login
-stripe listen --forward-to localhost:8080/api/orders/webhook
+```typescript
+{
+    path: '',
+    loadChildren: () => import('./order/order.routes'),
+}
 ```
 
-This prints a webhook signing secret (`whsec_...`). Set environment variables:
+**File:** `src/main/webapp/app/order/order.routes.ts`
 
-```bash
-$env:STRIPE_API_KEY = "sk_test_..."
-$env:STRIPE_WEBHOOK_SECRET = "whsec_..."
+| Path                | Component                 | Description                             |
+| ------------------- | ------------------------- | --------------------------------------- |
+| `/my-orders`        | `MyOrdersComponent`       | Order history for current user          |
+| `/payment/checkout` | `CheckoutComponent`       | Initiates checkout, redirects to Stripe |
+| `/payment/success`  | `PaymentSuccessComponent` | Shows after successful Stripe payment   |
+| `/payment/cancel`   | `PaymentCancelComponent`  | Shows if user cancels on Stripe page    |
+
+### 2. Order Service (Frontend)
+
+**File:** `src/main/webapp/app/order/order.service.ts`
+
+```typescript
+export class OrderService {
+  protected resourceUrl = this.applicationConfigService.getEndpointFor('api/orders');
+
+  checkout(): Observable<ICheckoutResponse> {
+    return this.http.post<ICheckoutResponse>(`${this.resourceUrl}/checkout`, {});
+  }
+
+  getMyOrders(): Observable<IOrder[]> {
+    return this.http.get<IOrder[]>(`${this.resourceUrl}/my-orders`);
+  }
+}
 ```
 
-Then restart the application.
+### 3. Checkout Flow (Frontend)
 
-### Running with Docker
+**File:** `src/main/webapp/app/order/checkout/checkout.component.ts`
 
-Add to docker-compose environment or pass as JVM args:
-
-```yaml
-environment:
-  - STRIPE_API_KEY=sk_test_...
-  - STRIPE_WEBHOOK_SECRET=whsec_...
+```typescript
+ngOnInit(): void {
+    this.orderService.checkout().subscribe({
+        next: res => {
+            window.location.href = res.sessionUrl;  // Redirect to Stripe
+        },
+        error: () => {
+            this.router.navigate(['/payment/cancel']); // Fallback on failure
+        },
+    });
+}
 ```
+
+The checkout component:
+
+1. Calls `POST /api/orders/checkout`
+2. On success, redirects the browser to the Stripe Checkout Session URL
+3. On error, redirects to the cancel page
+
+Template shows a spinner and "Redirecting to payment..." text.
+
+### 4. Success Page
+
+**File:** `src/main/webapp/app/order/success/success.component.html`
+
+- Shows a green checkmark icon and "Payment Successful!" message.
+- Reads `session_id` from query params (appended by Stripe after redirect).
+- Link to return home.
+
+### 5. Cancel Page
+
+**File:** `src/main/webapp/app/order/cancel/cancel.component.html`
+
+- Shows a yellow warning icon and "Payment Cancelled" message.
+- Link to return to cart.
+
+### 6. My Orders Page
+
+**File:** `src/main/webapp/app/order/my-orders/my-orders.component.ts`
+
+```typescript
+ngOnInit(): void {
+    this.loadOrders();
+}
+
+loadOrders(): void {
+    this.isLoading.set(true);
+    this.orderService.getMyOrders().subscribe(orders => {
+        this.orders.set(orders);
+        this.isLoading.set(false);
+    });
+}
+```
+
+**Template** (`my-orders.component.html`):
+
+- Loading spinner while fetching.
+- "No orders yet" alert when empty.
+- Table with columns: ID, Status (badge: green PAID, yellow PENDING, gray other), Sub Total, Total, Date, Action (view detail button linking to `/order/:id/view`).
+- Uses the JHipster entity's order detail component for the view link.
+
+### 7. Cart Page Integration
+
+**File:** `src/main/webapp/app/cart/cart.component.html`
+
+A "Proceed to Checkout" button in the cart footer navigates to `/payment/checkout`, which triggers the checkout flow.
+
+### 8. Home Page Integration
+
+**File:** `src/main/webapp/app/home/home.component.html`
+
+- Products are visible to all users (anonymous browsing).
+- "Add to Cart" button only shown when logged in.
+- "Login to buy" button shown for anonymous users, calling `loginService.login()`.
+- Add-to-cart: confirmation modal (NgbModal) with product name/price, then API call.
+- On success: green toast notification for 3 seconds.
+
+### 9. Navbar
+
+**File:** `src/main/webapp/app/layouts/navbar/navbar.component.html`
+
+- "Cart" link with item count badge (authenticated only).
+- "My Orders" link next to Cart (authenticated only), routes to `/my-orders`.
+- "Entities" dropdown for admin CRUD.
+
+### 10. Font Awesome Icons
+
+**File:** `src/main/webapp/app/config/font-awesome-icons.ts`
+
+Registered icons: `faCheckCircle`, `faTimesCircle`, `faCreditCard`, `faShoppingCart`, `faCartPlus`, `faClipboardList`, `faEye`, `faArrowLeft`, `faInfoCircle`.
 
 ---
 
-## Complete Flow (End to End)
+## Stripe Integration Details
 
-1. User browses products, adds items to cart
-2. User opens cart page (`/cart-page`) — sees items with quantities and total
-3. User clicks **"Proceed to Checkout"**
-4. Frontend calls `POST /api/orders/checkout` (loading spinner shown)
-5. Backend:
-   - Fetches user's cart from database (bypassing Hibernate L2 cache)
-   - Validates stock for each item
-   - Creates `Order` + `OrderItem` entities (status = `PENDING`)
-   - Deducts stock from `Product.quantity`
-   - Creates Stripe Checkout Session with line items
-   - Clears the cart
-   - Returns `{ sessionUrl: "https://checkout.stripe.com/..." }`
-6. Browser redirects to Stripe Checkout
-7. User pays on Stripe's hosted page (credit card, etc.)
-8. On success, Stripe redirects to `http://localhost:8080/payment/success?session_id=cs_xxx`
-9. Stripe also sends a webhook to `POST /api/orders/webhook`
-10. Backend webhook handler verifies signature, updates order status to `PAID`
-11. Success page shows "Payment Successful!" message
+### Checkout Session Parameters
+
+| Parameter             | Value                                                                    | Purpose                                 |
+| --------------------- | ------------------------------------------------------------------------ | --------------------------------------- |
+| `mode`                | `PAYMENT`                                                                | One-time payment (not subscription)     |
+| `success_url`         | `http://localhost:8080/payment/success?session_id={CHECKOUT_SESSION_ID}` | Redirect after successful payment       |
+| `cancel_url`          | `http://localhost:8080/payment/cancel`                                   | Redirect if user cancels                |
+| `customer_email`      | `order.getUser().getEmail()`                                             | Pre-fills email on Stripe Checkout page |
+| `client_reference_id` | `order.getId()`                                                          | Reference to our internal order ID      |
+| `metadata.order_id`   | `order.getId()`                                                          | Same, in metadata for webhook           |
+| `line_items`          | Order items with price, qty, name                                        | What the user sees on Stripe Checkout   |
+
+### Price Calculation
+
+- Stripe expects amounts in the smallest currency unit (cents for USD).
+- `unit_amount_decimal = priceAtPurchase × 100` (e.g., $19.99 → 1999).
+- The order's `subTotal` is the sum of `priceAtPurchase × quantity` for all items.
+
+### Webhook Event Handling
+
+- Only handles `checkout.session.completed`.
+- Stripe can send the same event multiple times (idempotency), but the handler is idempotent since it overwrites `status = PAID` each time.
+- The webhook URL must be configured in the Stripe Dashboard (Developers → Webhooks → Add endpoint → `http://your-host/api/orders/webhook`).
+- Use the Stripe CLI for local testing: `stripe listen --forward-to localhost:8080/api/orders/webhook`.
 
 ---
+
+## Security Notes
+
+| Concern              | Solution                                                                          |
+| -------------------- | --------------------------------------------------------------------------------- |
+| Webhook authenticity | Stripe SDK `Webhook.constructEvent()` verifies HMAC signature with webhook secret |
+| Order ownership      | `OrderRepository.findByUserIsCurrentUser()` uses SpEL `?#{authentication.name}`   |
+| Cart isolation       | Cart queries filter by authenticated user's login                                 |
+| Anonymous browsing   | Products/categories GET endpoints are `permitAll()`                               |
+| CSRF on webhook      | Webhook explicitly excluded from CSRF protection                                  |
+| Stripe API key       | Configured via environment variable `STRIPE_API_KEY` in production                |
+
+## i18n Translations
+
+**File:** `src/main/webapp/i18n/en/order.json`, `src/main/webapp/i18n/vi/order.json`
+
+Translations cover:
+
+- Checkout page title and redirect message
+- Payment success/cancel titles and messages
+- My Orders page title and empty state
+- Order field labels (Status, Sub Total, Total, Created Date)
+- Order entity CRUD messages (created, updated, deleted)
+
+---
+
+## Complete Checkout Flow (End to End)
+
+```
+1. User browses products (anonymous) ─────────────────────────────────┐
+2. User clicks "Login to buy" ──> Keycloak login ──> Redirect back    │
+3. User adds items to cart (confirmation modal, success toast)        │
+4. User goes to Cart page ──> views items                             │
+5. User clicks "Proceed to Checkout" ──> /payment/checkout            │
+6. Angular CheckoutComponent calls POST /api/orders/checkout          │
+                                                                      ▼
+┌─────────────────── Backend ──────────────────────────────────────────┐
+│ 7. CustomizedOrderService.checkOut()                                 │
+│    a. Get authenticated user from SecurityContext                    │
+│    b. Fetch cart by user login (Hibernate cache bypass)              │
+│    c. Validate stock for every item                                  │
+│    d. Create Order with OrderItems, capture current prices           │
+│    e. Decrement product quantities                                   │
+│    f. Calculate subTotal, set status = PENDING                       │
+│    g. Save Order (cascade persists OrderItems)                       │
+│    h. Return OrderResponse (id, totals, etc.)                        │
+│ 8. CustomizedOrderService.payment(orderId)                            │
+│    a. StripeService.createCheckoutSession(order)                     │
+│      - Builds Stripe Session with line items, metadata, URLs         │
+│      - Calls Stripe API via Java SDK                                 │
+│      - Returns Checkout Session URL                                  │
+│ 9. customizedOrderService.clearCart() ── deletes cart items          │
+│ 10. Return { sessionUrl, orderId } to Angular                       │
+└─────────────────────────────────────────────────────────────────────┘
+                                                                      ▼
+11. window.location.href = sessionUrl ──> Stripe Checkout Page
+12. User enters card details on Stripe's hosted page
+13. Stripe processes payment ──> redirects to /payment/success
+14. Stripe sends webhook POST /api/orders/webhook
+    a. Signature verification
+    b. Lookup order by metadata.order_id
+    c. Set order.status = PAID
+    d. Save
+15. User sees "Payment Successful!" page
+16. User can visit /my-orders to see all their orders
+```
 
 ## Troubleshooting
 
-### "Cart is empty" when clicking checkout
-
-- Ensure the application is fully rebuilt and restarted after code changes
-- Check server logs for the authenticated username (enable DEBUG logging)
-- Verify the cart exists in the database via SQL query
-- Check if Hibernate L2 cache is returning stale data (the implementation uses `BYPASS` mode)
-
-### Stripe "Invalid email address" error
-
-Fixed by using `order.getUser().getEmail()` instead of `order.getUser().getLogin()`.
-
-### "Forbidden: order:unknown" error
-
-Fixed by excluding `CustomizedOrderService` and `StripeService` from the `ScopeAspect` pointcut.
-
-### Frontend build errors
-
-- Add any new Font Awesome icons to `font-awesome-icons.ts`
-- Ensure new routes are registered in `app.routes.ts`
+| Symptom                                 | Cause                                                                                          | Fix                                                               |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| "Cart is empty" when checking out       | Hibernate L2 cache returns stale empty cart                                                    | Cart queries use `cacheMode=IGNORE`; clear Redis cache or restart |
+| "User not found" when browsing products | `ScopeAspect` intercepts `ProductService` and `AuthorizationService` can't find anonymous user | Exclude `ProductService` from ScopeAspect pointcut                |
+| Stripe webhook returns 403              | CSRF protection blocks the POST                                                                | Exclude `/api/orders/webhook` from CSRF                           |
+| Stripe webhook returns 401              | Authentication required                                                                        | Add `.permitAll()` for `/api/orders/webhook`                      |
+| "Invalid email address" from Stripe     | OIDC username is not an email                                                                  | Use `getEmail()` instead of `getLogin()` for `customerEmail`      |
+| Prices are doubled in Stripe            | `calculatePrice` was multiplying `unitPrice × qty²`                                            | Sum `lineTotal` directly instead of recalculating                 |
+| Duplicate cart items                    | No merge logic for existing product in cart                                                    | `addCartItem()` now increments quantity for existing items        |

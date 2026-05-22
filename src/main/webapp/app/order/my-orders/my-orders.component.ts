@@ -27,4 +27,16 @@ export default class MyOrdersComponent implements OnInit {
       this.isLoading.set(false);
     });
   }
+
+  payOrder(orderId: number): void {
+    this.orderService.payOrder(orderId).subscribe(res => {
+      window.location.href = res.sessionUrl;
+    });
+  }
+
+  cancelOrder(orderId: number): void {
+    this.orderService.cancelOrder(orderId).subscribe(() => {
+      this.loadOrders();
+    });
+  }
 }

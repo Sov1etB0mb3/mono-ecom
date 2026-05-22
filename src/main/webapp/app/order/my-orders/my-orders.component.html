@@ -42,10 +42,18 @@
               <td>${{ order.subTotal }}</td>
               <td>${{ order.total }}</td>
               <td>{{ order.createdDate }}</td>
-              <td>
+              <td class="d-flex gap-1">
                 <a [routerLink]="['/order', order.id, 'view']" class="btn btn-outline-primary btn-sm">
                   <fa-icon icon="eye"></fa-icon>
                 </a>
+                @if (order.status === 'PENDING') {
+                  <button (click)="payOrder(order.id)" class="btn btn-success btn-sm">
+                    <fa-icon icon="credit-card"></fa-icon> Pay Now
+                  </button>
+                  <button (click)="cancelOrder(order.id)" class="btn btn-outline-danger btn-sm">
+                    <fa-icon icon="times"></fa-icon> Cancel
+                  </button>
+                }
               </td>
             </tr>
           }

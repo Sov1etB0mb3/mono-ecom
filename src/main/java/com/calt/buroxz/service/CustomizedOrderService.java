@@ -141,6 +141,15 @@ public class CustomizedOrderService extends OrderService {
         return orderRepository.findByUserIsCurrentUser().stream().map(orderMapper::toDto).toList();
     }
 
+    public void cancelOrder(Long orderId) {
+        Order order = orderRepository
+            .findById(orderId)
+            .orElseThrow(() -> new BadRequestAlertException("Order not found", "order", "ordernotfound"));
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        LOG.debug("Order {} cancelled", orderId);
+    }
+
     public void clearCart() {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         Cart cart = customizedCartRepository.getCartWithItem(userName);

@@ -19,4 +19,12 @@ export class OrderService {
   getMyOrders(): Observable<IOrder[]> {
     return this.http.get<IOrder[]>(`${this.resourceUrl}/my-orders`);
   }
+
+  payOrder(orderId: number): Observable<ICheckoutResponse> {
+    return this.http.post<ICheckoutResponse>(`${this.resourceUrl}/pay/${orderId}`, {});
+  }
+
+  cancelOrder(orderId: number): Observable<void> {
+    return this.http.post<void>(`${this.resourceUrl}/cancel/${orderId}`, {});
+  }
 }

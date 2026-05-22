@@ -40,6 +40,20 @@ public class CustomizedOrderResource {
         return ResponseEntity.ok(Map.of("sessionUrl", sessionUrl, "orderId", order.getId()));
     }
 
+    @PostMapping("/pay/{id}")
+    public ResponseEntity<Map<String, Object>> payOrder(@PathVariable Long id) {
+        LOG.debug("REST request to pay order: {}", id);
+        String sessionUrl = customizedOrderService.payment(id);
+        return ResponseEntity.ok(Map.of("sessionUrl", sessionUrl));
+    }
+
+    @PostMapping("/cancel/{id}")
+    public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
+        LOG.debug("REST request to cancel order: {}", id);
+        customizedOrderService.cancelOrder(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
         LOG.debug("REST request to handle Stripe webhook");
