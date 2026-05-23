@@ -1,0 +1,12 @@
+entity AuthorityScopeLinker {
+}
+entity Scope{
+
+}
+// THE UNIDIRECTIONAL LINK
+// We point TO User and Authority, but we don't add a 'relationship'
+// block inside the User or Authority side.
+relationship ManyToOne {
+  AuthorityScopeLinker{authority} to Authority,
+  AuthorityScopeLinker{scope} to Scope
+}

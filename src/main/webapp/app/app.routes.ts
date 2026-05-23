@@ -28,6 +28,15 @@ const routes: Routes = [
     path: '',
     loadChildren: () => import(`./entities/entity.routes`),
   },
+  {
+    path: 'cart-page',
+    data: { pageTitle: 'monoEcomApp.cartPage.title' },
+    loadChildren: () => import('./cart/cart.routes'),
+  },
+  {
+    path: '',
+    loadChildren: () => import('./order/order.routes'),
+  },
   ...errorRoute,
 ];
 

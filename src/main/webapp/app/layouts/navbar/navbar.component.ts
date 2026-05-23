@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -10,6 +10,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
+import { CartService } from 'app/cart/cart.service';
 import { environment } from 'environments/environment';
 import ActiveMenuDirective from './active-menu.directive';
 import NavbarItem from './navbar-item.model';
@@ -29,11 +30,15 @@ export default class NavbarComponent implements OnInit {
   account = inject(AccountService).trackCurrentAccount();
   entitiesNavbarItems: NavbarItem[] = [];
 
+  cartItemCount = signal(0);
+  keycloakAdminUrl?: string;
+
   private readonly loginService = inject(LoginService);
   private readonly translateService = inject(TranslateService);
   private readonly stateStorageService = inject(StateStorageService);
   private readonly profileService = inject(ProfileService);
   private readonly router = inject(Router);
+  private readonly cartService = inject(CartService);
 
   constructor() {
     const { VERSION } = environment;
@@ -42,11 +47,23 @@ export default class NavbarComponent implements OnInit {
     }
   }
 
+  private readonly accountService = inject(AccountService);
+
   ngOnInit(): void {
     this.entitiesNavbarItems = EntityNavbarItems;
     this.profileService.getProfileInfo().subscribe(profileInfo => {
       this.inProduction = profileInfo.inProduction;
       this.openAPIEnabled = profileInfo.openAPIEnabled;
+      this.keycloakAdminUrl = profileInfo.keycloakAdminUrl;
+    });
+    this.cartService.getCart().subscribe();
+    this.accountService.getAuthenticationState().subscribe(account => {
+      if (account) {
+        this.cartService.getCart().subscribe();
+      }
+    });
+    effect(() => {
+      this.cartItemCount.set(this.cartService.getCartItemCount());
     });
   }
 

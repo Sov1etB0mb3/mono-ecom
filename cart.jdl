@@ -1,0 +1,26 @@
+
+
+entity Cart{
+
+}
+@skipService
+@skip
+entity Product{
+
+}
+entity CartItem{
+  quantity Integer required min(1)
+  price Double
+}
+
+relationship  OneToOne{
+  Cart{user(login)} to User with builtInEntity
+}
+relationship OneToMany{
+  Cart{orderItem} to CartItem{cart}
+}
+relationship ManyToOne{
+  CartItem{product} to Product
+}
+service Cart, CartItem with serviceClass
+dto Cart, CartItem with mapstruct

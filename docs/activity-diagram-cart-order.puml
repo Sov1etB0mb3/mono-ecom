@@ -1,0 +1,102 @@
+@startuml
+start
+:Người dùng duyệt sản phẩm;
+
+partition "Giỏ hàng (Cart)" {
+  :Thêm sản phẩm vào giỏ;
+  :Gửi POST /api/cart;
+
+  partition "Backend - CartService" {
+    :Tìm sản phẩm theo ID;
+    :Kiểm tra tồn kho;
+    if (Đủ hàng?) then (Có)
+      :Tính price = product.price * quantity;
+      :Tạo CartItem;
+      :Lưu CartItem + Cart;
+      :Tính tổng tiền;
+      :Trả về CartResponse;
+    else (Không)
+      :Ném exception "Out of stocks";
+      :Trả về lỗi;
+      stop
+    endif
+  }
+
+  :Hiển thị giỏ hàng;
+
+  partition "Xem / Sửa giỏ hàng" {
+    :Xem chi tiết giỏ hàng;
+    :Gửi GET /api/cart/items;
+    :Hiển thị danh sách CartItem
+    (tên SP, số lượng, đơn giá, thành tiền);
+
+    while (Người dùng thao tác?) is (Tiếp tục)
+      if (Thay đổi số lượng?) then (Có)
+        :Gửi PATCH /api/cart/items;
+        :Cập nhật số lượng;
+        if (Số lượng <= 0?) then (Có)
+          :Xóa CartItem khỏi giỏ;
+        else (Không)
+          :Tính lại price;
+          :Lưu CartItem;
+        endif
+        :Tính lại tổng tiền;
+      elseif (Xóa sản phẩm?) then (Có)
+        :Gửi DELETE /api/cart/items/{id};
+        :Xóa CartItem;
+        :Cập nhật giỏ hàng;
+      elseif (Tiến hành đặt hàng?) then (Có)
+        break
+      endif
+    endwhile
+  }
+}
+
+partition "Đặt hàng (Order)" {
+  :Gửi yêu cầu checkout;
+  :Gửi POST /api/orders/checkout;
+
+  partition "Backend - OrderService" {
+    :Tạo Order mới (status = PENDING);
+    :Lấy danh sách Product theo ID;
+    :Map Product theo ID;
+
+    while (Duyệt từng CartItem?) is (Còn item)
+      :Kiểm tra tồn kho;
+      if (Đủ hàng?) then (Có)
+        :Tạo OrderItem;
+        :Gán product, quantity;
+        :Ghi nhận priceAtPurchase;
+        :Thêm vào Order;
+        :Trừ tồn kho Product;
+      else (Không)
+        :Bỏ qua item này;
+      endif
+    endwhile
+
+    :Tính tổng tiền đơn hàng;
+    :Lưu Order;
+    :Trả về OrderResponse;
+  }
+
+  :Hiển thị thông tin đơn hàng;
+
+  partition "Quản lý đơn hàng (Admin)" {
+    :Admin xem danh sách đơn hàng;
+
+    while (Cập nhật trạng thái?) is (Thao tác)
+      if (Xác nhận thanh toán?) then (Có)
+        :Cập nhật status = PAID;
+      elseif (Giao hàng?) then (Có)
+        :Cập nhật status = SHIPPED;
+      elseif (Xác nhận giao hàng?) then (Có)
+        :Cập nhật status = DELIVERED;
+      elseif (Hủy đơn?) then (Có)
+        :Cập nhật status = CANCELLED;
+      endif
+    endwhile
+  }
+}
+
+stop
+@enduml

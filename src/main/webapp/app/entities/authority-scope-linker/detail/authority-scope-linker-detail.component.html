@@ -1,0 +1,50 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (authorityScopeLinker(); as authorityScopeLinkerRef) {
+      <div>
+        <h2 data-cy="authorityScopeLinkerDetailsHeading">
+          <span jhiTranslate="monoEcomApp.authorityScopeLinker.detail.title">Authority Scope Linker</span>
+        </h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ authorityScopeLinkerRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.authorityScopeLinker.authority">Authority</span></dt>
+          <dd>
+            @if (authorityScopeLinker()!.authority) {
+              <div>
+                <a [routerLink]="['/authority', authorityScopeLinker()!.authority?.name, 'view']">{{
+                  authorityScopeLinkerRef.authority?.name
+                }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="monoEcomApp.authorityScopeLinker.scope">Scope</span></dt>
+          <dd>
+            @if (authorityScopeLinker()!.scope) {
+              <div>
+                <a [routerLink]="['/scope', authorityScopeLinker()!.scope?.id, 'view']">{{ authorityScopeLinkerRef.scope?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/authority-scope-linker', authorityScopeLinkerRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

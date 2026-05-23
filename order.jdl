@@ -1,0 +1,32 @@
+@EnableAudit
+entity Order{
+  status OrderStatus
+  subTotal BigDecimal
+  total BigDecimal
+}
+
+@EnableAudit
+entity Product {
+  name String required minlength(3)
+  quantity Integer required
+  price Double required
+}
+entity OrderItem{
+  //  orderId Long
+  //  productId String
+  quantity Integer
+  priceAtPurchase BigDecimal
+
+}
+enum OrderStatus {
+  PENDING, PAID, SHIPPED, DELIVERED, CANCELLED
+}
+relationship OneToMany{
+  Order{orderItem} to OrderItem{order}
+}
+relationship ManyToOne{
+  OrderItem{product} to Product
+  Order{user} to User with builtInEntity
+}
+service Order with serviceClass
+dto Order with mapstruct

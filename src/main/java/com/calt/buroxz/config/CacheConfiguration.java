@@ -83,6 +83,19 @@ public class CacheConfiguration {
             createCache(cm, com.calt.buroxz.domain.User.class.getName(), jcacheConfiguration);
             createCache(cm, com.calt.buroxz.domain.Authority.class.getName(), jcacheConfiguration);
             createCache(cm, com.calt.buroxz.domain.User.class.getName() + ".authorities", jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Category.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Category.class.getName() + ".listProducts", jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Product.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Scope.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.AuthorityScopeLinker.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Order.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Order.class.getName() + ".orderItems", jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.OrderItem.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Cart.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Cart.class.getName() + ".orderItems", jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.CartItem.class.getName(), jcacheConfiguration);
+            createCache(cm, com.calt.buroxz.domain.Cart.class.getName() + ".cartItems", jcacheConfiguration);
+            createCache(cm, "CartResponse", jcacheConfiguration);
             // jhipster-needle-redis-add-entry
         };
     }

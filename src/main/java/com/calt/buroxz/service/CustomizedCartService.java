@@ -1,0 +1,313 @@
+package com.calt.buroxz.service;
+
+import com.calt.buroxz.domain.Cart;
+import com.calt.buroxz.domain.CartItem;
+import com.calt.buroxz.domain.Product;
+import com.calt.buroxz.domain.User;
+import com.calt.buroxz.repository.*;
+import com.calt.buroxz.repository.search.CartSearchRepository;
+import com.calt.buroxz.service.dto.*;
+import com.calt.buroxz.service.dto.request.CartRequest;
+import com.calt.buroxz.service.dto.response.CartResponse;
+import com.calt.buroxz.service.mapper.CartItemMapper;
+import com.calt.buroxz.service.mapper.CartMapper;
+import com.calt.buroxz.service.mapper.CustomizedCartItemMapper;
+import com.calt.buroxz.service.mapper.CustomizedCartMapper;
+import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * Service Implementation for managing {@link Cart}.
+ */
+@Service
+@Transactional
+@Primary
+public class CustomizedCartService extends CartService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CustomizedCartService.class);
+    private final String ENTITY_NAME = "cartItem";
+    private final String SUPER_ENTITY_NAME = "cart";
+    private final CartRepository cartRepository;
+
+    private final CartMapper cartMapper;
+
+    private final CartItemMapper cartItemMapper;
+
+    private final CartSearchRepository cartSearchRepository;
+    private final CustomizedCartItemMapper customizedCartItemMapper;
+    private final UserRepository userRepository;
+    private final CustomizedCartMapper customizedCartMapper;
+    private final CartItemRepository cartItemRepository;
+    private final CustomizedCartRepository customizedCartRepository;
+    private final ProductRepository productRepository;
+    private final InventoryService inventoryService;
+
+    public CustomizedCartService(
+        CartRepository cartRepository,
+        CartMapper cartMapper,
+        CartSearchRepository cartSearchRepository,
+        CartItemMapper cartItemMapper,
+        UserRepository userRepository,
+        CartItemRepository cartItemRepository,
+        CustomizedCartRepository customizedCartRepository,
+        CustomizedCartMapper customizedCartMapper,
+        CustomizedCartItemMapper customizedCartItemMapper,
+        ProductRepository productRepository,
+        InventoryService inventoryService
+    ) {
+        super(cartRepository, cartMapper, cartSearchRepository);
+        this.cartRepository = cartRepository;
+        this.cartMapper = cartMapper;
+        this.cartItemMapper = cartItemMapper;
+        this.cartSearchRepository = cartSearchRepository;
+        this.userRepository = userRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.customizedCartRepository = customizedCartRepository;
+        this.customizedCartMapper = customizedCartMapper;
+        this.customizedCartItemMapper = customizedCartItemMapper;
+        this.productRepository = productRepository;
+        this.inventoryService = inventoryService;
+    }
+
+    //    public CartResponse addCartItem(CartRequest cartRequest){
+    //        CartItemDTO item= cartRequest.getCartItems().iterator().next();
+    //        if(!validateStock(item)){
+    //            throw new BadRequestAlertException("Out of stocks", ENTITY_NAME, "quantityinvalid");
+    //        }
+    //        item.setPrice(item.getProduct().getPrice()*item.getQuantity());
+    //
+    //        Cart newCart= customizedCartMapper.toEntity(cartRequest);
+    //        CartResponse cartResponse = customizedCartMapper.toDto(cartRepository.save(newCart));
+    //        return cartResponse;
+    //    }
+    @CacheEvict(value = "CartResponse", allEntries = true)
+    public CartResponse addCartItem(CustomizedCartItemDTO cartItemDTO) {
+        LOG.debug("Request to save CartItem : {}", cartItemDTO);
+        Product readyProduct = productRepository.findProductById(cartItemDTO.getProduct().getId());
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Cart cart = customizedCartRepository.getCartWithItem(userName);
+        if (cart == null) {
+            if (!validateStock(cartItemDTO, readyProduct)) {
+                throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
+            }
+            User user = userRepository
+                .findOneByLogin(userName)
+                .orElseThrow(() -> new BadRequestAlertException("User not found", "user", "usernotfound"));
+            cart = new Cart().user(user);
+            cartRepository.save(cart);
+        } else {
+            for (CartItem existingItem : cart.getCartItems()) {
+                if (existingItem.getProduct().getId().equals(cartItemDTO.getProduct().getId())) {
+                    if (existingItem.getQuantity() + cartItemDTO.getQuantity() > readyProduct.getQuantity()) {
+                        throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
+                    }
+                    existingItem.setQuantity(existingItem.getQuantity() + cartItemDTO.getQuantity());
+                    existingItem.setPrice(readyProduct.getPrice().multiply(BigDecimal.valueOf(existingItem.getQuantity())));
+                    cartItemRepository.save(existingItem);
+                    return findCartWithItems();
+                }
+            }
+            if (!validateStock(cartItemDTO, readyProduct)) {
+                throw new BadRequestAlertException("Out of stocks", cartItemDTO.getProduct().getName(), "qtyinvalid");
+            }
+        }
+        CartItem cartItem = customizedCartItemMapper.toEntity(cartItemDTO);
+        cartItem.setPrice(readyProduct.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        cartItem.setProduct(readyProduct);
+        cart.addCartItem(cartItem);
+        cartItemRepository.save(cartItem);
+        return findCartWithItems();
+    }
+
+    @Cacheable(
+        value = "CartResponse",
+        key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().getName()"
+    )
+    @Transactional(readOnly = true)
+    public CartResponse findCartWithItems() {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        Cart cart = customizedCartRepository.getCartWithItem(userName);
+        if (cart == null) {
+            return emptyCartResponse();
+        }
+        CartResponse cartResponse = customizedCartMapper.toDto(cart);
+        BigDecimal total = inventoryService.calculatePrice(cartResponse);
+        cartResponse.setTotalPrice(total);
+        return cartResponse;
+    }
+
+    private CartResponse emptyCartResponse() {
+        CartResponse response = new CartResponse();
+        response.setTotalPrice(BigDecimal.ZERO);
+        response.setCartItems(new HashSet<>());
+        return response;
+    }
+
+    @CacheEvict(value = "CartResponse", allEntries = true)
+    public CartResponse updateCartItemInCart(CartRequest cartRequest) {
+        cartRequest
+            .getCartItems()
+            .forEach(cartItemDTO -> {
+                if (cartItemDTO.getId() != null && cartItemRepository.existsById(cartItemDTO.getId())) {
+                    internalUpdateQuantity(cartItemDTO.getId(), cartItemDTO.getQuantity());
+                }
+            });
+        return findCartWithItems();
+    }
+
+    @CacheEvict(value = "CartResponse", allEntries = true)
+    public CartResponse updateCartItemQuantity(Long cartItemId, Integer newQuantity) {
+        this.internalUpdateQuantity(cartItemId, newQuantity);
+        return findCartWithItems();
+    }
+
+    public void internalUpdateQuantity(Long cartItemId, Integer newQuantity) {
+        CartItem item = cartItemRepository
+            .findById(cartItemId)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        if (newQuantity <= 0) {
+            cartItemRepository.delete(item);
+            return;
+        }
+        item.setQuantity(newQuantity);
+        item.setPrice(item.getProduct().getPrice().multiply(BigDecimal.valueOf(newQuantity)));
+        cartItemRepository.save(item);
+    }
+
+    @CacheEvict(value = "CartResponse", allEntries = true)
+    public CartResponse removeCartItem(Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findCartItemById(cartItemId);
+        cartItemRepository.delete(cartItem);
+        return findCartWithItems();
+    }
+
+    /**
+     * Update a cart.
+     *
+     * @param cartDTO the entity to save.
+     * @return the persisted entity.
+     */
+    public CartDTO update(CartDTO cartDTO) {
+        LOG.debug("Request to update Cart : {}", cartDTO);
+        Cart cart = cartMapper.toEntity(cartDTO);
+        cart = cartRepository.save(cart);
+        cartSearchRepository.index(cart);
+        return cartMapper.toDto(cart);
+    }
+
+    /**
+     * Partially update a cart.
+     *
+     * @param cartDTO the entity to update partially.
+     * @return the persisted entity.
+     */
+    public Optional<CartDTO> partialUpdate(CartDTO cartDTO) {
+        LOG.debug("Request to partially update Cart : {}", cartDTO);
+
+        return cartRepository
+            .findById(cartDTO.getId())
+            .map(existingCart -> {
+                cartMapper.partialUpdate(existingCart, cartDTO);
+
+                return existingCart;
+            })
+            .map(cartRepository::save)
+            .map(savedCart -> {
+                cartSearchRepository.index(savedCart);
+                return savedCart;
+            })
+            .map(cartMapper::toDto);
+    }
+
+    /**
+     * Get all the carts.
+     *
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<CartDTO> findAll() {
+        LOG.debug("Request to get all Carts");
+        return cartRepository.findAll().stream().map(cartMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    /**
+     * Get all the carts with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<CartDTO> findAllWithEagerRelationships(Pageable pageable) {
+        return cartRepository.findAllWithEagerRelationships(pageable).map(cartMapper::toDto);
+    }
+
+    /**
+     * Get one cart by id.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    @Transactional(readOnly = true)
+    public Optional<CartDTO> findOne(Long id) {
+        LOG.debug("Request to get Cart : {}", id);
+        return cartRepository.findOneWithEagerRelationships(id).map(cartMapper::toDto);
+    }
+
+    /**
+     * Delete the cart by id.
+     *
+     * @param id the id of the entity.
+     */
+    public void delete(Long id) {
+        LOG.debug("Request to delete Cart : {}", id);
+        cartRepository.deleteById(id);
+        cartSearchRepository.deleteFromIndexById(id);
+    }
+
+    /**
+     * Search for the cart corresponding to the query.
+     *
+     * @param query the query of the search.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<CartDTO> search(String query) {
+        LOG.debug("Request to search Carts for query {}", query);
+        try {
+            return StreamSupport.stream(cartSearchRepository.search(query).spliterator(), false).map(cartMapper::toDto).toList();
+        } catch (RuntimeException e) {
+            throw e;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean validateStock(CustomizedCartItemDTO item, Product readyProduct) {
+        Integer expectQuantity = item.getQuantity();
+        Integer readyQuanity = readyProduct.getQuantity();
+        if (expectQuantity > readyQuanity) {
+            return false;
+        }
+        return true;
+    }
+    //    public BigDecimal calculatePrice(CartResponse cartResponse) {
+    ////        return cartResponse.getCartItems().stream().mapToDouble(item -> item.getPrice()).sum();
+    //        return cartResponse.getCartItems().stream()
+    //            .map(item -> {
+    //                BigDecimal qty=BigDecimal.valueOf(item.getQuantity());
+    //                return item.getPrice().multiply(qty);
+    //            }) // Or however you get the value
+    //            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    //    }
+}

@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "MonoEcom",
+    "title": "MrX SHop",
     "browsehappy": "Bạn đang sử dụng một trình duyệt <strong>quá cũ</strong>. Vui lòng <a href=\"http://browsehappy.com/?locale=en\">nâng cấp trình duyệt</a> của bạn để có trải nghiệm tốt nhất.",
     "menu": {
       "home": "Trang chủ",
@@ -8,7 +8,12 @@
       "entities": {
         "main": "Thực thể",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
-        "adminAuthority": "Authority"
+        "category": "Category",
+        "product": "Product",
+        "order": "Order",
+        "orderItem": "Order Item",
+        "cart": "Cart",
+        "cartItem": "Cart Item"
       },
       "account": {
         "main": "Tài khoản",
@@ -29,8 +34,11 @@
         "logs": "Ghi logs",
         "apidocs": "API",
         "database": "Cơ sở dữ liệu",
+        "keycloak": "Keycloak",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
+      "cart": "Giỏ hàng",
+      "myOrders": "Đơn hàng của tôi",
       "language": "Ngôn ngữ"
     },
     "form": {

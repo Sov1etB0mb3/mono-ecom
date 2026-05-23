@@ -24,4 +24,8 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findOneWithAuthoritiesByLogin(String login);
 
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
+
+    Optional<User> getUserByLogin(String userName);
+
+    User getUserById(String id);
 }

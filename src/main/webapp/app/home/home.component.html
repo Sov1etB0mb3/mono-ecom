@@ -1,10 +1,41 @@
+<ng-template #confirmModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Confirm Add to Cart</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <p>
+      Add <strong>{{ selectedProduct()?.name }}</strong> to your cart?
+    </p>
+    <p class="text-muted mb-0">Price: ${{ selectedProduct()?.price }}</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="modal.close()"><fa-icon icon="cart-plus"></fa-icon> Add to Cart</button>
+  </div>
+</ng-template>
+
+@if (toastMessage(); as msg) {
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div class="toast show align-items-center text-bg-success border-0">
+      <div class="d-flex">
+        <div class="toast-body">
+          <fa-icon icon="check-circle" class="me-1"></fa-icon>
+          {{ msg }}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="toastMessage.set(null)"></button>
+      </div>
+    </div>
+  </div>
+}
+
 <div class="row">
   <div class="col-md-3">
     <span class="hipster img-fluid rounded"></span>
   </div>
 
   <div class="col-md-9">
-    <h1 class="display-4"><span jhiTranslate="home.title">Welcome, Java Hipster!</span> (Mono Ecom)</h1>
+    <h1 class="display-4"><span jhiTranslate="home.title">Welcome to MrX SHop!</span></h1>
 
     <p class="lead" jhiTranslate="home.subtitle">This is your homepage</p>
 
@@ -74,4 +105,70 @@
       >!
     </p>
   </div>
+</div>
+
+<div class="mt-4">
+  <h2>
+    <fa-icon icon="shopping-cart"></fa-icon>
+    <span>Products</span>
+  </h2>
+  <hr />
+
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center mt-4">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+      @for (product of products(); track product.id) {
+        <div class="col mb-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">${{ product.price }}</h6>
+              <p class="card-text small">
+                Qty: {{ product.quantity }}
+                @if (product.category) {
+                  <br /><span class="badge bg-secondary">{{ product.category.name }}</span>
+                }
+              </p>
+              <div class="mt-auto d-flex gap-2">
+                <a [routerLink]="['/product', product.id, 'view']" class="btn btn-outline-primary btn-sm flex-grow-1">
+                  <fa-icon icon="eye"></fa-icon> View Detail
+                </a>
+                @if (account()) {
+                  <button (click)="confirmAddToCart(product)" class="btn btn-success btn-sm flex-grow-1">
+                    <fa-icon icon="cart-plus"></fa-icon> Add to Cart
+                  </button>
+                } @else {
+                  <button (click)="login()" class="btn btn-outline-success btn-sm flex-grow-1">
+                    <fa-icon icon="sign-in-alt"></fa-icon> Login to buy
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <div class="alert alert-info">No products available.</div>
+        </div>
+      }
+    </div>
+    <div class="d-flex justify-content-center">
+      <jhi-item-count [params]="{ page, totalItems, itemsPerPage }" />
+    </div>
+    <div class="d-flex justify-content-center">
+      <ngb-pagination
+        [collectionSize]="totalItems"
+        [(page)]="page"
+        [pageSize]="itemsPerPage"
+        [maxSize]="5"
+        [rotate]="true"
+        (pageChange)="navigateToPage($event)"
+      />
+    </div>
+  }
 </div>

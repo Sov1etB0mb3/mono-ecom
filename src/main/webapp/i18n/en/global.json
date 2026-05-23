@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "MonoEcom",
+    "title": "MrX SHop",
     "browsehappy": "You are using an <strong>outdated</strong> browser. Please <a href=\"http://browsehappy.com/?locale=en\">upgrade your browser</a> to improve your experience.",
     "menu": {
       "home": "Home",
@@ -8,7 +8,12 @@
       "entities": {
         "main": "Entities",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
-        "adminAuthority": "Authority"
+        "category": "Category",
+        "product": "Product",
+        "order": "Order",
+        "orderItem": "Order Item",
+        "cart": "Cart",
+        "cartItem": "Cart Item"
       },
       "account": {
         "main": "Account",
@@ -29,8 +34,11 @@
         "logs": "Logs",
         "apidocs": "API",
         "database": "Database",
+        "keycloak": "Keycloak",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
       },
+      "cart": "Cart",
+      "myOrders": "My Orders",
       "language": "Language"
     },
     "form": {

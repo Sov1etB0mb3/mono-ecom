@@ -1,0 +1,76 @@
+@EnableAudit
+entity Category {
+  name String required maxlength(50)
+  description String maxlength(100)
+
+}
+
+@EnableAudit
+@Version
+entity Product {
+  name String required minlength(3)
+  quantity Integer required
+  price BigDecimal required
+
+}
+
+
+
+relationship OneToMany {
+  Category{listProduct} to Product{category(name)}
+}
+service Product with serviceClass
+service Category with serviceClass
+paginate Category with pagination
+paginate Product with  pagination
+
+dto Category, Product with mapstruct
+
+entity Cart{
+
+}
+
+entity CartItem{
+  quantity Integer required min(1)
+  price BigDecimal
+}
+
+relationship  OneToOne{
+  Cart{user(login)} to User with builtInEntity
+}
+relationship OneToMany{
+  Cart{cartItem} to CartItem{cart}
+}
+relationship ManyToOne{
+  CartItem{product} to Product
+}
+service Cart, CartItem with serviceClass
+dto Cart, CartItem with mapstruct
+
+@EnableAudit
+entity Order{
+  status OrderStatus
+  subTotal BigDecimal
+  total BigDecimal
+}
+
+
+entity OrderItem{
+  //  orderId Long
+  //  productId String
+  quantity Integer
+  priceAtPurchase BigDecimal
+
+}
+enum OrderStatus {
+  PENDING, PAID, SHIPPED, DELIVERED, CANCELLED
+}
+relationship OneToMany{
+  Order{orderItem} to OrderItem{order}
+}
+relationship ManyToOne{
+  OrderItem{product} to Product
+  Order{user} to User with builtInEntity
+}
+service Order with serviceClass
+dto Order with mapstruct

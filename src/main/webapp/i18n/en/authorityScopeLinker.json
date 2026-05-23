@@ -1,0 +1,26 @@
+{
+  "monoEcomApp": {
+    "authorityScopeLinker": {
+      "home": {
+        "title": "Authority Scope Linkers",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Authority Scope Linker",
+        "createOrEditLabel": "Create or edit a Authority Scope Linker",
+        "search": "Search for Authority Scope Linker",
+        "notFound": "No Authority Scope Linkers found"
+      },
+      "created": "A new Authority Scope Linker is created with identifier {{ param }}",
+      "updated": "A Authority Scope Linker is updated with identifier {{ param }}",
+      "deleted": "A Authority Scope Linker is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Authority Scope Linker {{ id }}?"
+      },
+      "detail": {
+        "title": "Authority Scope Linker"
+      },
+      "id": "ID",
+      "authority": "Authority",
+      "scope": "Scope"
+    }
+  }
+}

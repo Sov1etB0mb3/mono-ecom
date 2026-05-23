@@ -98,6 +98,9 @@ jhipster:
       host: localhost
       port: 5000
       ring-buffer-size: 512
+# Properties to be exposed on the /info management endpoint
+info:
+  keycloak-admin-url: http://localhost:9080/admin/master/console/
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
