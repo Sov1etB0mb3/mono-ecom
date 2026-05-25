@@ -191,31 +191,31 @@
     </div>
   }
 
-  <div class="container mt-4">
-    <div class="row row-cols-5 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
-      @for (product of products(); track trackId(product)) {
-        <div class="col mb-4">
-          <div class="card h-100">
-            <!-- Optional Image -->
-            <div class="card-body">
-              <h5 class="card-title">{{ product.name }}</h5>
-              <h6 class="card-subtitle mb-2 text-muted">{{ product.price }}</h6>
-              <p class="card-text">Random {{ product.id }}</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-              <a [routerLink]="['/product', product.id, 'view']" class="btn btn-primary btn-sm" data-cy="entityDetailsButton">
-                <fa-icon icon="eye"></fa-icon>
-                View Details
-              </a>
-              <button (click)="addToCart(product)" class="btn btn-success btn-sm">
-                <fa-icon icon="cart-plus"></fa-icon>
-                Add to Cart
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-      <!-- End Loop -->
-    </div>
-  </div>
+  <!--  <div class="container mt-4">-->
+  <!--    <div class="row row-cols-5 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">-->
+  <!--      @for (product of products(); track trackId(product)) {-->
+  <!--        <div class="col mb-4">-->
+  <!--          <div class="card h-100">-->
+  <!--            &lt;!&ndash; Optional Image &ndash;&gt;-->
+  <!--            <div class="card-body">-->
+  <!--              <h5 class="card-title">{{ product.name }}</h5>-->
+  <!--              <h6 class="card-subtitle mb-2 text-muted">{{ product.price }}</h6>-->
+  <!--              <p class="card-text">Random {{ product.id }}</p>-->
+  <!--            </div>-->
+  <!--            <div class="card-footer d-flex justify-content-between">-->
+  <!--              <a [routerLink]="['/product', product.id, 'view']" class="btn btn-primary btn-sm" data-cy="entityDetailsButton">-->
+  <!--                <fa-icon icon="eye"></fa-icon>-->
+  <!--                View Details-->
+  <!--              </a>-->
+  <!--              <button (click)="addToCart(product)" class="btn btn-success btn-sm">-->
+  <!--                <fa-icon icon="cart-plus"></fa-icon>-->
+  <!--                Add to Cart-->
+  <!--              </button>-->
+  <!--            </div>-->
+  <!--          </div>-->
+  <!--        </div>-->
+  <!--      }-->
+  <!--      &lt;!&ndash; End Loop &ndash;&gt;-->
+  <!--    </div>-->
+  <!--  </div>-->
 </div>

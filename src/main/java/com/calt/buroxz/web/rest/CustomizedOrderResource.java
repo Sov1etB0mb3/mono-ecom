@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,12 +27,14 @@ public class CustomizedOrderResource {
     }
 
     @GetMapping("/my-orders")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<OrderDTO>> getMyOrders() {
         LOG.debug("REST request to get current user's orders");
         return ResponseEntity.ok(customizedOrderService.getOrdersForCurrentUser());
     }
 
     @PostMapping("/checkout")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> checkout() {
         LOG.debug("REST request to checkout");
         OrderResponse order = customizedOrderService.checkOut();
@@ -41,6 +44,7 @@ public class CustomizedOrderResource {
     }
 
     @PostMapping("/pay/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> payOrder(@PathVariable Long id) {
         LOG.debug("REST request to pay order: {}", id);
         String sessionUrl = customizedOrderService.payment(id);
@@ -48,6 +52,7 @@ public class CustomizedOrderResource {
     }
 
     @PostMapping("/cancel/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
         LOG.debug("REST request to cancel order: {}", id);
         customizedOrderService.cancelOrder(id);
