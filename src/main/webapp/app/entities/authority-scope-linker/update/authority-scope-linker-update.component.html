@@ -41,7 +41,7 @@
           <select class="form-control" id="field_scope" data-cy="scope" name="scope" formControlName="scope" [compareWith]="compareScope">
             <option [ngValue]="null"></option>
             @for (scopeOption of scopesSharedCollection; track $index) {
-              <option [ngValue]="scopeOption">{{ scopeOption.id }}</option>
+              <option [ngValue]="scopeOption">{{ scopeOption.name }}</option>
             }
           </select>
         </div>

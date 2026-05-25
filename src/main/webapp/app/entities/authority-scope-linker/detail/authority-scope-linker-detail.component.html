@@ -31,7 +31,7 @@
           <dd>
             @if (authorityScopeLinker()!.scope) {
               <div>
-                <a [routerLink]="['/scope', authorityScopeLinker()!.scope?.id, 'view']">{{ authorityScopeLinkerRef.scope?.id }}</a>
+                <a [routerLink]="['/scope', authorityScopeLinker()!.scope?.id, 'view']">{{ authorityScopeLinkerRef.scope?.name }}</a>
               </div>
             }
           </dd>
