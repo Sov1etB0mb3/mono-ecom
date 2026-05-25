@@ -1,7 +1,7 @@
 <ng-template #confirmModal let-modal>
   <div class="modal-header">
     <h5 class="modal-title">Confirm Add to Cart</h5>
-    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
   </div>
   <div class="modal-body">
     <p>
@@ -23,7 +23,7 @@
           <fa-icon icon="check-circle" class="me-1"></fa-icon>
           {{ msg }}
         </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="toastMessage.set(null)"></button>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close" (click)="toastMessage.set(null)"></button>
       </div>
     </div>
   </div>
