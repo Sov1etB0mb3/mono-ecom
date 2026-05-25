@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "MrX SHop",
+    "title": "MrX Shop",
     "browsehappy": "You are using an <strong>outdated</strong> browser. Please <a href=\"http://browsehappy.com/?locale=en\">upgrade your browser</a> to improve your experience.",
     "menu": {
       "home": "Home",
@@ -13,7 +13,9 @@
         "order": "Order",
         "orderItem": "Order Item",
         "cart": "Cart",
-        "cartItem": "Cart Item"
+        "cartItem": "Cart Item",
+        "scope": "Scope",
+        "authorityScopeLinker": "ScopeLinker"
       },
       "account": {
         "main": "Account",

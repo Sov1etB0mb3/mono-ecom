@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "MrX SHop",
+    "title": "MrX Shop",
     "browsehappy": "Bạn đang sử dụng một trình duyệt <strong>quá cũ</strong>. Vui lòng <a href=\"http://browsehappy.com/?locale=en\">nâng cấp trình duyệt</a> của bạn để có trải nghiệm tốt nhất.",
     "menu": {
       "home": "Trang chủ",
@@ -13,7 +13,9 @@
         "order": "Order",
         "orderItem": "Order Item",
         "cart": "Cart",
-        "cartItem": "Cart Item"
+        "cartItem": "Cart Item",
+        "scope": "Scope",
+        "authorityScopeLinker": "ScopeLinker"
       },
       "account": {
         "main": "Tài khoản",
