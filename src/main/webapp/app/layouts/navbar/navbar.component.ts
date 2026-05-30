@@ -39,6 +39,7 @@ export default class NavbarComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly router = inject(Router);
   private readonly cartService = inject(CartService);
+  private readonly accountService = inject(AccountService);
 
   constructor() {
     const { VERSION } = environment;
@@ -49,8 +50,6 @@ export default class NavbarComponent implements OnInit {
       this.cartItemCount.set(this.cartService.getCartItemCount());
     });
   }
-
-  private readonly accountService = inject(AccountService);
 
   ngOnInit(): void {
     this.entitiesNavbarItems = EntityNavbarItems;

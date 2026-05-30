@@ -65,6 +65,7 @@ public class ProductService {
         Product product = productMapper.toEntity(productDTO);
         product.setIsPersisted();
         product = productRepository.save(product);
+        product = productRepository.findOneWithEagerRelationships(product.getId()).orElse(product);
         productSearchRepository.index(product);
         return productMapper.toDto(product);
     }
@@ -87,7 +88,7 @@ public class ProductService {
             })
             .map(productRepository::save)
             .map(savedProduct -> {
-                productSearchRepository.index(savedProduct);
+                productRepository.findOneWithEagerRelationships(savedProduct.getId()).ifPresent(productSearchRepository::index);
                 return savedProduct;
             })
             .map(productMapper::toDto);
