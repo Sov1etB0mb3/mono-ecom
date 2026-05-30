@@ -1,10 +1,13 @@
 package com.calt.buroxz.config;
 
+import com.calt.buroxz.repository.ProductRepository;
+import com.calt.buroxz.repository.search.ProductSearchRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -29,6 +32,12 @@ public class ElasticsearchConfiguration extends ElasticsearchConfigurationSuppor
                 new LocalDateReadingConverter()
             )
         );
+    }
+
+    //REINDEX PRODUCT
+    @Bean
+    public CommandLineRunner reindexProducts(ProductRepository repo, ProductSearchRepository searchRepo) {
+        return args -> repo.findAll().forEach(searchRepo::index);
     }
 
     @WritingConverter
