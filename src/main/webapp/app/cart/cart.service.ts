@@ -43,6 +43,7 @@ export class CartService {
     if (!cart?.cartItems) {
       return 0;
     }
-    return cart.cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    // return cart.cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    return cart.cartItems.length;
   }
 }

@@ -13,7 +13,6 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import org.springframework.scheduling.annotation.Async;
 
 /**
  * Spring Data Elasticsearch repository for the {@link Product} entity.
@@ -25,10 +24,8 @@ interface ProductSearchRepositoryInternal {
 
     Page<Product> search(Query query);
 
-    @Async
     void index(Product entity);
 
-    @Async
     void deleteFromIndexById(Long id);
 }
 
