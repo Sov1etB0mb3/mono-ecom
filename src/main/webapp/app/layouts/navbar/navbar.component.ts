@@ -45,6 +45,9 @@ export default class NavbarComponent implements OnInit {
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
     }
+    effect(() => {
+      this.cartItemCount.set(this.cartService.getCartItemCount());
+    });
   }
 
   private readonly accountService = inject(AccountService);
@@ -61,9 +64,6 @@ export default class NavbarComponent implements OnInit {
       if (account) {
         this.cartService.getCart().subscribe();
       }
-    });
-    effect(() => {
-      this.cartItemCount.set(this.cartService.getCartItemCount());
     });
   }
 
