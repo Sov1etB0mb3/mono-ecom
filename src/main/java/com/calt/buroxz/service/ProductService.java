@@ -48,6 +48,8 @@ public class ProductService {
         LOG.debug("Request to save Product : {}", productDTO);
         Product product = productMapper.toEntity(productDTO);
         product = productRepository.save(product);
+        //FOR UPDATE SEARCH TABLE AFTER ADD NEW RECORD.
+        product = productRepository.findOneWithEagerRelationships(product.getId()).orElse(product);
         productSearchRepository.index(product);
         return productMapper.toDto(product);
     }
