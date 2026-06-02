@@ -35,7 +35,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/monoEcom
     username: monoEcom
-    password:
+    password: 25251325
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -44,6 +44,7 @@ spring:
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod
+    enabled: false
   thymeleaf:
     cache: true
 
@@ -101,6 +102,12 @@ jhipster:
 # Properties to be exposed on the /info management endpoint
 info:
   keycloak-admin-url: http://localhost:9080/admin/master/console/
+keycloak:
+  realm: jhipster
+  server-url: http://localhost:9080
+  username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+  password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+  client-id: admin-cli
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

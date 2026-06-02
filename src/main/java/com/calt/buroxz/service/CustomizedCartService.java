@@ -190,7 +190,9 @@ public class CustomizedCartService extends CartService {
 
     @CacheEvict(value = "CartResponse", allEntries = true)
     public CartResponse removeCartItem(Long cartItemId) {
-        CartItem cartItem = cartItemRepository.findCartItemById(cartItemId);
+        CartItem cartItem = cartItemRepository
+            .findById(cartItemId)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", "CartItem", "idnotfound"));
         cartItemRepository.delete(cartItem);
         return findCartWithItems();
     }
