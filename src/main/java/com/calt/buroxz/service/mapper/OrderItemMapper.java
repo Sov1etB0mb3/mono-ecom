@@ -13,14 +13,15 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface OrderItemMapper extends EntityMapper<OrderItemDTO, OrderItem> {
-    @Mapping(target = "product", source = "product", qualifiedByName = "productId")
+    @Mapping(target = "product", source = "product", qualifiedByName = "productIdName")
     @Mapping(target = "order", source = "order", qualifiedByName = "orderId")
     OrderItemDTO toDto(OrderItem s);
 
-    @Named("productId")
+    @Named("productIdName")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    ProductDTO toDtoProductId(Product product);
+    @Mapping(target = "name", source = "name")
+    ProductDTO toDtoProductIdName(Product product);
 
     @Named("orderId")
     @BeanMapping(ignoreByDefault = true)

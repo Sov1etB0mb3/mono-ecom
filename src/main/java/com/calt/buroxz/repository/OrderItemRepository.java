@@ -1,7 +1,9 @@
 package com.calt.buroxz.repository;
 
 import com.calt.buroxz.domain.OrderItem;
+import java.util.List;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -9,4 +11,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {}
+public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
+    @Query("SELECT oi FROM OrderItem oi JOIN FETCH oi.product WHERE oi.order.id = :orderId")
+    List<OrderItem> findByOrder_IdWithProduct(@Param("orderId") Long orderId);
+}

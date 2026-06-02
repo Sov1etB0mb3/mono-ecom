@@ -1,8 +1,10 @@
 package com.calt.buroxz.web.rest;
 
 import com.calt.buroxz.repository.OrderRepository;
+import com.calt.buroxz.service.CustomizedOrderService;
 import com.calt.buroxz.service.OrderService;
 import com.calt.buroxz.service.dto.OrderDTO;
+import com.calt.buroxz.service.dto.OrderItemDTO;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
 import com.calt.buroxz.web.rest.errors.ElasticsearchExceptionMapper;
 import java.net.URI;
@@ -34,10 +36,13 @@ public class OrderResource {
 
     private final OrderService orderService;
 
+    private final CustomizedOrderService customizedOrderService;
+
     private final OrderRepository orderRepository;
 
-    public OrderResource(OrderService orderService, OrderRepository orderRepository) {
+    public OrderResource(OrderService orderService, CustomizedOrderService customizedOrderService, OrderRepository orderRepository) {
         this.orderService = orderService;
+        this.customizedOrderService = customizedOrderService;
         this.orderRepository = orderRepository;
     }
 
@@ -151,6 +156,18 @@ public class OrderResource {
         LOG.debug("REST request to get Order : {}", id);
         Optional<OrderDTO> orderDTO = orderService.findOne(id);
         return ResponseUtil.wrapOrNotFound(orderDTO);
+    }
+
+    /**
+     * {@code GET  /orders/:id/items} : get all order items for the given order.
+     *
+     * @param orderId the id of the order.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of order items in body.
+     */
+    @GetMapping("/{orderId}/items")
+    public List<OrderItemDTO> getOrderItems(@PathVariable("orderId") Long orderId) {
+        LOG.debug("REST request to get OrderItems for order : {}", orderId);
+        return customizedOrderService.findOrderItemsByOrderId(orderId);
     }
 
     /**

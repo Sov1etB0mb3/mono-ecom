@@ -53,6 +53,37 @@
           </dd>
         </dl>
 
+        <h4 jhiTranslate="monoEcomApp.orderItem.home.title">Order Items</h4>
+
+        @if (orderItems.length > 0) {
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th jhiTranslate="global.field.id">ID</th>
+                  <th jhiTranslate="monoEcomApp.orderItem.product">Product</th>
+                  <th jhiTranslate="monoEcomApp.orderItem.quantity">Quantity</th>
+                  <th jhiTranslate="monoEcomApp.orderItem.priceAtPurchase">Price</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of orderItems; track item.id) {
+                  <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.product?.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.priceAtPurchase }}</td>
+                    <td>{{ (item.quantity ?? 0) * (item.priceAtPurchase ?? 0) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="alert alert-info">No order items found.</div>
+        }
+
         <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
           <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
         </button>

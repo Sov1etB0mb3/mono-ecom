@@ -9,14 +9,17 @@ import com.calt.buroxz.domain.User;
 import com.calt.buroxz.domain.enumeration.OrderStatus;
 import com.calt.buroxz.repository.CartItemRepository;
 import com.calt.buroxz.repository.CustomizedCartRepository;
+import com.calt.buroxz.repository.OrderItemRepository;
 import com.calt.buroxz.repository.OrderRepository;
 import com.calt.buroxz.repository.ProductRepository;
 import com.calt.buroxz.repository.UserRepository;
 import com.calt.buroxz.repository.search.OrderSearchRepository;
 import com.calt.buroxz.service.dto.OrderDTO;
+import com.calt.buroxz.service.dto.OrderItemDTO;
 import com.calt.buroxz.service.dto.response.OrderResponse;
 import com.calt.buroxz.service.mapper.CustomizedCartItemMapper;
 import com.calt.buroxz.service.mapper.CustomizedOrderMapper;
+import com.calt.buroxz.service.mapper.OrderItemMapper;
 import com.calt.buroxz.service.mapper.OrderMapper;
 import com.calt.buroxz.web.rest.errors.BadRequestAlertException;
 import java.math.BigDecimal;
@@ -53,6 +56,8 @@ public class CustomizedOrderService extends OrderService {
     private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
     private final StripeService stripeService;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderItemMapper orderItemMapper;
 
     public CustomizedOrderService(
         OrderRepository orderRepository,
@@ -65,7 +70,9 @@ public class CustomizedOrderService extends OrderService {
         CustomizedCartRepository customizedCartRepository,
         CartItemRepository cartItemRepository,
         UserRepository userRepository,
-        StripeService stripeService
+        StripeService stripeService,
+        OrderItemRepository orderItemRepository,
+        OrderItemMapper orderItemMapper
     ) {
         super(orderRepository, orderMapper, orderSearchRepository);
         this.orderRepository = orderRepository;
@@ -79,6 +86,8 @@ public class CustomizedOrderService extends OrderService {
         this.cartItemRepository = cartItemRepository;
         this.userRepository = userRepository;
         this.stripeService = stripeService;
+        this.orderItemRepository = orderItemRepository;
+        this.orderItemMapper = orderItemMapper;
     }
 
     public OrderResponse checkOut() {
@@ -226,6 +235,18 @@ public class CustomizedOrderService extends OrderService {
     public Optional<OrderDTO> findOne(Long id) {
         LOG.debug("Request to get Order : {}", id);
         return orderRepository.findById(id).map(orderMapper::toDto);
+    }
+
+    /**
+     * Get all order items for a given order.
+     *
+     * @param orderId the id of the order.
+     * @return the list of order items.
+     */
+    @Transactional(readOnly = true)
+    public List<OrderItemDTO> findOrderItemsByOrderId(Long orderId) {
+        LOG.debug("Request to get OrderItems for order : {}", orderId);
+        return orderItemRepository.findByOrder_IdWithProduct(orderId).stream().map(orderItemMapper::toDto).toList();
     }
 
     /**
